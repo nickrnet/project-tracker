@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Other packages
     'django_extensions',
+    'rest_framework',
     'phone_field',
     # Applications in this project
     'core.apps.CoreConfig',

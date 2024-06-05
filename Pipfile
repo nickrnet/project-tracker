@@ -8,6 +8,9 @@ django = "*"
 django-phone-field = "*"
 django-extensions = "*"
 ipython = "*"
+djangorestframework = "*"
+markdown = "*"
+django-filter = "*"
 
 [dev-packages]
 
