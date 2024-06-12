@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'phone_field',
     # Applications in this project
+    'api.apps.ApiConfig',
+    'frontend.apps.FrontendConfig',
     'core.apps.CoreConfig',
 ]
 

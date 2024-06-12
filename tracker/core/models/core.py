@@ -16,7 +16,7 @@ class DeletedModel(models.Model):
 
 class CoreModelActiveManager(models.Manager):
     """
-        Active instances of the CoreModel are not deleted.
+        Active instances of a CoreModel are not deleted.
     """
     def get_queryset(self):
         return super().get_queryset().filter(deleted=None)
