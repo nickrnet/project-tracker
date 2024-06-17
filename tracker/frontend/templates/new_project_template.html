@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="content">
+    <div class="container">
+      <!-- Django Model Form -->
+      <h2 class="my-4">Add a new project</h2>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ new_project_form }}
+        <button class="btn btn-primary my-4" type="submit">Submit</button>
+      </form>
+      <!-- Django Model -->
+      <h2 class="my-4">Projects</h2>
+      <div class="row">
+        {% for project in projects %}
+          <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
+            <div class="card h-100 p-4">
+              <h4>Name: {{ project.name }}</h4>
+              <p class="text-muted">Description: {{ project.description }}</p>
+              <p class="text-muted">Created: {{ project.date_created }} by {{ project.created_by.core_user_data.last_name }}, {{ project.created_by.core_user_data.first_name }}</p>
+              <p class="text-muted">Git Repository: {{ project.git_repository.name }} at {{ project.git_repository.url }}</p>
+            </div>
+          </div>
+        {% empty %}
+          <p>No projects yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

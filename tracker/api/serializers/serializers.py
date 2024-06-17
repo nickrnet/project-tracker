@@ -3,6 +3,8 @@ from rest_framework import serializers
 
 from core.models.core import DeletedModel
 from core.models.user import CoreUser, CoreUserData
+from project.models.git_repository import GitRepository
+from project.models.project import Project
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -24,10 +26,26 @@ class CoreUserDataSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CoreUserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = CoreUser
+        fields = ['id', 'created_by', 'core_user_data', 'user', 'deleted']
+
     core_user_data = CoreUserDataSerializer()
     user = UserSerializer()
     deleted = DeletedModelDataSerializer()
 
+
+class GitRepositorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = CoreUser
-        fields = ['id', 'created_by', 'core_user_data', 'user', 'deleted']
+        model = GitRepository
+        fields = ['id', 'created_by', 'name', 'description', 'url', 'deleted']
+
+    deleted = DeletedModelDataSerializer()
+
+
+class ProjectSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'created_by', 'name', 'description', 'start_date', 'end_date', 'is_active', 'is_private', 'git_repository', 'users', 'deleted']
+
+    deleted = DeletedModelDataSerializer()

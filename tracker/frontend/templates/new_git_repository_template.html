@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="content">
+    <div class="container">
+      <!-- Django Model Form -->
+      <h2 class="my-4">Add a new git repository</h2>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ new_git_repository_form }}
+        <button class="btn btn-primary my-4" type="submit">Submit</button>
+      </form>
+      <!-- Django Model -->
+      <h2 class="my-4">Git Repositories</h2>
+      <div class="row">
+        {% for repository in repositories %}
+          <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
+            <div class="card h-100 p-4">
+              <h4>Name: {{ repository.name }}</h4>
+              <p class="text-muted">Description: {{ repository.description }}</p>
+              {% if repository.url %}
+                <h4>URL: {{ repository.url }}</h4>
+              {% else %}
+                <h4></h4>
+              {% endif %}
+              <p class="text-muted">Created: {{ repository.date_created }} by {{ repository.created_by.core_user_data.last_name }}, {{ repository.created_by.core_user_data.first_name }}</p>
+            </div>
+          </div>
+        {% empty %}
+          <p>No git repositories yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

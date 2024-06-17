@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+from django.urls import reverse_lazy
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,12 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Other packages
     'django_extensions',
-    'rest_framework',
     'phone_field',
+    'rest_framework',
     # Applications in this project
     'api.apps.ApiConfig',
-    'frontend.apps.FrontendConfig',
     'core.apps.CoreConfig',
+    'frontend.apps.FrontendConfig',
+    'project.apps.ProjectConfig',
 ]
 
 MIDDLEWARE = [
@@ -129,3 +132,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = reverse_lazy('login')

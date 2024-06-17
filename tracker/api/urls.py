@@ -6,6 +6,8 @@ from api.views import api as api_view
 
 router = routers.DefaultRouter()
 router.register(r'core_users', api_view.CoreUserViewSet)
+router.register(r'git_repositories', api_view.GitRepositoryViewSet)
+router.register(r'projects', api_view.ProjectViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
