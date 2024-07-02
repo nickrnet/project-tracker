@@ -20,7 +20,13 @@ class CoreUserData(core_models.CoreModel):
     postal_code = models.CharField(max_length=255, blank=True, null=True, default="")
     city = models.CharField(max_length=255, blank=True, null=True, default="")
     state = models.CharField(max_length=255, blank=True, null=True, default="")
+    country = models.CharField(max_length=255, blank=True, null=True, default="")
     timezone = models.CharField(max_length=255, default=timezone.get_default_timezone_name())
+
+
+class CoreUserActiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(deleted=None)
 
 
 class CoreUserManager(models.Manager):
@@ -42,7 +48,8 @@ class CoreUserManager(models.Manager):
                 address_line_2='',
                 city='',
                 state='',
-                postal_code=0
+                country='',
+                postal_code=0,
             )
             api_user_data.save()
             api_user.core_user_data = api_user_data
@@ -68,7 +75,8 @@ class CoreUserManager(models.Manager):
                 address_line_2='',
                 city='',
                 state='',
-                postal_code=0
+                country='',
+                postal_code=0,
             )
             system_user_data.save()
             system_user.core_user_data = system_user_data
@@ -99,6 +107,7 @@ class CoreUserManager(models.Manager):
             postal_code=request_data['postal_code'],
             city=request_data['city'],
             state=request_data['state'],
+            country=request_data['country'],
             timezone=request_data['timezone']
         )
         core_user_data.save()
@@ -114,7 +123,15 @@ class CoreUserManager(models.Manager):
 
 
 class CoreUser(core_models.CoreModel):
+    class Meta:
+        ordering = ['core_user_data__last_name', 'core_user_data__email']
+
+    active_objects = CoreUserActiveManager()
     objects = CoreUserManager()
 
     core_user_data = models.OneToOneField(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+
+    def deactivate_login(self):
+        self.user.is_active = False
+        self.user.save()

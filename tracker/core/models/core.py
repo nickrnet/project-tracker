@@ -22,14 +22,30 @@ class CoreModelActiveManager(models.Manager):
         return super().get_queryset().filter(deleted=None)
 
 
+class CoreModelManager(models.Manager):
+    @classmethod
+    def get_deleted_items(self):
+        return self.objects.filter(deleted__isnull=False)
+
+    @classmethod
+    def get_hard_deleted_items(self):
+        return self.objects.filter(deleted__hard_deleted=True)
+
+    @classmethod
+    def get_soft_deleted_items(self):
+        return self.objects.filter(deleted__soft_deleted=True)
+
+
 class CoreModel(models.Model):
     class Meta:
         abstract = True
 
     active_objects = CoreModelActiveManager()
+    objects = CoreModelManager()
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_by = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, editable=False)
+    created_on = models.DateTimeField(null=False, default=timezone.now, editable=False)
     deleted = models.ForeignKey(DeletedModel, on_delete=models.CASCADE, null=True, blank=True, db_index=False)
 
     def hard_delete(self, person_id):
@@ -49,16 +65,3 @@ class CoreModel(models.Model):
             deleted_by_id=person_id,
         )
         self.save()
-
-    # TODO: Filter by user/organization/project maybe, or a subclass can override and filter there.
-    @classmethod
-    def get_deleted_items(self):
-        return self.objects.filter(deleted__isnull=False)
-
-    @classmethod
-    def get_hard_deleted_items(self):
-        return self.objects.filter(deleted__hard_deleted=True)
-
-    @classmethod
-    def get_soft_deleted_items(self):
-        return self.objects.filter(deleted__soft_deleted=True)
