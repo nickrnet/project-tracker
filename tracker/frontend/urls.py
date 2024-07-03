@@ -13,5 +13,5 @@ urlpatterns = [
     path('logout', logout_view.logout_of_app, name='logout'),
     path('new_git_repository', new_git_repository_view.new_git_repository, name='new_git_repository'),
     path('new_project', new_project_view.new_project, name='new_project'),
-    path('new_user', new_user_view.homepage, name='new_user'),
+    path('new_user', new_user_view.new_user, name='new_user'),
 ]

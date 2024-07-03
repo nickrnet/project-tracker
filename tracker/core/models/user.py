@@ -88,27 +88,27 @@ class CoreUserManager(models.Manager):
         api_user = CoreUser.objects.get_or_create_api_user()
 
         django_user = User.objects.create_user(
-            username=request_data['email'],
-            email=request_data['email'],
-            password=request_data['password']
+            username=request_data.get('email'),
+            email=request_data.get('email'),
+            password=request_data.get('password')
         )
 
         core_user_data = CoreUserData(
             created_by_id=api_user.id,
-            first_name=request_data['first_name'],
-            last_name=request_data['last_name'],
-            email=request_data['email'],
-            secondary_email=request_data['secondary_email'],
-            home_phone=request_data['home_phone'],
-            mobile_phone=request_data['mobile_phone'],
-            work_phone=request_data['work_phone'],
-            address_line_1=request_data['address_line_1'],
-            address_line_2=request_data['address_line_2'],
-            postal_code=request_data['postal_code'],
-            city=request_data['city'],
-            state=request_data['state'],
-            country=request_data['country'],
-            timezone=request_data['timezone']
+            first_name=request_data.get('first_name', ''),
+            last_name=request_data.get('last_name', ''),
+            email=request_data.get('email'),
+            secondary_email=request_data.get('secondary_email', ''),
+            home_phone=request_data.get('home_phone', ''),
+            mobile_phone=request_data.get('mobile_phone', ''),
+            work_phone=request_data.get('work_phone', ''),
+            address_line_1=request_data.get('address_line_1', ''),
+            address_line_2=request_data.get('address_line_2', ''),
+            postal_code=request_data.get('postal_code', ''),
+            city=request_data.get('city', ''),
+            state=request_data.get('state', ''),
+            country=request_data.get('country', ''),
+            timezone=request_data.get('timezone', ''),
         )
         core_user_data.save()
 

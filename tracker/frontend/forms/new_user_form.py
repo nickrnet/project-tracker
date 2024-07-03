@@ -21,6 +21,7 @@ class NewUserDataForm(forms.ModelForm):
             'postal_code',
             'city',
             'state',
+            'country',
             'timezone',
             'password',
         ]
