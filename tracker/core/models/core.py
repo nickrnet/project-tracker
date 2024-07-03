@@ -65,3 +65,16 @@ class CoreModel(models.Model):
             deleted_by_id=person_id,
         )
         self.save()
+
+    def undo_hard_delete(self, person_id):
+        self.deleted = DeletedModel.objects.create(
+            created_by_id=person_id,
+            soft_deleted=True,
+            hard_deleted=False,
+            deleted_by_id=person_id,
+        )
+        self.save()
+
+    def undo_soft_delete(self, person_id):
+        self.deleted = None
+        self.save()

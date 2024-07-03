@@ -19,7 +19,7 @@ def login_to_app(request):
                     print("User does not exist.")
                     messages.error(request, 'The user specified is not a valid user.')
                     return render(request=request, template_name="login_template.html", context={'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})})
-                return redirect(request.GET.get("next", '/frontend/new_user'))
+                return redirect(request.GET.get("next", '/new_user'))
             else:
                 print("User not found.")
                 messages.error(request, 'Error logging in.')
