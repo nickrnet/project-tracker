@@ -1,10 +1,11 @@
 from django.urls import path
 
-from frontend.views import login_view as login_view
-from frontend.views import logout_view as logout_view
-from frontend.views import new_git_repository_view as new_git_repository_view
-from frontend.views import new_project_view as new_project_view
-from frontend.views import new_user_view as new_user_view
+from frontend.views import login_view
+from frontend.views import logout_view
+from frontend.views import new_git_repository_view
+from frontend.views import new_project_view
+from frontend.views import new_user_view
+from frontend.views import signup_view
 
 
 urlpatterns = [
@@ -14,4 +15,5 @@ urlpatterns = [
     path('new_git_repository', new_git_repository_view.new_git_repository, name='new_git_repository'),
     path('new_project', new_project_view.new_project, name='new_project'),
     path('new_user', new_user_view.new_user, name='new_user'),
+    path('signup', signup_view.signup, name='signup')
 ]

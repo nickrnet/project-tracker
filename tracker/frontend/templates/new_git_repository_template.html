@@ -22,7 +22,7 @@
               {% else %}
                 <h4></h4>
               {% endif %}
-              <p class="text-muted">Created: {{ repository.date_created }} by {{ repository.created_by.core_user_data.last_name }}, {{ repository.created_by.core_user_data.first_name }}</p>
+              <p class="text-muted">Created: {{ repository.created_on }} by {{ repository.created_by.core_user_data.last_name }}, {{ repository.created_by.core_user_data.first_name }}</p>
             </div>
           </div>
         {% empty %}

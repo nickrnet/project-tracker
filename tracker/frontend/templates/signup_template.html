@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container">
+    <!-- Django Model Form -->
+    <h2 class="my-4">Sign up for Project Tracker</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ new_user_form }}
+      <button class="btn btn-primary my-4" type="submit">Submit</button>
+    </form>
+  </div>
+{% endblock %}
