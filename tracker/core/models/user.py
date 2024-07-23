@@ -29,7 +29,7 @@ class CoreUserActiveManager(models.Manager):
         return super().get_queryset().filter(deleted=None)
 
 
-class CoreUserManager(models.Manager):
+class CoreUserManager(core_models.CoreModelManager):
     def get_or_create_api_user(self):
         try:
             api_user = CoreUser.objects.get(pk='75af4764-0f94-49f2-a6dc-3dbfe1b577f9')
@@ -122,7 +122,7 @@ class CoreUserManager(models.Manager):
         return new_core_user
 
 
-class CoreUser(core_models.CoreModel):
+class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_models.CoreModelManager):
     class Meta:
         ordering = ['core_user_data__last_name', 'core_user_data__email']
 

@@ -50,7 +50,6 @@ class CoreModel(models.Model):
 
     def hard_delete(self, person_id):
         self.deleted = DeletedModel.objects.create(
-            created_by_id=person_id,
             soft_deleted=False,
             hard_deleted=True,
             deleted_by_id=person_id,
@@ -59,7 +58,6 @@ class CoreModel(models.Model):
 
     def soft_delete(self, person_id):
         self.deleted = DeletedModel.objects.create(
-            created_by_id=person_id,
             soft_deleted=True,
             hard_deleted=False,
             deleted_by_id=person_id,
@@ -68,7 +66,6 @@ class CoreModel(models.Model):
 
     def undo_hard_delete(self, person_id):
         self.deleted = DeletedModel.objects.create(
-            created_by_id=person_id,
             soft_deleted=True,
             hard_deleted=False,
             deleted_by_id=person_id,
