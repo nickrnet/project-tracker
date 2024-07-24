@@ -1,6 +1,6 @@
 from django import forms
 
-from . import new_git_repository_form as new_git_repository_form
+from frontend.forms.git_repository import new_git_repository_form as new_git_repository_form
 from core.models import user as core_user_models
 from project.models import project as project_models
 
@@ -18,10 +18,8 @@ class NewProjectForm(forms.ModelForm):
         project = super(NewProjectForm, self).save(commit=False)
         try:
             logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
+            project.created_by = logged_in_user
+            project.save()
+            return project
         except core_user_models.CoreUser.DoesNotExist:
-            print("User does not exist.")
             return None
-
-        project.created_by = logged_in_user
-        project.save()
-        return project

@@ -3,15 +3,18 @@ from django import forms
 from core.models import user as core_user_models
 
 
-class NewUserDataForm(forms.ModelForm):
+class CoreUserDataForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
         model = core_user_models.CoreUserData
         fields = [
-            'first_name',
-            'last_name',
             'email',
+            'name_prefix',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'name_suffix',
             'secondary_email',
             'home_phone',
             'mobile_phone',
@@ -23,15 +26,15 @@ class NewUserDataForm(forms.ModelForm):
             'state',
             'country',
             'timezone',
-            'password',
         ]
 
     def save(self):
-        core_user_models.CoreUser.objects.create_core_user_from_web(self.cleaned_data)
+        self.cleaned_data.pop('password')
+        core_user_models.CoreUserData.objects.update(**self.cleaned_data)
 
 
-class NewUserForm(forms.ModelForm):
-    core_user_data = NewUserDataForm()
+class CoreUserForm(forms.ModelForm):
+    core_user_data = CoreUserDataForm()
 
     class Meta:
         model = core_user_models.CoreUser

@@ -9,7 +9,20 @@ from .project import ProjectSerializer, GitRepositorySerializer
 class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OrganizationData
-        fields = ['id', 'created_by', 'first_name', 'last_name', 'email', 'secondary_email', 'home_phone', 'mobile_phone', 'work_phone', 'address_line_1', 'address_line_2', 'postal_code', 'city', 'state', 'timezone', 'deleted']
+        fields = [
+            'name',
+            'description',
+            'responsible_party_email',
+            'responsible_party_phone',
+            'address_line_1',
+            'address_line_2',
+            'postal_code',
+            'city',
+            'state',
+            'country',
+            'timezone',
+            'deleted'
+        ]
 
     deleted = DeletedModelDataSerializer()
 

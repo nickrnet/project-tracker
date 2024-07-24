@@ -5,6 +5,19 @@
 {% endif %}
 {% if user.is_authenticated %}
 <div>
+    <p class="text-muted">
+        Welcome,
+    <a href="/user">
+    {% if logged_in_user.core_user_data.first_name %}
+    {{ logged_in_user.core_user_data.first_name }} ({{ logged_in_user.core_user_data.email }})
+    {% else %}
+    {{ logged_in_user.core_user_data.email }}
+    {% endif %}
+    </a>
+    !
+    </p>
+</div>
+<div>
     <a href="/logout">Logout</a>
 </div>
 <div>
@@ -12,6 +25,9 @@
 </div>
 <div>
     <a href="/new_project">Add a new project</a>
+</div>
+<div>
+    <a href="/new_organization">Add a new organization</a>
 </div>
 <div>
     <a href="/new_user">Add a new user</a>

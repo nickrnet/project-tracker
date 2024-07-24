@@ -2,11 +2,13 @@
 {% block content %}
   <div class="content">
     <div class="container">
-      <!-- Django Model Form -->
       <h2 class="my-4">Add a new git repository</h2>
+      {% include "messages.html" %}
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ new_git_repository_form }}
+        <table>
+        {{ new_git_repository_form.as_table }}
+        </table>
         <button class="btn btn-primary my-4" type="submit">Submit</button>
       </form>
       <!-- Django Model -->

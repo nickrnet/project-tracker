@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
   <div class="container">
+    <h2 class="my-4">{{ logged_in_user.core_data.email }}</h2>
     {% include "messages.html" %}
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <table>
-      {{ login_form.as_table }}
+      {{ user_form.as_table }}
       </table>
-      <button class="btn btn-primary my-4" type="submit">Login</button>
+      <button class="btn btn-primary my-4" type="submit">Submit</button>
     </form>
   </div>
 {% endblock %}

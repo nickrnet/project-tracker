@@ -8,8 +8,11 @@ from . import core as core_models
 
 
 class CoreUserData(core_models.CoreModel):
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    name_prefix = models.CharField(max_length=255, blank=True, null=True)
+    first_name = models.CharField(max_length=255, blank=True, null=True)
+    middle_name = models.CharField(max_length=255, blank=True, null=True)
+    last_name = models.CharField(max_length=255, blank=True, null=True)
+    name_suffix = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(max_length=255)
     secondary_email = models.EmailField(max_length=255, blank=True, null=True)
     home_phone = PhoneField(blank=True, null=True)
