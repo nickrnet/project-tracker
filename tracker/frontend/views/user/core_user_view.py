@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
@@ -19,9 +20,14 @@ def core_user(request):
 
     try:
         logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
-        user_data_form = core_user_form.CoreUserDataForm(instance=logged_in_user.core_user_data)
+        user_data_form = core_user_form.CoreUserDataForm(model_to_dict(logged_in_user.core_user_data))
+        # breakpoint()
     except core_user_models.CoreUser.DoesNotExist:
         logged_in_user = None
         user_data_form = new_user_form.NewUserDataForm()
 
-    return render(request=request, template_name="user/core_user_template.html", context={'logged_in_user': logged_in_user, 'user_form': user_data_form})
+    return render(
+        request=request,
+        template_name="user/core_user_template.html",
+        context={'logged_in_user': logged_in_user, 'user_data_form': user_data_form}
+    )

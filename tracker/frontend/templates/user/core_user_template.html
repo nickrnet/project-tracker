@@ -6,7 +6,12 @@
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <table>
-      {{ user_form.as_table }}
+        {% for field in user_data_form %}
+        <tr>
+          <td>{{ field.label_tag }}</td>
+          <td>{{ field }}</td>
+        </tr>
+        {% endfor %}
       </table>
       <button class="btn btn-primary my-4" type="submit">Submit</button>
     </form>
