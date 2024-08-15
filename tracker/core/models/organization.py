@@ -10,8 +10,6 @@ from project.models import project as project_models
 
 
 class OrganizationData(core_models.CoreModel):
-    class Meta:
-        unique_together = ['name', 'address_line_1', 'postal_code', 'city', 'state', 'country']
 
     name = models.CharField(max_length=255)
     description = models.TextField(max_length=255, blank=True, null=True, default="")
@@ -25,6 +23,14 @@ class OrganizationData(core_models.CoreModel):
     country = models.CharField(max_length=255)
     timezone = models.CharField(max_length=255, default=timezone.get_default_timezone_name())
 
+    is_paid = models.BooleanField(default=False)
+    renewal_date = models.DateField(blank=True, null=True)
+    number_users_allowed = models.IntegerField(blank=True, default=5)
+
+    members = models.ManyToManyField(core_user_models.CoreUser, related_name='organizationmembers_set')
+    repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationrepositories_set')
+    projects = models.ManyToManyField(project_models.Project, related_name='organizationprojects_set')
+
 
 class OrganizationActiveManager(models.Manager):
     def get_queryset(self):
@@ -33,15 +39,8 @@ class OrganizationActiveManager(models.Manager):
 
 class Organization(core_models.CoreModel):
     class Meta:
-        ordering = ['organization_data__name']
+        ordering = ['current__name']
 
     active_objects = OrganizationActiveManager()
 
-    organization_data = models.OneToOneField(OrganizationData, on_delete=models.CASCADE)
-    is_paid = models.BooleanField(default=False)
-    renewal_date = models.DateField(blank=True, null=True)
-    number_users_allowed = models.IntegerField(default=5)
-
-    members = models.ManyToManyField(core_user_models.CoreUser, related_name='organizationmembers_set')
-    repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationrepositories_set')
-    projects = models.ManyToManyField(project_models.Project, related_name='organizationprojects_set')
+    current = models.OneToOneField(OrganizationData, on_delete=models.CASCADE)

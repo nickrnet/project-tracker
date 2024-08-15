@@ -7,21 +7,61 @@
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <table>
-        {{ new_project_form.as_table }}
+          <tr>
+            <td>{{ new_project_form.name.label_tag }}</td>
+            <td>{{ new_project_form.name }}</td>
+          </tr>
+          <tr>
+            <td>{{ new_project_form.description.label_tag }}</td>
+            <td>{{ new_project_form.description }}</td>
+          </tr>
+          <tr>
+            <td>{{ new_project_form.is_active.label_tag }}</td>
+            <td>{{ new_project_form.is_active }}</td>
+          </tr>
+          <tr>
+            <td>{{ new_project_form.is_private.label_tag }}</td>
+            <td>{{ new_project_form.is_private }}</td>
+          </tr>
+          <tr>
+            <td>{{ new_project_form.start_date.label_tag }}</td>
+            <td>{{ new_project_form.start_date }}</td>
+          </tr>
+          <tr>
+            <td>{{ new_project_form.end_date.label_tag }}</td>
+            <td>{{ new_project_form.end_date }}</td>
+          </tr>
+          <tr>
+            <td>{{ new_project_form.git_repository.label_tag }}</td>
+            <td>
+              {% if repositories %}
+              <select name="git_repository">
+                {% for repository in repositories %}
+                  <option value="{{ repository.id }}">{{ repository.current.name }}</option>
+                {% endfor %}
+              </select>
+              {% else %}
+              <table>
+                {{ git_repository_form.as_table }}
+              </table>
+              {% endif %}
+            </td>
+          </tr>
         </table>
         <button class="btn btn-primary my-4" type="submit">Submit</button>
       </form>
-      <!-- Django Model -->
       <h2 class="my-4">Projects</h2>
       <div class="row">
         {% for project in projects %}
           <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-            <div class="card h-100 p-4">
-              <h4>Name: {{ project.name }}</h4>
-              <p class="text-muted">Description: {{ project.description }}</p>
-              <p class="text-muted">Created: {{ project.created_on }} by {{ project.created_by.core_user_data.last_name }}, {{ project.created_by.core_user_data.first_name }}</p>
-              <p class="text-muted">Git Repository: {{ project.git_repository.name }} at {{ project.git_repository.url }}</p>
-            </div>
+            <a href="{% url 'project' project.id %}">
+              <div class="card h-100 p-4">
+                <h4>Name: {{ project.current.name }}</h4>
+                <p class="text-muted">Description: {{ project.current.description }}</p>
+                <p class="text-muted">Created: {{ project.created_on }} by {{ project.created_by.current.last_name }}, {{ project.created_by.current.first_name }}</p>
+                <p class="text-muted">Git Repository: {{ project.current.git_repository.current.name }} at {{ project.current.git_repository.current.url }}</p>
+              </div>
+            </a>
           </div>
         {% empty %}
           <p>No projects yet.</p>

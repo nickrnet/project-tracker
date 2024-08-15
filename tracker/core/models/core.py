@@ -44,7 +44,7 @@ class CoreModel(models.Model):
     objects = CoreModelManager()
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_by = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, editable=False)
+    created_by = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, editable=False, related_name='%(class)s_created_by')
     created_on = models.DateTimeField(null=False, default=timezone.now, editable=False)
     deleted = models.ForeignKey(DeletedModel, on_delete=models.CASCADE, null=True, blank=True, db_index=False)
 

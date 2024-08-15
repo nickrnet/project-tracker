@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User as DjangoUser
 from django.db import models
 from django.utils import timezone
 
@@ -55,7 +55,7 @@ class CoreUserManager(core_models.CoreModelManager):
                 postal_code=0,
             )
             api_user_data.save()
-            api_user.core_user_data = api_user_data
+            api_user.current = api_user_data
             api_user.save()
 
         return api_user
@@ -82,7 +82,7 @@ class CoreUserManager(core_models.CoreModelManager):
                 postal_code=0,
             )
             system_user_data.save()
-            system_user.core_user_data = system_user_data
+            system_user.current = system_user_data
             system_user.save()
 
         return system_user
@@ -90,7 +90,7 @@ class CoreUserManager(core_models.CoreModelManager):
     def create_core_user_from_web(self, request_data):
         api_user = CoreUser.objects.get_or_create_api_user()
 
-        django_user = User.objects.create_user(
+        django_user = DjangoUser.objects.create_user(
             username=request_data.get('email'),
             email=request_data.get('email'),
             password=request_data.get('password')
@@ -115,25 +115,25 @@ class CoreUserManager(core_models.CoreModelManager):
         )
         core_user_data.save()
 
-        new_core_user = CoreUser(
+        new_user = CoreUser(
             created_by_id=api_user.id,
-            core_user_data=core_user_data,
+            current=core_user_data,
             user=django_user
         )
-        new_core_user.save()
+        new_user.save()
 
-        return new_core_user
+        return new_user
 
 
 class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_models.CoreModelManager):
     class Meta:
-        ordering = ['core_user_data__last_name', 'core_user_data__email']
+        ordering = ['current__last_name', 'current__email']
 
     active_objects = CoreUserActiveManager()
     objects = CoreUserManager()
 
-    core_user_data = models.OneToOneField(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    current = models.OneToOneField(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, blank=True, null=True, related_name='django_user')
 
     def deactivate_login(self):
         self.user.is_active = False

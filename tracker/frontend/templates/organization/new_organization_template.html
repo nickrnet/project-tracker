@@ -11,20 +11,21 @@
         </table>
         <button class="btn btn-primary my-4" type="submit">Submit</button>
       </form>
-      <!-- Django Model -->
       <h2 class="my-4">Organizations</h2>
       <div class="row">
         {% for organization in organizations %}
           <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-            <div class="card h-100 p-4">
-              <h4>Name: {{ organization.organization_data.name }}</h4>
-              <p class="text-muted">Description: {{ organization.organization_data.description }}</p>
-              <p class="text-muted">Created: {{ organization.organization_data.created_on }} by {{ organization.created_by.core_user_data.last_name }}, {{ organization.created_by.core_user_data.first_name }}</p>
-              <p class="text-muted">Responsible Party: {{ organization.organization_data.responsible_party_email }}</p>
-            </div>
+            <a href="{% url 'organization' organization.id %}">
+              <div class="card h-100 p-4">
+                <h4>Name: {{ organization.current.name }}</h4>
+                <p class="text-muted">Description: {{ organization.current.description }}</p>
+                <p class="text-muted">Created: {{ organization.created_on }} by {{ organization.created_by.current.last_name }}, {{ organization.created_by.current.first_name }}</p>
+                <p class="text-muted">Responsible Party: {{ organization.current.responsible_party_email }}</p>
+              </div>
+            </a>
           </div>
         {% empty %}
-          <p>No organizations yet.</p>
+          <p>You're not a member of any organizations yet.</p>
         {% endfor %}
       </div>
     </div>

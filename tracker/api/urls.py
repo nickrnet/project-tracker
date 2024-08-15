@@ -1,13 +1,13 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from api.views import core_user as core_user_api_view
+from api.views import user as user_api_view
 from api.views import organization as organization_api_view
 from api.views import project as project_api_view
 
 
 router = routers.DefaultRouter()
-router.register(r'core_users', core_user_api_view.CoreUserViewSet)
+router.register(r'users', user_api_view.UserViewSet)
 router.register(r'git_repositories', project_api_view.GitRepositoryViewSet)
 router.register(r'organizations', organization_api_view.OrganizationViewSet)
 router.register(r'built_in_issue_priorities', project_api_view.BuiltInIssuePriorityViewSet)

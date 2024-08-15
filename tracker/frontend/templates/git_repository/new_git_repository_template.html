@@ -15,17 +15,19 @@
       <h2 class="my-4">Git Repositories</h2>
       <div class="row">
         {% for repository in repositories %}
-          <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-            <div class="card h-100 p-4">
-              <h4>Name: {{ repository.name }}</h4>
-              <p class="text-muted">Description: {{ repository.description }}</p>
-              {% if repository.url %}
-                <h4>URL: {{ repository.url }}</h4>
-              {% else %}
-                <h4></h4>
-              {% endif %}
-              <p class="text-muted">Created: {{ repository.created_on }} by {{ repository.created_by.core_user_data.last_name }}, {{ repository.created_by.core_user_data.first_name }}</p>
-            </div>
+        <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
+            <a href="{% url 'git_repository' repository.id %}">
+              <div class="card h-100 p-4">
+                <h4>Name: {{ repository.current.name }}</h4>
+                <p class="text-muted">Description: {{ repository.current.description }}</p>
+                {% if repository.current.url %}
+                  <h4>URL: {{ repository.current.url }}</h4>
+                {% else %}
+                  <h4></h4>
+                {% endif %}
+                <p class="text-muted">Created: {{ repository.created_on }} by {{ repository.created_by.current.last_name }}, {{ repository.created_by.current.first_name }}</p>
+              </div>
+            </a>
           </div>
         {% empty %}
           <p>No git repositories yet.</p>

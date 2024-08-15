@@ -9,6 +9,6 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows organizations to be viewed or edited.
     """
-    queryset = Organization.active_objects.all().order_by('organization_data__name')
+    queryset = Organization.active_objects.all()
     serializer_class = OrganizationSerializer
     permission_classes = [permissions.IsAuthenticated]

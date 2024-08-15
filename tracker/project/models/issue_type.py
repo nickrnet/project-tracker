@@ -30,11 +30,6 @@ class BuiltInIssueTypeManager(models.Manager):
             self.create(id=id, created_by=system_user, type=type, description=description)
 
 
-class CustomIssueTypeActiveManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(deleted=None)
-
-
 class BuiltInIssueType(core_models.CoreModel):
     class Meta:
         ordering = ['type']
@@ -64,12 +59,25 @@ class BuiltInIssueType(core_models.CoreModel):
     description = models.TextField(blank=True, null=True)
 
 
-class CustomIssueType(core_models.CoreModel):
+class CustomIssueTypeActiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(deleted=None)
+
+
+class CustomIssueTypeData(core_models.CoreModel):
     class Meta:
         ordering = ['name']
-        unique_together = ['name', 'description']
 
     active_objects = CustomIssueTypeActiveManager()
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+
+
+class CustomIssueType(core_models.CoreModel):
+    class Meta:
+        ordering = ['current__name']
+
+    active_objects = CustomIssueTypeActiveManager()
+
+    current = models.ForeignKey(CustomIssueTypeData, on_delete=models.CASCADE)

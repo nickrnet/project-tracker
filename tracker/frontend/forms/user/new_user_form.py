@@ -3,41 +3,32 @@ from django import forms
 from core.models import user as core_user_models
 
 
-class NewUserDataForm(forms.ModelForm):
+class NewUserDataForm(forms.Form):
+    email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
-
-    class Meta:
-        model = core_user_models.CoreUserData
-        fields = [
-            'email',
-            'password',
-            'name_prefix',
-            'first_name',
-            'middle_name',
-            'last_name',
-            'name_suffix',
-            'secondary_email',
-            'home_phone',
-            'mobile_phone',
-            'work_phone',
-            'address_line_1',
-            'address_line_2',
-            'postal_code',
-            'city',
-            'state',
-            'country',
-            'timezone',
-        ]
-
-    def save(self):
-        core_user_models.CoreUser.objects.create_core_user_from_web(self.cleaned_data)
+    name_prefix = forms.CharField(required=False)
+    first_name = forms.CharField(required=False)
+    middle_name = forms.CharField(required=False)
+    last_name = forms.CharField(required=False)
+    name_suffix = forms.CharField(required=False)
+    secondary_email = forms.EmailField(required=False)
+    home_phone = forms.CharField(required=False)
+    mobile_phone = forms.CharField(required=False)
+    work_phone = forms.CharField(required=False)
+    address_line_1 = forms.CharField(required=False)
+    address_line_2 = forms.CharField(required=False)
+    postal_code = forms.CharField(required=False)
+    city = forms.CharField(required=False)
+    state = forms.CharField(required=False)
+    country = forms.CharField(required=False)
+    timezone = forms.CharField(required=False)
 
 
 class NewUserForm(forms.ModelForm):
-    core_user_data = NewUserDataForm()
+    current = NewUserDataForm()
 
     class Meta:
         model = core_user_models.CoreUser
         fields = [
-            'core_user_data',
+            'current',
         ]

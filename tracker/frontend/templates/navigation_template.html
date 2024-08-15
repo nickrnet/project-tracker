@@ -7,11 +7,11 @@
 <div>
     <p class="text-muted">
         Welcome,
-    <a href="/user">
-    {% if logged_in_user.core_user_data.first_name %}
-    {{ logged_in_user.core_user_data.first_name }} ({{ logged_in_user.core_user_data.email }})
+    <a href="{% url 'user' logged_in_user.id %}">
+    {% if logged_in_user.current.first_name %}
+    {{ logged_in_user.current.first_name }} ({{ logged_in_user.current.email }})
     {% else %}
-    {{ logged_in_user.core_user_data.email }}
+    {{ logged_in_user.current.email }}
     {% endif %}
     </a>
     !

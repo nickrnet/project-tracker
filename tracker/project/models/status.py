@@ -21,11 +21,6 @@ class BuiltInIssueStatusManager(models.Manager):
             self.create(id=id, created_by=system_user, name=name, description=description)
 
 
-class CustomIssueStatusActiveManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(deleted=None)
-
-
 class BuiltInIssueStatus(core_models.CoreModel):
     class Meta:
         ordering = ['name']
@@ -43,12 +38,23 @@ class BuiltInIssueStatus(core_models.CoreModel):
     description = models.TextField(blank=True, null=True)
 
 
-class CustomIssueStatus(core_models.CoreModel):
+class CustomIssueStatusData(core_models.CoreModel):
     class Meta:
         ordering = ['name']
-        unique_together = ['name', 'description']
-
-    active_objects = CustomIssueStatusActiveManager()
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+
+
+class CustomIssueStatusActiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(deleted=None)
+
+
+class CustomIssueStatus(core_models.CoreModel):
+    class Meta:
+        ordering = ['current__name']
+
+    active_objects = CustomIssueStatusActiveManager()
+
+    current = models.ForeignKey(CustomIssueStatusData, on_delete=models.CASCADE)

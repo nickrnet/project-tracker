@@ -1,7 +1,10 @@
 from django import forms
 
+from core.models import user as core_user_models
+from core.models import organization as core_organization_models
 
-class NewOrganizationDataForm(forms.Form):
+
+class OrganizationDataForm(forms.Form):
     name = forms.CharField(max_length=255)
     description = forms.CharField(max_length=255, required=False)
     responsible_party_email = forms.CharField(max_length=255)
@@ -16,30 +19,30 @@ class NewOrganizationDataForm(forms.Form):
 
     is_paid = forms.BooleanField(required=False)
     renewal_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
-    number_users_allowed = forms.IntegerField(required=False, initial=5)  # This initial has to match the model default
+    number_users_allowed = forms.IntegerField(required=False)
 
     members = forms.CharField(max_length=255, required=False)
     repositories = forms.CharField(max_length=255, required=False)
     projects = forms.CharField(max_length=255, required=False)
 
 
-# class NewOrganizationForm(forms.ModelForm):
-#     current = NewOrganizationDataForm()
+class OrganizationForm(forms.ModelForm):
+    current = OrganizationDataForm()
 
-#     class Meta:
-#         model = core_organization_models.Organization
-#         fields = [
-#             'current',
-#         ]
+    class Meta:
+        model = core_organization_models.Organization
+        fields = [
+            'current',
+        ]
 
-#     def save(self, request):
-#         organization = super(NewOrganizationForm, self).save(commit=False)
-#         try:
-#             logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
-#         except core_user_models.CoreUser.DoesNotExist:
-#             print("User does not exist.")
-#             return None
+    def save(self, request):
+        organization = super(OrganizationForm, self).save(commit=False)
+        try:
+            logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
+        except core_user_models.CoreUser.DoesNotExist:
+            print("User does not exist.")
+            return None
 
-#         organization.created_by = logged_in_user
-#         organization.save()
-#         return organization
+        organization.created_by = logged_in_user
+        organization.save()
+        return organization

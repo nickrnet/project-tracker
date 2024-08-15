@@ -21,11 +21,6 @@ class BuiltInIssuePriorityManager(models.Manager):
             self.create(id=id, created_by=system_user, name=name, description=description)
 
 
-class CustomIssuePriorityActiveManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(deleted=None)
-
-
 class BuiltInIssuePriority(core_models.CoreModel):
     class Meta:
         ordering = ['name']
@@ -43,12 +38,23 @@ class BuiltInIssuePriority(core_models.CoreModel):
     description = models.TextField(blank=True, null=True)
 
 
-class CustomIssuePriority(core_models.CoreModel):
+class CustomIssuePriorityData(core_models.CoreModel):
     class Meta:
         ordering = ['name']
-        unique_together = ['name', 'description']
-
-    active_objects = CustomIssuePriorityActiveManager()
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+
+
+class CustomIssuePriorityActiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(deleted=None)
+
+
+class CustomIssuePriority(core_models.CoreModel):
+    class Meta:
+        ordering = ['current__name']
+
+    active_objects = CustomIssuePriorityActiveManager()
+
+    current = models.ForeignKey(CustomIssuePriorityData, on_delete=models.CASCADE)
