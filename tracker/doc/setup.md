@@ -12,9 +12,16 @@ pipenv install
 pipenv shell
 cd tracker
 python manage.py migrate  # to build a database
-python manage.py setup    # to put standard ProjectTracker configuration in the database
+python manage.py setup    # to put standard Project Tracker configuration in the database
 python manage.py runserver 0.0.0.0:8000  # to start the Django application(s)
 ```
+
+Then, navigate to http://localhost:8000 and signup for an account in order to use the web app or API.
+
+Useful app URLs:
+- http://localhost:8000
+- http://localhost:8000/new_git_repository
+- http://localhost:8000/api
 
 If additional Python modules are required, use pipenv to install them:
 

@@ -2,8 +2,6 @@ from rest_framework import serializers
 
 from core.models.organization import Organization, OrganizationData
 from .core import DeletedModelDataSerializer
-from .user import UserSerializer
-from .project import ProjectSerializer, GitRepositorySerializer
 
 
 class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
@@ -21,6 +19,12 @@ class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
             'state',
             'country',
             'timezone',
+            'is_paid',
+            'renewal_date',
+            'number_users_allowed',
+            'members',
+            'repositories',
+            'projects',
             'deleted'
         ]
 

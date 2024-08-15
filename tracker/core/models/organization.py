@@ -25,7 +25,7 @@ class OrganizationData(core_models.CoreModel):
 
     is_paid = models.BooleanField(default=False)
     renewal_date = models.DateField(blank=True, null=True)
-    number_users_allowed = models.IntegerField(blank=True, default=5)
+    number_users_allowed = models.IntegerField(default=5)
 
     members = models.ManyToManyField(core_user_models.CoreUser, related_name='organizationmembers_set')
     repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationrepositories_set')

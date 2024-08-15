@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 
 
 class NewOrganizationDataForm(forms.Form):
@@ -12,34 +13,12 @@ class NewOrganizationDataForm(forms.Form):
     city = forms.CharField(max_length=255)
     state = forms.CharField(max_length=255)
     country = forms.CharField(max_length=255)
-    timezone = forms.CharField(max_length=255, required=False)
+    timezone = forms.CharField(max_length=255, required=False, initial=timezone.get_default_timezone_name())
 
     is_paid = forms.BooleanField(required=False)
     renewal_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
     number_users_allowed = forms.IntegerField(required=False, initial=5)  # This initial has to match the model default
 
-    members = forms.CharField(max_length=255, required=False)
-    repositories = forms.CharField(max_length=255, required=False)
-    projects = forms.CharField(max_length=255, required=False)
-
-
-# class NewOrganizationForm(forms.ModelForm):
-#     current = NewOrganizationDataForm()
-
-#     class Meta:
-#         model = core_organization_models.Organization
-#         fields = [
-#             'current',
-#         ]
-
-#     def save(self, request):
-#         organization = super(NewOrganizationForm, self).save(commit=False)
-#         try:
-#             logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
-#         except core_user_models.CoreUser.DoesNotExist:
-#             print("User does not exist.")
-#             return None
-
-#         organization.created_by = logged_in_user
-#         organization.save()
-#         return organization
+    members = forms.MultipleChoiceField(required=False)
+    repositories = forms.MultipleChoiceField(required=False)
+    projects = forms.MultipleChoiceField(required=False)

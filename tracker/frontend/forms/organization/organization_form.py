@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 
 from core.models import user as core_user_models
 from core.models import organization as core_organization_models
@@ -15,15 +16,15 @@ class OrganizationDataForm(forms.Form):
     city = forms.CharField(max_length=255)
     state = forms.CharField(max_length=255)
     country = forms.CharField(max_length=255)
-    timezone = forms.CharField(max_length=255, required=False)
+    timezone = forms.CharField(max_length=255, required=False, initial=timezone.get_default_timezone_name())
 
     is_paid = forms.BooleanField(required=False)
     renewal_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
     number_users_allowed = forms.IntegerField(required=False)
 
-    members = forms.CharField(max_length=255, required=False)
-    repositories = forms.CharField(max_length=255, required=False)
-    projects = forms.CharField(max_length=255, required=False)
+    members = forms.ModelMultipleChoiceField(required=False, queryset=core_user_models.CoreUser.objects.all())
+    repositories = forms.MultipleChoiceField(required=False)
+    projects = forms.MultipleChoiceField(required=False)
 
 
 class OrganizationForm(forms.ModelForm):

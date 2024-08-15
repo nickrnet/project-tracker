@@ -4,7 +4,7 @@ from project.models.git_repository import GitRepository, GitRepositoryData
 from project.models.issue_type import BuiltInIssueType, CustomIssueType
 from project.models.issue import Issue
 from project.models.priority import BuiltInIssuePriority, CustomIssuePriority
-from project.models.project import Project
+from project.models.project import Project, ProjectData
 from project.models.status import BuiltInIssueStatus, CustomIssueStatus
 
 from .core import DeletedModelDataSerializer
@@ -116,7 +116,7 @@ class IssueSerializer(serializers.HyperlinkedModelSerializer):
 
 class ProjectDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Project
+        model = ProjectData
         fields = ['id', 'created_by', 'name', 'description', 'start_date', 'end_date', 'is_active', 'is_private', 'git_repository', 'users', 'deleted']
 
     deleted = DeletedModelDataSerializer()

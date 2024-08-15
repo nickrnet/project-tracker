@@ -138,3 +138,12 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
     def deactivate_login(self):
         self.user.is_active = False
         self.user.save()
+
+    def __str__(self):
+        potential_names = []
+        if self.current.first_name:
+            potential_names.append(self.current.first_name)
+        if self.current.last_name:
+            potential_names.append(self.current.last_name)
+        potential_names.append(f"({self.current.email})")
+        return ' '.join(potential_names)
