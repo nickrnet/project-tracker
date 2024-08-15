@@ -28,5 +28,5 @@ jobs:
                 pipenv install --dev
 
             - name: Run tests
-              run: pipenv run python manage.py test
+              run: pushd tracker && pipenv run python manage.py test && popd
               continue-on-error: true
