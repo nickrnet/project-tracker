@@ -17,9 +17,9 @@ def new_organization(request):
     if request.method == "POST":
         received_new_organization_data_form = new_organization_form.NewOrganizationDataForm(request.POST, request.FILES)
         if received_new_organization_data_form.is_valid():
-            received_new_organization_data_form.cleaned_data.pop('members')  # TODO: Fix the form and memberships, repos, and projects
-            received_new_organization_data_form.cleaned_data.pop('repositories')
-            received_new_organization_data_form.cleaned_data.pop('projects')
+            # received_new_organization_data_form.cleaned_data.pop('members')  # TODO: Fix the form and memberships, repos, and projects
+            # received_new_organization_data_form.cleaned_data.pop('repositories')
+            # received_new_organization_data_form.cleaned_data.pop('projects')
             if received_new_organization_data_form.cleaned_data['number_users_allowed'] is None:
                 received_new_organization_data_form.cleaned_data['number_users_allowed'] = received_new_organization_data_form.fields['number_users_allowed'].initial
 
