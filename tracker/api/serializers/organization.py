@@ -8,6 +8,10 @@ class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OrganizationData
         fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
             'name',
             'description',
             'responsible_party_email',
@@ -22,10 +26,6 @@ class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
             'is_paid',
             'renewal_date',
             'number_users_allowed',
-            'members',
-            'repositories',
-            'projects',
-            'deleted'
         ]
 
     deleted = DeletedModelDataSerializer()
@@ -34,7 +34,16 @@ class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Organization
-        fields = ['id', 'created_by', 'created_on', 'current', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'current',
+            'members',
+            'repositories',
+            'projects',
+        ]
 
     deleted = DeletedModelDataSerializer()
     current = OrganizationDataSerializer()

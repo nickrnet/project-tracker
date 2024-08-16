@@ -117,7 +117,18 @@ class IssueSerializer(serializers.HyperlinkedModelSerializer):
 class ProjectDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ProjectData
-        fields = ['id', 'created_by', 'name', 'description', 'start_date', 'end_date', 'is_active', 'is_private', 'git_repository', 'users', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'name',
+            'description',
+            'start_date',
+            'end_date',
+            'is_active',
+            'is_private',
+        ]
 
     deleted = DeletedModelDataSerializer()
 
@@ -125,6 +136,14 @@ class ProjectDataSerializer(serializers.HyperlinkedModelSerializer):
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Project
-        fields = ['id', 'created_by', 'current', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'current',
+            'git_repository',
+            'users',
+        ]
 
     deleted = DeletedModelDataSerializer()

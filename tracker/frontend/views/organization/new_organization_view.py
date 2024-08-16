@@ -17,7 +17,7 @@ def new_organization(request):
     if request.method == "POST":
         received_new_organization_data_form = new_organization_form.NewOrganizationDataForm(request.POST, request.FILES)
         if received_new_organization_data_form.is_valid():
-            received_new_organization_data_form.cleaned_data.pop('members')
+            received_new_organization_data_form.cleaned_data.pop('members')  # TODO: Fix the form and memberships, repos, and projects
             received_new_organization_data_form.cleaned_data.pop('repositories')
             received_new_organization_data_form.cleaned_data.pop('projects')
             if received_new_organization_data_form.cleaned_data['number_users_allowed'] is None:
@@ -29,8 +29,11 @@ def new_organization(request):
 
             organization = core_organization_models.Organization.objects.create(created_by=logged_in_user, current=organization_data)
             organization.save()
-            organization.current.members.add(logged_in_user)
+            organization.members.add(logged_in_user)
             organization.save()
+
+            logged_in_user.organizations.add(organization)
+            logged_in_user.save()
 
             messages.success(request, ('Your organization was successfully added!'))
             return redirect("organization", organization_id=organization.id)
@@ -39,7 +42,7 @@ def new_organization(request):
             return render(request, "organization/new_organization_template.html")
 
     organization_data_form = new_organization_form.NewOrganizationDataForm()
-    organizations = logged_in_user.organization_created_by.all()
+    organizations = logged_in_user.organizations.all()
     return render(request=request, template_name="organization/new_organization_template.html", context={
         'logged_in_user': logged_in_user,
         'new_organization_data_form': organization_data_form,

@@ -1,6 +1,6 @@
 from rest_framework import permissions, viewsets
 
-from api.serializers.user import UserSerializer
+from api.serializers.user import CoreUserSerializer, CoreUserDataSerializer
 
 from core.models import user as core_user_models
 
@@ -11,17 +11,17 @@ class UserDataViewSet(viewsets.ModelViewSet):
     """
 
     queryset = core_user_models.CoreUserData.active_objects.all()
-    serializer_class = UserSerializer
+    serializer_class = CoreUserDataSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class CoreUserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
 
     queryset = core_user_models.CoreUser.active_objects.all()
-    serializer_class = UserSerializer
+    serializer_class = CoreUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     # TODO: Limit this list to only the users in the organizations the user is a member of

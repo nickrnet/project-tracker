@@ -30,12 +30,13 @@ class APITestCase(TestCase):
             state="Test State",
             country="Test Country"
         )
-        self.test_organization_data.members.add(self.api_test_user)
         self.test_organization_data.save()
         self.test_organization = core_organization_models.Organization(
             created_by=self.api_test_user,
             current=self.test_organization_data
         )
+        self.test_organization.save()
+        self.test_organization.members.add(self.api_test_user)
         self.test_organization.save()
         self.test_git_respository_data = git_repository_models.GitRepositoryData(
             created_by=self.api_test_user,
@@ -53,14 +54,15 @@ class APITestCase(TestCase):
             created_by=self.api_test_user,
             name="Test Project 01",
             description="Test Project 01 Description",
-            git_repository=self.test_git_respository
         )
-        self.test_project_data.users.add(self.api_test_user.id)
         self.test_project_data.save()
         self.test_project = project_models.Project(
             created_by=self.api_test_user,
-            current=self.test_project_data
+            current=self.test_project_data,
+            git_repository=self.test_git_respository
         )
+        self.test_project.save()
+        self.test_project.users.add(self.api_test_user.id)
         self.test_project.save()
 
     # TODO: Issue, IssueTypes, IssueStatus, IssuePriority tests

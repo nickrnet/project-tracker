@@ -19,10 +19,11 @@ def organization(request, organization_id=None):
         received_organization_data_form = organization_form.OrganizationDataForm(request.POST, request.FILES)
         if received_organization_data_form.is_valid():
             organization = core_organization_models.Organization.objects.get(pk=organization_id)
-            received_organization_data_form.cleaned_data.pop('members')
-            received_organization_data_form.cleaned_data.pop('repositories')
-            received_organization_data_form.cleaned_data.pop('projects')
-            if not received_organization_data_form.cleaned_data['number_users_allowed'] is None:
+            # TODO: Move these to the Organization
+            # received_organization_data_form.cleaned_data.pop('members')
+            # received_organization_data_form.cleaned_data.pop('repositories')
+            # received_organization_data_form.cleaned_data.pop('projects')
+            if received_organization_data_form.cleaned_data['number_users_allowed'] is None:
                 received_organization_data_form.cleaned_data.pop('number_users_allowed')
             organization_data = core_organization_models.OrganizationData(**received_organization_data_form.cleaned_data)
             organization_data.created_by = logged_in_user

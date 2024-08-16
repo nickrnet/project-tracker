@@ -23,7 +23,7 @@ def project(request, project_id=None):
             try:
                 project = logged_in_user.project_created_by.get(id=project_id)
                 # TODO: Create a new git repository if needed
-                received_project_data_form.cleaned_data["git_repository_id"] = received_project_data_form.cleaned_data.get("git_repository")
+                # received_project_data_form.cleaned_data["git_repository_id"] = received_project_data_form.cleaned_data.get("git_repository")
                 received_project_data_form.cleaned_data.pop("git_repository")
                 received_project_data_form.cleaned_data["created_by_id"] = str(logged_in_user.id)
                 project_data = project_models.ProjectData.objects.create(**received_project_data_form.cleaned_data)
@@ -47,7 +47,7 @@ def project(request, project_id=None):
         project = logged_in_user.project_created_by.get(id=project_id)
         form = project_form.ProjectDataForm(model_to_dict(project.current))
         git_repo_form = git_repository_form.GitRepositoryDataForm()
-        git_repositories = logged_in_user.gitrepository_created_by.all()
+        git_repositories = logged_in_user.git_repositories.all()
     except project_models.Project.DoesNotExist:
         messages.error(request, 'The specified Project does not exist. Create it and try again.')
         return redirect("new_project")
@@ -55,7 +55,7 @@ def project(request, project_id=None):
     return render(request=request, template_name="project/project_template.html", context={
         'logged_in_user': logged_in_user,
         'project_form': form,
-        'git_repository_id': str(project.current.git_repository_id),
+        'git_repository_id': str(project.git_repository_id),
         'git_repository_form': git_repo_form,
         'repositories': git_repositories,
     })

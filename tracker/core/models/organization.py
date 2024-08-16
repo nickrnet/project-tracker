@@ -4,7 +4,6 @@ from django.utils import timezone
 from phone_field import PhoneField
 
 from core.models import core as core_models
-from core.models import user as core_user_models
 from project.models import git_repository as git_repository_models
 from project.models import project as project_models
 
@@ -27,10 +26,6 @@ class OrganizationData(core_models.CoreModel):
     renewal_date = models.DateField(blank=True, null=True)
     number_users_allowed = models.IntegerField(default=5)
 
-    members = models.ManyToManyField(core_user_models.CoreUser, related_name='organizationmembers_set')
-    repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationrepositories_set')
-    projects = models.ManyToManyField(project_models.Project, related_name='organizationprojects_set')
-
 
 class OrganizationActiveManager(models.Manager):
     def get_queryset(self):
@@ -44,3 +39,6 @@ class Organization(core_models.CoreModel):
     active_objects = OrganizationActiveManager()
 
     current = models.OneToOneField(OrganizationData, on_delete=models.CASCADE)
+    members = models.ManyToManyField('core.CoreUser', related_name='organizationmembers_set')
+    repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationrepositories_set')
+    projects = models.ManyToManyField(project_models.Project, related_name='organizationprojects_set')

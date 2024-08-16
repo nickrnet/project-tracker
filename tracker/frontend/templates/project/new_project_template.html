@@ -59,7 +59,7 @@
                 <h4>Name: {{ project.current.name }}</h4>
                 <p class="text-muted">Description: {{ project.current.description }}</p>
                 <p class="text-muted">Created: {{ project.created_on }} by {{ project.created_by.current.last_name }}, {{ project.created_by.current.first_name }}</p>
-                <p class="text-muted">Git Repository: {{ project.current.git_repository.current.name }} at {{ project.current.git_repository.current.url }}</p>
+                <p class="text-muted">Git Repository: {{ project.git_repository.current.name }} at {{ project.git_repository.current.url }}</p>
               </div>
             </a>
           </div>

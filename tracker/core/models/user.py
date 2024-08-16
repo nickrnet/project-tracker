@@ -4,6 +4,8 @@ from django.utils import timezone
 
 from phone_field import PhoneField
 
+# DO NOT IMPORT OTHER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREUSER
+# Use the string reference to the model here instead to lazy-load it
 from . import core as core_models
 
 
@@ -135,10 +137,16 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
     current = models.OneToOneField(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
     user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, blank=True, null=True, related_name='django_user')
 
+    git_repositories = models.ManyToManyField('project.GitRepository', blank=True)
+    organizations = models.ManyToManyField('core.Organization', blank=True)
+    projects = models.ManyToManyField('project.Project', blank=True)
+    issues = models.ManyToManyField('project.Issue', blank=True)
+
     def deactivate_login(self):
         self.user.is_active = False
         self.user.save()
 
+    # This is here for the Django forms used in the frontend app. If you remove this, be prepared to rework every form ever.
     def __str__(self):
         potential_names = []
         if self.current.first_name:

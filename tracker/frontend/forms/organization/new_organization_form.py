@@ -6,7 +6,7 @@ class NewOrganizationDataForm(forms.Form):
     name = forms.CharField(max_length=255)
     description = forms.CharField(max_length=255, required=False)
     responsible_party_email = forms.CharField(max_length=255)
-    responsible_party_phone = forms.CharField(max_length=255)
+    responsible_party_phone = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'type': 'tel'}))
     address_line_1 = forms.CharField(max_length=255)
     address_line_2 = forms.CharField(max_length=255, required=False)
     postal_code = forms.CharField(max_length=255)
@@ -19,6 +19,6 @@ class NewOrganizationDataForm(forms.Form):
     renewal_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
     number_users_allowed = forms.IntegerField(required=False, initial=5)  # This initial has to match the model default
 
-    members = forms.MultipleChoiceField(required=False)
-    repositories = forms.MultipleChoiceField(required=False)
-    projects = forms.MultipleChoiceField(required=False)
+    # members = forms.MultipleChoiceField(required=False)
+    # repositories = forms.MultipleChoiceField(required=False)
+    # projects = forms.MultipleChoiceField(required=False)
