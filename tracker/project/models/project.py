@@ -17,7 +17,7 @@ class ProjectData(core_models.CoreModel):
 
 class ProjectActiveManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(deleted=None)
+        return super().get_queryset().filter(deleted=None).filter(current__is_active=True)
 
 
 class Project(core_models.CoreModel):
@@ -29,3 +29,11 @@ class Project(core_models.CoreModel):
     current = models.ForeignKey(ProjectData, on_delete=models.CASCADE)
     git_repository = models.ForeignKey(git_repository_models.GitRepository, on_delete=models.CASCADE, blank=True, null=True)
     users = models.ManyToManyField('core.CoreUser')
+
+    def __str__(self):
+        potential_names = []
+        if self.current.name:
+            potential_names.append(self.current.name)
+        if self.current.label:
+            potential_names.append(f"- ({self.current.label})")
+        return self.current.name
