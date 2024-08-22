@@ -1,8 +1,6 @@
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
-from core.models import user as core_user_models
-
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
