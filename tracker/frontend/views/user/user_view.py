@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
@@ -6,6 +7,7 @@ from core.models import user as core_user_models
 from frontend.forms.user import core_user_form
 
 
+@login_required
 def user(request, user_id=None):
     try:
         logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)

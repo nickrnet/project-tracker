@@ -27,10 +27,12 @@ def initialize_test_project():
     new_project = project_models.Project(
         created_by_id=test_user_01_instance.id,
         current=project_data_instance,
-        git_repository=test_git_repository_01_instance,
     )
     new_project.save()
+    new_project.git_repository.add(test_git_repository_01_instance)
     new_project.users.add(test_user_01_instance)
     new_project.save()
     test_organization_01_instance.projects.add(new_project)
     test_organization_01_instance.save()
+    test_user_01_instance.projects.add(new_project)
+    test_user_01_instance.save()

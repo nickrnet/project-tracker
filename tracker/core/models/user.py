@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from phone_field import PhoneField
 
-# DO NOT IMPORT OTHER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREUSER
+# DO NOT IMPORT OTHER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREMODEL
 # Use the string reference to the model here instead to lazy-load it
 from . import core as core_models
 

@@ -15,16 +15,27 @@
     <!-- Django Model -->
     <h2 class="my-4">Users</h2>
     <div class="row">
-      {% for user in users %}
-        <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-          <a href="{% url 'user' user.id %}">
-          <div class="card h-100 p-4">
-            <h4>{{ user.current.last_name }}, {{ user.current.first_name }}</h4>
-            <p class="text-muted">{{ user.current.email }}</p>
-            <p class="text-muted">Created: {{ user.created_on }} by {{ user.created_by.current.last_name }}, {{ user.created_by.current.first_name }}</p>
-          </div>
-        </a>
+      {% for user in users %}<div class="col-lg-4 col-md-6 col-sm-12 pb-4">
+        <div class="card h-100 p-4">
+          <a href="{% url 'user' user.id %}"><h4>{{ user.current.last_name }}, {{ user.current.first_name }}</h4></a>
+          <p class="text-muted">{{ user.current.email }}</p>
+          <p class="text-muted">Created {{ user.created_on }} by {{ user.created_by.current.last_name }}, {{ user.created_by.current.first_name }}</p>
+          <p class="text-muted">Owns
+            {% with user_projects=user.projects.all %}
+              {% for project in user_projects %}
+                <a href="{% url 'project' project.id %}">{{ project.current.name }}</a>,
+              {% endfor %}
+            {% endwith %}
+          </p>
+          <p class="text-muted">Owns
+            {% with user_repos=user.git_repositories.all %}
+              {% for repo in user_repos %}
+                <a href="{% url 'git_repository' repo.id %}">{{ repo.current.name }}</a>,
+              {% endfor %}
+            {% endwith %}
+          </p>
         </div>
+      </div>
       {% empty %}
         <p>Once a member of an organization, you'll be able to see its users.</p>
       {% endfor %}

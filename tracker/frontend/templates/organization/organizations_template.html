@@ -2,16 +2,9 @@
 {% block content %}
   <div class="content">
     <div class="container">
-      <h2 class="my-4">Add a new Organization</h2>
-      {% include "messages.html" %}
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <table>
-        {{ new_organization_data_form.as_table }}
-        </table>
-        <button class="btn btn-primary my-4" type="submit">Submit</button>
-      </form>
       <h2 class="my-4">Organizations</h2>
+      <p><a href="{% url 'new_organization' %}">Make one!</a></p>
+      {% include "messages.html" %}
       <div class="row">
         {% for organization in organizations %}
           <div class="col-lg-4 col-md-6 col-sm-12 pb-4">

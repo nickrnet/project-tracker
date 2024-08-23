@@ -27,7 +27,7 @@ class Project(core_models.CoreModel):
     active_objects = ProjectActiveManager()
 
     current = models.ForeignKey(ProjectData, on_delete=models.CASCADE)
-    git_repository = models.ForeignKey(git_repository_models.GitRepository, on_delete=models.CASCADE, blank=True, null=True)
+    git_repository = models.ManyToManyField(git_repository_models.GitRepository)
     users = models.ManyToManyField('core.CoreUser')
 
     def __str__(self):
