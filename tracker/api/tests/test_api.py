@@ -15,14 +15,16 @@ class APITestCase(TestCase):
         self.api_user = core_user_models.CoreUser.objects.get_or_create_api_user()
         self.system_user = core_user_models.CoreUser.objects.get_or_create_system_user()
         self.api_test_user = core_user_models.CoreUser.objects.create_core_user_from_web({
-            "email": "api_test_user@project-tracker.dev",
-            "password": "password"
+            "email": "api_test_user_01@project-tracker.dev",
+            "password": "password",
+            "first_name": "API",
+            "last_name": "Test User 01",
         })
         self.test_organization_data = core_organization_models.OrganizationData(
             created_by=self.api_test_user,
             name="Test Organization 01",
             description="Test Organization 01 Description",
-            responsible_party_email="org_01@project-tracker.dev",
+            responsible_party_email="api_test_user_01@project-tracker.dev",
             responsible_party_phone="1234567890",
             address_line_1="123 Test St",
             postal_code="12345",
@@ -35,8 +37,6 @@ class APITestCase(TestCase):
             created_by=self.api_test_user,
             current=self.test_organization_data
         )
-        self.test_organization.save()
-        self.test_organization.members.add(self.api_test_user)
         self.test_organization.save()
         self.test_git_respository_data = git_repository_models.GitRepositoryData(
             created_by=self.api_test_user,
@@ -59,11 +59,20 @@ class APITestCase(TestCase):
         self.test_project = project_models.Project(
             created_by=self.api_test_user,
             current=self.test_project_data,
-            git_repository=self.test_git_respository
         )
         self.test_project.save()
+
         self.test_project.users.add(self.api_test_user.id)
+        self.test_project.git_repository.add(self.test_git_respository)
         self.test_project.save()
+        self.test_organization.members.add(self.api_test_user)
+        self.test_organization.projects.add(self.test_project)
+        self.test_organization.repositories.add(self.test_git_respository)
+        self.test_organization.save()
+        self.api_test_user.git_repositories.add(self.test_git_respository)
+        self.api_test_user.projects.add(self.test_project)
+        self.api_test_user.organizations.add(self.test_organization)
+        self.api_test_user.save()
 
     # TODO: Issue, IssueTypes, IssueStatus, IssuePriority tests
     # TODO: Tests with multiple users to check for cross-user data leakage
@@ -100,4 +109,4 @@ class APITestCase(TestCase):
         self.api_client.login(username=self.api_test_user.user.username, password='password')
         response = self.api_client.get('/api/users/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()), 3)
+        self.assertEqual(len(response.json()), 3)  # api_user, system_user, api_test_user

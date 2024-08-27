@@ -8,109 +8,211 @@ from project.models.project import Project, ProjectData
 from project.models.status import BuiltInIssueStatus, CustomIssueStatus
 
 from .core import DeletedModelDataSerializer
+from .user import CoreUserSerializer
 
 
 class GitRepositoryDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = GitRepositoryData
-        fields = ['id', 'created_by', 'name', 'description', 'url', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'name',
+            'description',
+            'url'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class GitRepositorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = GitRepository
-        fields = ['id', 'created_by', 'current', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'current'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
+    current = GitRepositoryDataSerializer()
 
 
 class BuiltInIssuePrioritySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BuiltInIssuePriority
-        fields = ['id', 'created_by', 'name', 'description', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'name',
+            'description'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class BuiltInIssueStatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BuiltInIssueStatus
-        fields = ['id', 'created_by', 'name', 'description', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'name',
+            'description'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class BuiltInIssueTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BuiltInIssueType
-        fields = ['id', 'created_by', 'type', 'description', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'type',
+            'description'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class CustomIssuePriorityDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CustomIssuePriority
-        fields = ['id', 'created_by', 'name', 'description', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'name',
+            'description'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class CustomIssuePrioritySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CustomIssuePriority
-        fields = ['id', 'created_by', 'current', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'current'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class CustomIssueStatusDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CustomIssueStatus
-        fields = ['id', 'created_by', 'name', 'description', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'name',
+            'description'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class CustomIssueStatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CustomIssueStatus
-        fields = ['id', 'created_by', 'current', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'current'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class CustomIssueTypeDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CustomIssueType
-        fields = ['id', 'created_by', 'name', 'description', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'name',
+            'description'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class CustomIssueTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CustomIssueType
-        fields = ['id', 'created_by', 'current', 'deleted']
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'current'
+        ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class IssueDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Issue
-        fields = ['id', 'created_by', 'summary', 'description', 'deleted']  # TODO: add all the issue fields
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'summary',
+            'description'
+        ]  # TODO: add all the issue fields
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
 class IssueSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Issue
-        fields = ['id', 'created_by', 'current', 'deleted']  # TODO: add all the issue fields
+        fields = [
+            'id',
+            'created_by',
+            'created_on',
+            'deleted',
+            'current'
+        ]  # TODO: add all the issue fields
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
@@ -130,6 +232,7 @@ class ProjectDataSerializer(serializers.HyperlinkedModelSerializer):
             'is_private',
         ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
@@ -146,4 +249,8 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'users',
         ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
+    current = ProjectDataSerializer()
+    git_repository = GitRepositorySerializer(many=True)
+    users = CoreUserSerializer(many=True)

@@ -21,7 +21,7 @@ class CoreModelActiveManager(models.Manager):
     """
 
     def get_queryset(self):
-        return super().get_queryset().filter(deleted=None)
+        return super().get_queryset().filter(deleted__isnull=True)
 
 
 class CoreModelManager(models.Manager):

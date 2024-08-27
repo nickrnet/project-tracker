@@ -11,8 +11,9 @@ class DjangoUserSerializer(serializers.HyperlinkedModelSerializer):
         model = DjangoUser
         fields = [
             'username',
-            'email',
+            'password',
         ]
+        extra_kwargs = {'password': {'write_only': True}}
 
 
 class CoreUserDataSerializer(serializers.HyperlinkedModelSerializer):
@@ -51,6 +52,7 @@ class CoreUserSerializer(serializers.HyperlinkedModelSerializer):
             'user',
         ]
 
+    # TODO: Get created_by to work with the CoreUserSerializer; it's nested so it's nasty
     current = CoreUserDataSerializer()
     user = DjangoUserSerializer()
     deleted = DeletedModelDataSerializer()

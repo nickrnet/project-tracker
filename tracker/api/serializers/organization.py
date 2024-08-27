@@ -2,6 +2,9 @@ from rest_framework import serializers
 
 from core.models.organization import Organization, OrganizationData
 from .core import DeletedModelDataSerializer
+from .user import CoreUserSerializer
+from .project import GitRepositorySerializer
+from .project import ProjectSerializer
 
 
 class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
@@ -28,6 +31,7 @@ class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
             'number_users_allowed',
         ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
 
 
@@ -45,5 +49,9 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             'projects',
         ]
 
+    created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
     current = OrganizationDataSerializer()
+    members = CoreUserSerializer(many=True)
+    repositories = GitRepositorySerializer(many=True)
+    projects = ProjectSerializer(many=True)
