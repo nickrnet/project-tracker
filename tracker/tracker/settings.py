@@ -40,7 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Other packages
+    # 'app_metrics',
     'django_extensions',
+    'health_check',
+    'health_check.db',
+    'health_check.cache',
+    'health_check.storage',
+    'health_check.contrib.migrations',
     'phone_field',
     'rest_framework',
     # Applications in this project
@@ -134,3 +140,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = reverse_lazy('login')
+
+CELERY_ALWAYS_EAGER = True
+
+HEALTH_CHECK = {
+    "SUBSETS": {
+        "startup-probe": ["MigrationsHealthCheck", "DatabaseHealthCheck"],
+        "liveness-probe": ["DatabaseBackend"],
+    },
+}
