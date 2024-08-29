@@ -36,7 +36,6 @@ def new_project(request):
                 end_date=received_new_project_form.cleaned_data.get("end_date"),
             )
             project_data.save()
-            project_data.save()
             project = project_models.Project.objects.create(
                 created_by=logged_in_user,
                 current=project_data,
@@ -54,7 +53,9 @@ def new_project(request):
 
     project_form = new_project_form.NewProjectForm()
     git_repository_form = new_git_repository_form.NewGitRepositoryDataForm()
+    # TODO: Show all projects the user has access to
     projects = logged_in_user.projects.all()
+    # TODO: Show all git repositories the user has access to
     git_repositories = logged_in_user.git_repositories.all()
 
     return render(request=request, template_name="project/new_project_template.html", context={

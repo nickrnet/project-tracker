@@ -35,7 +35,7 @@
             <td>{{ new_project_form.git_repository.label_tag }}</td>
             <td>
               {% if repositories %}
-              <select name="git_repository">
+              <select name="git_repository" multiple>
                 {% for repository in repositories %}
                   <option value="{{ repository.id }}">{{ repository }}</option>
                 {% endfor %}

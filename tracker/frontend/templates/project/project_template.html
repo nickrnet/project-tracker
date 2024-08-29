@@ -37,13 +37,10 @@
           <tr>
             <td>{{ project_form.git_repository.label_tag }}</td>
             <td>
-              <select name="git_repository">
+              <select name="git_repository" multiple>
                 {% for repository in repositories %}
-                  {% if repository.id|stringformat:"s" == git_repository_id %}
-                  <option value="{{ repository.id|stringformat:"s" }}" selected>{{ repository.current.name }}</option>
-                  {% else %}
+                {% comment %} TODO: Make this a select the repositories the project uses {% endcomment %}
                   <option value="{{ repository.id|stringformat:"s" }}">{{ repository.current.name }}</option>
-                  {% endif %}
                 {% endfor %}
               </select>
             </td>
