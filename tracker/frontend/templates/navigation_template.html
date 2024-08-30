@@ -1,37 +1,26 @@
-{% if user.is_authenticated %}
-<div>
-    <p class="text-muted">
-        Welcome,
-    <a href="{% url 'user' logged_in_user.id %}">
-    {% if logged_in_user.current.first_name %}
-    {{ logged_in_user.current.first_name }} ({{ logged_in_user.current.email }})
+<ul class="nav flex-column">
+    {% if user.is_authenticated %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'projects' %}">Projects</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'issues' %}">Issues</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'git_repositories' %}">Git Repositories</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'organizations' %}">Organizations</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'users' %}">Users</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'logout' %}">Log out</a>
+    </li>
     {% else %}
-    {{ logged_in_user.current.email }}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'signup' %}">Signup!</a>
+    </li>
     {% endif %}
-    </a>
-    !
-    </p>
-</div>
-<div>
-    <p><a href="/logout">Logout</a></p>
-</div>
-<div>
-    <p><a href="/git_repositories">Git Repositories</a></p>
-</div>
-<div>
-    <p><a href="/projects">Projects</a></p>
-</div>
-<div>
-    <p><a href="/issues">Issues</a></p>
-</div>
-<div>
-    <p><a href="/organizations">Organizations</a></p>
-</div>
-<div>
-    <p><a href="/users">Users</a></p>
-</div>
-{% else %}
-<div>
-    <a href="/signup">Signup</a>
-</div>
-{% endif %}
+</ul>

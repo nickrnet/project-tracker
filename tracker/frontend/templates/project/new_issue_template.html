@@ -1,32 +1,30 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="content">
-    <div class="container">
-      <h2 class="my-4">Add a new issue</h2>
-      {% include "messages.html" %}
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <table>
-          <tr>
+<div class="container">
+    <h2 class="my-4">Add a new issue</h2>
+    {% include "messages.html" %}
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+        <tr>
             <td>{{ new_issue_form.project.label_tag }}</td>
             <td>
-              <select name="project">
+                <select name="project">
                 {% for project in projects %}
-                  <option value="{{ project.id }}">{{ project.current.name }}</option>
+                    <option value="{{ project.id }}">{{ project.current.name }}</option>
                 {% endfor %}
             </td>
-          </tr>
-          <tr>
+        </tr>
+        <tr>
             <td>{{ new_issue_form.current.summary.label_tag }}</td>
             <td>{{ new_issue_form.current.summary }}</td>
-          </tr>
-          <tr>
+        </tr>
+        <tr>
             <td>{{ new_issue_form.current.description.label_tag }}</td>
             <td>{{ new_issue_form.current.description }}</td>
-          </tr>
-        </table>
-        <button class="btn btn-primary my-4" type="submit">Submit</button>
-      </form>
-    </div>
-  </div>
+        </tr>
+    </table>
+    <button class="btn btn-primary my-4" type="submit">Submit</button>
+    </form>
+</div>
 {% endblock %}

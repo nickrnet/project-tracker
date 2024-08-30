@@ -1,53 +1,51 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="content">
-    <div class="container">
-      {% include "messages.html" %}
-      <form method="post" enctype="multipart/form-data">
+<div class="container">
+    {% include "messages.html" %}
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <table>
-          <tr>
-            <td>{{ project_form.name.label_tag }}</td>
-            <td>{{ project_form.name }}</td>
-          </tr>
-          <tr>
-            <td>{{ project_form.description.label_tag }}</td>
-            <td>{{ project_form.description }}</td>
-          </tr>
-          <tr>
-            <td>{{ project_form.label.label_tag }}</td>
-            <td>{{ project_form.label }}</td>
-          </tr>
-          <tr>
-            <td>{{ project_form.is_active.label_tag }}</td>
-            <td>{{ project_form.is_active }}</td>
-          </tr>
-          <tr>
-            <td>{{ project_form.is_private.label_tag }}</td>
-            <td>{{ project_form.is_private }}</td>
-          </tr>
-          <tr>
-            <td>{{ project_form.start_date.label_tag }}</td>
-            <td>{{ project_form.start_date }}</td>
-          </tr>
-          <tr>
-            <td>{{ project_form.end_date.label_tag }}</td>
-            <td>{{ project_form.end_date }}</td>
-          </tr>
-          <tr>
-            <td>{{ project_form.git_repository.label_tag }}</td>
-            <td>
-              <select name="git_repository" multiple>
-                {% for repository in repositories %}
-                {% comment %} TODO: Make this a select the repositories the project uses {% endcomment %}
-                  <option value="{{ repository.id|stringformat:"s" }}">{{ repository.current.name }}</option>
-                {% endfor %}
-              </select>
-            </td>
-          </tr>
+            <tr>
+                <td>{{ project_form.name.label_tag }}</td>
+                <td>{{ project_form.name }}</td>
+            </tr>
+            <tr>
+                <td>{{ project_form.description.label_tag }}</td>
+                <td>{{ project_form.description }}</td>
+            </tr>
+            <tr>
+                <td>{{ project_form.label.label_tag }}</td>
+                <td>{{ project_form.label }}</td>
+            </tr>
+            <tr>
+                <td>{{ project_form.is_active.label_tag }}</td>
+                <td>{{ project_form.is_active }}</td>
+            </tr>
+            <tr>
+                <td>{{ project_form.is_private.label_tag }}</td>
+                <td>{{ project_form.is_private }}</td>
+            </tr>
+            <tr>
+                <td>{{ project_form.start_date.label_tag }}</td>
+                <td>{{ project_form.start_date }}</td>
+            </tr>
+            <tr>
+                <td>{{ project_form.end_date.label_tag }}</td>
+                <td>{{ project_form.end_date }}</td>
+            </tr>
+            <tr>
+                <td>{{ project_form.git_repository.label_tag }}</td>
+                <td>
+                    <select name="git_repository" multiple>
+                    {% for repository in repositories %}
+                    {% comment %} TODO: Make this a select the repositories the project uses {% endcomment %}
+                        <option value="{{ repository.id|stringformat:"s" }}">{{ repository.current.name }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
         </table>
         <button class="btn btn-primary my-4" type="submit">Submit</button>
-      </form>
-    </div>
-  </div>
+    </form>
+</div>
 {% endblock %}

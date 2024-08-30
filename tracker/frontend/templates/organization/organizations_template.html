@@ -1,24 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="content">
-    <div class="container">
-      <h2 class="my-4">Organizations</h2>
-      <p><a href="{% url 'new_organization' %}">Make one!</a></p>
-      {% include "messages.html" %}
-      <div class="row">
-        {% for organization in organizations %}
-          <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
+<div class="container">
+    <h2 class="my-4">Organizations</h2>
+    <p><a href="{% url 'new_organization' %}">Make one!</a></p>
+    {% include "messages.html" %}
+    <div class="row">
+    {% for organization in organizations %}
+        <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
             <div class="card h-100 p-4">
-              <h4><a href="{% url 'organization' organization.id %}">{{ organization.current.name }}</a></h4>
-              <p class="text-muted">Description: {{ organization.current.description }}</p>
-              <p class="text-muted">Created: {{ organization.created_on }} by <a href="{% url 'user' organization.created_by.id %}">{{ organization.created_by.current.last_name }}, {{ organization.created_by.current.first_name }}</a></p>
-              <p class="text-muted">Responsible Party: {{ organization.current.responsible_party_email }}</p>
+                <h4><a href="{% url 'organization' organization.id %}">{{ organization.current.name }}</a></h4>
+                <p class="text-muted">Description: {{ organization.current.description }}</p>
+                <p class="text-muted">Created: {{ organization.created_on }} by <a href="{% url 'user' organization.created_by.id %}">{{ organization.created_by.current.last_name }}, {{ organization.created_by.current.first_name }}</a></p>
+                <p class="text-muted">Responsible Party: {{ organization.current.responsible_party_email }}</p>
             </div>
-          </div>
-        {% empty %}
-          <p>You're not a member of any organizations yet.</p>
-        {% endfor %}
-      </div>
+        </div>
+    {% empty %}
+        <p>You're not a member of any organizations yet.</p>
+    {% endfor %}
     </div>
-  </div>
+</div>
 {% endblock %}

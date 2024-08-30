@@ -1,36 +1,34 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="content">
-    <div class="container">
+  <div class="container">
       <h2 class="my-4">Issues</h2>
       <p><a href="{% url 'new_issue' %}">Make one!</a></p>
       {% include "messages.html" %}
       <div class="row">
         {% for issue in issues %}
-          <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
+        <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
             <div class="card h-100 p-4">
-              <h4><a href="{% url 'issue' issue.id %}">{{ issue.current.summary }}</a></h4>
-              <p class="text-muted">{{ issue.current.description }}</p>
-              <p class="text-muted">Project: <a href="{% url 'project' issue.project.id %}">{{ issue.project.current.name }}</a></p>
-              {% with project_repos=issue.project.git_repository.all %}
-              {% if project_repos %}
-              <p class="text-muted">Git Repositories:
-                {% for repository in project_repos %}
-                  <a href="{% url 'git_repository' repository.id %}">{{ repository }}</a>
-                {% endfor %}
-              </p>
-              {% endif %}
-              {% endwith %}
-              {% with project_org=issue.project.organizationprojects_set.first %}
-              <p class="text-muted">In organization <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></p>
-              {% endwith %}
-              <p class="text-muted">Created {{ issue.created_on }} by <a href="{% url 'user' issue.created_by.id %}">{{ issue.created_by.current.last_name }}, {{ issue.created_by.current.first_name }}</a></p>
+                <h4><a href="{% url 'issue' issue.id %}">{{ issue.current.summary }}</a></h4>
+                <p class="text-muted">{{ issue.current.description }}</p>
+                <p class="text-muted">Project: <a href="{% url 'project' issue.project.id %}">{{ issue.project.current.name }}</a></p>
+                {% with project_repos=issue.project.git_repository.all %}
+                {% if project_repos %}
+                <p class="text-muted">Git Repositories:
+                    {% for repository in project_repos %}
+                    <a href="{% url 'git_repository' repository.id %}">{{ repository }}</a>
+                    {% endfor %}
+                </p>
+                {% endif %}
+                {% endwith %}
+                {% with project_org=issue.project.organizationprojects_set.first %}
+                <p class="text-muted">In organization <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></p>
+                {% endwith %}
+                <p class="text-muted">Created {{ issue.created_on }} by <a href="{% url 'user' issue.created_by.id %}">{{ issue.created_by.current.last_name }}, {{ issue.created_by.current.first_name }}</a></p>
             </div>
-          </div>
+        </div>
         {% empty %}
-          <p>No issues yet.</p>
+            <p>No issues yet.</p>
         {% endfor %}
       </div>
-    </div>
   </div>
 {% endblock %}

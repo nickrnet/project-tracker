@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="container">
+<div class="container">
     <h2 class="my-4">Sign up for Project Tracker</h2>
     {% include "messages.html" %}
     <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <table>
+        {% csrf_token %}
+        <table>
         {{ signup_form.as_table }}
-      </table>
-      <button class="btn btn-primary my-4" type="submit">Submit</button>
+        </table>
+        <button class="btn btn-primary my-4" type="submit">Submit</button>
     </form>
-  </div>
+</div>
 {% endblock %}

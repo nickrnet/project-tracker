@@ -1,35 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="content">
-    <div class="container">
-      <h2 class="my-4">Add a new git repository</h2>
-      {% include "messages.html" %}
-      <form method="post" enctype="multipart/form-data">
+<div class="container">
+    <h2 class="my-4">Add a new git repository</h2>
+    {% include "messages.html" %}
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <table>
         {{ new_git_repository_form.as_table }}
         </table>
         <button class="btn btn-primary my-4" type="submit">Submit</button>
-      </form>
-      <h2 class="my-4">Git Repositories</h2>
-      <div class="row">
-        {% for repository in repositories %}
+    </form>
+    <h2 class="my-4">Git Repositories</h2>
+    <div class="row">
+    {% for repository in repositories %}
         <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-          <div class="card h-100 p-4">
-            <a href="{% url 'git_repository' repository.id %}"><h4>{{ repository.current.name }}</h4></a>
-            <p class="text-muted">{{ repository.current.description }}</p>
-            {% if repository.current.url %}
-              <h4>{{ repository.current.url }}</h4>
-            {% else %}
-              <h4></h4>
-            {% endif %}
-            <p class="text-muted">Created {{ repository.created_on }} by <a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.last_name }}, {{ repository.created_by.current.first_name }}</a></p>
-          </div>
+            <div class="card h-100 p-4">
+                <a href="{% url 'git_repository' repository.id %}"><h4>{{ repository.current.name }}</h4></a>
+                <p class="text-muted">{{ repository.current.description }}</p>
+                {% if repository.current.url %}
+                <h4>{{ repository.current.url }}</h4>
+                {% else %}
+                <h4></h4>
+                {% endif %}
+                <p class="text-muted">Created {{ repository.created_on }} by <a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.last_name }}, {{ repository.created_by.current.first_name }}</a></p>
+            </div>
         </div>
-        {% empty %}
-          <p>No git repositories yet.</p>
-        {% endfor %}
-      </div>
+    {% empty %}
+        <p>No git repositories yet.</p>
+    {% endfor %}
     </div>
-  </div>
+</div>
 {% endblock %}
