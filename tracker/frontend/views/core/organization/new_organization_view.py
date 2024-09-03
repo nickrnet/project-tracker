@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
 
-from frontend.forms.organization import new_organization_form as new_organization_form
+from frontend.forms.core.organization import new_organization_form as new_organization_form
 from core.models import organization as core_organization_models
 from core.models import user as core_user_models
 
@@ -39,11 +39,11 @@ def new_organization(request):
             return redirect("organization", organization_id=organization.id)
         else:
             messages.error(request, 'Error saving organization.')
-            return render(request, "organization/new_organization_template.html")
+            return render(request, "core/organization/new_organization_template.html")
 
     organization_data_form = new_organization_form.NewOrganizationDataForm()
     organizations = logged_in_user.organizations.all()
-    return render(request=request, template_name="organization/new_organization_template.html", context={
+    return render(request=request, template_name="core/organization/new_organization_template.html", context={
         'logged_in_user': logged_in_user,
         'new_organization_data_form': organization_data_form,
         'organizations': organizations

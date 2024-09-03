@@ -1,22 +1,22 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-
 from core.models import user as core_user_models
 
 
 @login_required
-def organizations(request):
+def projects(request):
     try:
         logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
-    organizations = logged_in_user.organizations.all()
+    projects = logged_in_user.project_set.all()
+
     return render(
         request=request,
-        template_name="organization/organizations_template.html",
+        template_name="project/project/projects_template.html",
         context={
             'logged_in_user': logged_in_user,
-            'organizations': organizations
+            'projects': projects,
         }
     )

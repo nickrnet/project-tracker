@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 
-from frontend.forms.git_repository import git_repository_form as git_repository_form
+from frontend.forms.project.git_repository import git_repository_form as git_repository_form
 from core.models import user as core_user_models
 from project.models import git_repository as git_repository_models
 
@@ -43,7 +43,7 @@ def git_repository(request, git_repository_id=None):
         messages.error(request, 'The specified Git Repository does not exist. Create it and try again.')
         return redirect("new_git_repository")
 
-    return render(request=request, template_name="git_repository/git_repository_template.html", context={
+    return render(request=request, template_name="project/git_repository/git_repository_template.html", context={
         'logged_in_user': logged_in_user,
         'git_repository_form': form
     })

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 
 from core.models import user as core_user_models
-from frontend.forms.user import new_user_form
+from frontend.forms.core.user import new_user_form
 
 
 @login_required
@@ -35,7 +35,7 @@ def new_user(request):
 
     user_organizations = logged_in_user.organization_created_by.all()
 
-    return render(request=request, template_name="user/new_user_template.html", context={
+    return render(request=request, template_name="core/user/new_user_template.html", context={
         'logged_in_user': logged_in_user,
         'new_user_form': new_user_data_form,
         'users': users,

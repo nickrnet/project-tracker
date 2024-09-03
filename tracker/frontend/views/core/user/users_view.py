@@ -21,7 +21,7 @@ def users(request):
 
     return render(
         request=request,
-        template_name="user/users_template.html",
+        template_name="core/user/users_template.html",
         context={
             'logged_in_user': logged_in_user,
             'users': users,

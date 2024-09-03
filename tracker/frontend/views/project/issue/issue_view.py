@@ -3,7 +3,7 @@ from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 
 from core.models import user as core_user_models
-from frontend.forms.project import issue_form
+from frontend.forms.project.issue import issue_form
 
 
 @login_required
@@ -23,7 +23,7 @@ def issue(request, issue_id=None):
 
     return render(
         request=request,
-        template_name="project/issue_template.html",
+        template_name="project/issue/issue_template.html",
         context={
             'logged_in_user': logged_in_user,
             'issue_form': form,

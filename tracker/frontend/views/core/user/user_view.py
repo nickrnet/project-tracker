@@ -4,7 +4,7 @@ from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 
 from core.models import user as core_user_models
-from frontend.forms.user import core_user_form
+from frontend.forms.core.user import core_user_form
 
 
 @login_required
@@ -48,7 +48,7 @@ def user(request, user_id=None):
     user_data_form = core_user_form.UserDataForm(model_to_dict(user.current))
     return render(
         request=request,
-        template_name="user/core_user_template.html",
+        template_name="core/user/core_user_template.html",
         context={
             "logged_in_user": logged_in_user,
             "user_data_form": user_data_form

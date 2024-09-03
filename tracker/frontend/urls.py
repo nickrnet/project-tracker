@@ -4,21 +4,21 @@ from django.urls import path, register_converter
 
 from frontend.views import login_view
 from frontend.views import logout_view
-from frontend.views.git_repository import git_repository_view
-from frontend.views.git_repository import git_repositories_view
-from frontend.views.git_repository import new_git_repository_view
-from frontend.views.organization import organization_view
-from frontend.views.organization import organizations_view
-from frontend.views.organization import new_organization_view
-from frontend.views.project import project_view
-from frontend.views.project import projects_view
-from frontend.views.project import new_project_view
-from frontend.views.project import issue_view
-from frontend.views.project import issues_view
-from frontend.views.project import new_issue_view
-from frontend.views.user import user_view
-from frontend.views.user import users_view
-from frontend.views.user import new_user_view
+from frontend.views.project.git_repository import git_repository_view
+from frontend.views.project.git_repository import git_repositories_view
+from frontend.views.project.git_repository import new_git_repository_view
+from frontend.views.core.organization import organization_view
+from frontend.views.core.organization import organizations_view
+from frontend.views.core.organization import new_organization_view
+from frontend.views.project.project import project_view
+from frontend.views.project.project import projects_view
+from frontend.views.project.project import new_project_view
+from frontend.views.project.issue import issue_view
+from frontend.views.project.issue import issues_view
+from frontend.views.project.issue import new_issue_view
+from frontend.views.core.user import user_view
+from frontend.views.core.user import users_view
+from frontend.views.core.user import new_user_view
 from frontend.views import signup_view
 
 

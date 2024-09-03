@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
 
-from frontend.forms.git_repository import new_git_repository_form as new_git_repository_form
+from frontend.forms.project.git_repository import new_git_repository_form as new_git_repository_form
 from core.models import user as core_user_models
 from project.models import git_repository as git_repository_models
 
@@ -39,7 +39,7 @@ def new_git_repository(request):
 
     git_repository_form = new_git_repository_form.NewGitRepositoryDataForm()
     repositories = logged_in_user.git_repositories.all()
-    return render(request=request, template_name="git_repository/new_git_repository_template.html", context={
+    return render(request=request, template_name="project/git_repository/new_git_repository_template.html", context={
         'logged_in_user': logged_in_user,
         'new_git_repository_form': git_repository_form,
         'repositories': repositories

@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.utils import timezone
 
-from frontend.forms.git_repository import new_git_repository_form
-from frontend.forms.project import new_project_form
+from frontend.forms.project.git_repository import new_git_repository_form
+from frontend.forms.project.project import new_project_form
 from core.models import user as core_user_models
 from project.models import project as project_models
 
@@ -58,7 +58,7 @@ def new_project(request):
     # TODO: Show all git repositories the user has access to
     git_repositories = logged_in_user.git_repositories.all()
 
-    return render(request=request, template_name="project/new_project_template.html", context={
+    return render(request=request, template_name="project/project/new_project_template.html", context={
         'logged_in_user': logged_in_user,
         'new_project_form': project_form,
         'projects': projects,

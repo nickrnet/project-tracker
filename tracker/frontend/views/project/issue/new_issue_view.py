@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
 
-from frontend.forms.project import new_issue_form
+from frontend.forms.project.issue import new_issue_form
 from core.models import user as core_user_models
 from project.models import issue as issue_models
 
@@ -47,7 +47,7 @@ def new_issue(request):
     issue_data_form = new_issue_form.NewIssueDataForm()
     projects = logged_in_user.projects.all()
 
-    return render(request=request, template_name="project/new_issue_template.html", context={
+    return render(request=request, template_name="project/issue/new_issue_template.html", context={
         'logged_in_user': logged_in_user,
         'new_issue_form': issue_form,
         'new_issue_data_form': issue_data_form,

@@ -6,8 +6,8 @@ from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 
 from core.models import user as core_user_models
-from frontend.forms.git_repository import git_repository_form
-from frontend.forms.project import project_form
+from frontend.forms.project.git_repository import git_repository_form
+from frontend.forms.project.project import project_form
 from project.models import project as project_models
 
 
@@ -31,7 +31,7 @@ def handle_post(request, project_id, logged_in_user):
             return redirect("new_project")
     else:
         messages.error(request, 'Error saving project.')
-        return render(request, "project/new_project_template.html")
+        return render(request, "project/project/new_project_template.html")
 
 
 @login_required
@@ -59,7 +59,7 @@ def project(request, project_id=None):
     # TODO: Use all git repositories the user has access to, including other organizations and projects
     git_repositories = logged_in_user.git_repositories.all()
 
-    return render(request=request, template_name="project/project_template.html", context={
+    return render(request=request, template_name="project/project/project_template.html", context={
         'logged_in_user': logged_in_user,
         'project_form': form,
         'git_repository_form': git_repo_form,
