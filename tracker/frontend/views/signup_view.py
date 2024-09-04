@@ -14,10 +14,20 @@ def signup(request):
             return redirect("login")
         else:
             messages.error(request, 'Error saving user. Double check your data and try again.')
-            return render(request, "signup_template.html", context={'signup_form': new_user_data_form})
+            return render(
+                request=request,
+                template_name="signup_template.html",
+                context={
+                    'signup_form': new_user_data_form
+                }
+            )
 
     signup_form_data = signup_form.NewUserDataForm()
 
-    return render(request=request, template_name="signup_template.html", context={
-        'signup_form': signup_form_data
-    })
+    return render(
+        request=request,
+        template_name="signup_template.html",
+        context={
+            'signup_form': signup_form_data
+        }
+    )

@@ -11,9 +11,10 @@ def users(request):
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
-    # Get unique users from organizations and projects
+    # Get unique users from owned organizations and projects
     organization_users = logged_in_user.organizations.values_list('members', flat=True)
     project_users = logged_in_user.projects.values_list('users', flat=True)
+    # Managing users of an organization is a different view
 
     # Combine the user IDs and get distinct users
     user_ids = set(organization_users).union(set(project_users))

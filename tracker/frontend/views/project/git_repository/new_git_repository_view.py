@@ -39,8 +39,12 @@ def new_git_repository(request):
 
     git_repository_form = new_git_repository_form.NewGitRepositoryDataForm()
     repositories = logged_in_user.git_repositories.all()
-    return render(request=request, template_name="project/git_repository/new_git_repository_template.html", context={
-        'logged_in_user': logged_in_user,
-        'new_git_repository_form': git_repository_form,
-        'repositories': repositories
-    })
+    return render(
+        request=request,
+        template_name="project/git_repository/new_git_repository_template.html",
+        context={
+            'logged_in_user': logged_in_user,
+            'new_git_repository_form': git_repository_form,
+            'repositories': repositories
+        }
+    )

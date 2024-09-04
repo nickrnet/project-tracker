@@ -35,9 +35,13 @@ def new_user(request):
 
     user_organizations = logged_in_user.organization_created_by.all()
 
-    return render(request=request, template_name="core/user/new_user_template.html", context={
-        'logged_in_user': logged_in_user,
-        'new_user_form': new_user_data_form,
-        'users': users,
-        'user_organizations': user_organizations
-    })
+    return render(
+        request=request,
+        template_name="core/user/new_user_template.html",
+        context={
+            'logged_in_user': logged_in_user,
+            'new_user_form': new_user_data_form,
+            'users': users,
+            'user_organizations': user_organizations
+        }
+    )

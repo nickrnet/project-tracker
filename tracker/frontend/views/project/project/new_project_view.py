@@ -53,15 +53,18 @@ def new_project(request):
 
     project_form = new_project_form.NewProjectForm()
     git_repository_form = new_git_repository_form.NewGitRepositoryDataForm()
-    # TODO: Show all projects the user has access to
-    projects = logged_in_user.projects.all()
-    # TODO: Show all git repositories the user has access to
+    projects = logged_in_user.project_set.all()
+    # TODO: Show all git repositories the user has access to, include git repositories from organizations and projects the user is a member of
     git_repositories = logged_in_user.git_repositories.all()
 
-    return render(request=request, template_name="project/project/new_project_template.html", context={
-        'logged_in_user': logged_in_user,
-        'new_project_form': project_form,
-        'projects': projects,
-        'git_repository_form': git_repository_form,
-        'repositories': git_repositories,
-    })
+    return render(
+        request=request,
+        template_name="project/project/new_project_template.html",
+        context={
+            'logged_in_user': logged_in_user,
+            'new_project_form': project_form,
+            'projects': projects,
+            'git_repository_form': git_repository_form,
+            'repositories': git_repositories,
+        }
+    )

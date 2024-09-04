@@ -10,7 +10,7 @@ def issues(request):
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
-    # TODO: Add issues watching, assigned to, not just reported by user
+    # TODO: Add issues watching, assigned to, not just reported by user, filter also by project and/or organization
     issues = logged_in_user.issue_created_by.all()
 
     return render(

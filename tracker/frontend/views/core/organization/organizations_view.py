@@ -11,7 +11,7 @@ def organizations(request):
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
-    organizations = logged_in_user.organizations.all()
+    organizations = logged_in_user.organizationmembers_set.all()
     return render(
         request=request,
         template_name="core/organization/organizations_template.html",

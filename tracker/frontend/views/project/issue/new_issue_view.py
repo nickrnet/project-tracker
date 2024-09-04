@@ -47,9 +47,13 @@ def new_issue(request):
     issue_data_form = new_issue_form.NewIssueDataForm()
     projects = logged_in_user.projects.all()
 
-    return render(request=request, template_name="project/issue/new_issue_template.html", context={
-        'logged_in_user': logged_in_user,
-        'new_issue_form': issue_form,
-        'new_issue_data_form': issue_data_form,
-        'projects': projects,
-    })
+    return render(
+        request=request,
+        template_name="project/issue/new_issue_template.html",
+        context={
+            'logged_in_user': logged_in_user,
+            'new_issue_form': issue_form,
+            'new_issue_data_form': issue_data_form,
+            'projects': projects,
+        }
+    )

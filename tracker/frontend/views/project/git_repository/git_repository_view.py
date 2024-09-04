@@ -43,7 +43,11 @@ def git_repository(request, git_repository_id=None):
         messages.error(request, 'The specified Git Repository does not exist. Create it and try again.')
         return redirect("new_git_repository")
 
-    return render(request=request, template_name="project/git_repository/git_repository_template.html", context={
-        'logged_in_user': logged_in_user,
-        'git_repository_form': form
-    })
+    return render(
+        request=request,
+        template_name="project/git_repository/git_repository_template.html",
+        context={
+            'logged_in_user': logged_in_user,
+            'git_repository_form': form
+        }
+    )

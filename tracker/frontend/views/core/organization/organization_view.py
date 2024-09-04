@@ -40,10 +40,14 @@ def organization(request, organization_id=None):
     try:
         organization = core_organization_models.Organization.objects.get(pk=organization_id)
         organization_data_form = organization_form.OrganizationDataForm(model_to_dict(organization.current))
-        return render(request=request, template_name="core/organization/organization_template.html", context={
-            'logged_in_user': logged_in_user,
-            'organization_data_form': organization_data_form
-        })
+        return render(
+            request=request,
+            template_name="core/organization/organization_template.html",
+            context={
+                'logged_in_user': logged_in_user,
+                'organization_data_form': organization_data_form
+            }
+        )
     except core_organization_models.Organization.DoesNotExist:
         messages.error(request, 'The specified Organization does not exist. Create it and try again.')
         return redirect("new_organization")

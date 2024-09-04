@@ -19,12 +19,36 @@ def login_to_app(request):
                     return redirect(request.GET.get("next", '/projects'))
                 except core_user_models.CoreUser.DoesNotExist:
                     messages.error(request, 'Error logging in.')
-                    return render(request=request, template_name="login_template.html", context={'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})})
+                    return render(
+                        request=request,
+                        template_name="login_template.html",
+                        context={
+                            'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})
+                        }
+                    )
             else:
                 messages.error(request, 'Error logging in.')
-                return render(request=request, template_name="login_template.html", context={'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})})
+                return render(
+                    request=request,
+                    template_name="login_template.html",
+                    context={
+                        'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})
+                    }
+                )
         else:
             messages.error(request, 'Check the values you entered and try again.')
-            return render(request=request, template_name="login_template.html", context={'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})})
+            return render(
+                request=request,
+                template_name="login_template.html",
+                context={
+                    'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})
+                }
+            )
 
-    return render(request=request, template_name="login_template.html", context={'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})})
+    return render(
+        request=request,
+        template_name="login_template.html",
+        context={
+            'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})
+        }
+    )

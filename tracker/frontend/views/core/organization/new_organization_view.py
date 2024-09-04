@@ -39,12 +39,19 @@ def new_organization(request):
             return redirect("organization", organization_id=organization.id)
         else:
             messages.error(request, 'Error saving organization.')
-            return render(request, "core/organization/new_organization_template.html")
+            return render(
+                request=request,
+                template_name="core/organization/new_organization_template.html"
+            )
 
     organization_data_form = new_organization_form.NewOrganizationDataForm()
     organizations = logged_in_user.organizations.all()
-    return render(request=request, template_name="core/organization/new_organization_template.html", context={
-        'logged_in_user': logged_in_user,
-        'new_organization_data_form': organization_data_form,
-        'organizations': organizations
-    })
+    return render(
+        request=request,
+        template_name="core/organization/new_organization_template.html",
+        context={
+            'logged_in_user': logged_in_user,
+            'new_organization_data_form': organization_data_form,
+            'organizations': organizations
+        }
+    )
