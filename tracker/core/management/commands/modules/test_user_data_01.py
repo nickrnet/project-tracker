@@ -5,8 +5,8 @@ from core.models import user as core_user_models
 
 test_user_01 = {
     'first_name': 'John',
-    'middle_name': 'TestUser01',
-    'last_name': 'Doe',
+    'middle_name': '',
+    'last_name': 'TestUser01',
     'email': 'test_user_01@project-tracker.dev',
     'secondary_email': '',
     'home_phone': '123-456-7890',
@@ -24,7 +24,7 @@ test_user_01 = {
 }
 
 
-def initialize_test_user():
+def initialize_test_user_01():
     api_user = core_user_models.CoreUser.objects.get_or_create_api_user()
 
     django_user = DjangoUser.objects.create_user(

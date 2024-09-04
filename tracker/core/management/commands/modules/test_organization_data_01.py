@@ -1,6 +1,6 @@
 from core.models import user as core_user_models
 from core.models import organization as core_organization_models
-from .test_user_data import test_user_01
+from .test_user_data_01 import test_user_01
 
 
 test_organization_01 = {
@@ -21,7 +21,7 @@ test_organization_01 = {
 }
 
 
-def initialize_test_organization():
+def initialize_test_organization_01():
     test_user_01_instance = core_user_models.CoreUser.objects.get(user__email=test_user_01.get('email'))
 
     core_organization_data = core_organization_models.OrganizationData(
