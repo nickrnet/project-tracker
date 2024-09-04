@@ -26,6 +26,10 @@ class CoreModelActiveManager(models.Manager):
 
 class CoreModelManager(models.Manager):
     @classmethod
+    def get_archived_items(self):
+        return self.objects.filter(archived=False)
+
+    @classmethod
     def get_deleted_items(self):
         return self.objects.filter(deleted__isnull=False)
 
@@ -48,6 +52,7 @@ class CoreModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_by = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, editable=False, related_name='%(class)s_created_by')
     created_on = models.DateTimeField(null=False, default=timezone.now, editable=False)
+    archived = models.BooleanField(default=False)
     deleted = models.ForeignKey(DeletedModel, on_delete=models.CASCADE, null=True, blank=True, db_index=False)
 
     def delete(self, person_id):
