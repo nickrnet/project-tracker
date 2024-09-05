@@ -15,7 +15,6 @@ def users(request):
     organization_users = logged_in_user.organizations.values_list('members', flat=True)
     project_users = logged_in_user.projects.values_list('users', flat=True)
     # Managing users of an organization is a different view
-
     # Combine the user IDs and get distinct users
     user_ids = set(organization_users).union(set(project_users))
     users = core_user_models.CoreUser.objects.filter(id__in=user_ids)

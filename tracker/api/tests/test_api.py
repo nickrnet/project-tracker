@@ -74,7 +74,7 @@ class APITestCase(TestCase):
         self.api_test_user.organizations.add(self.test_organization)
         self.api_test_user.save()
 
-    # TODO: Issue, IssueTypes, IssueStatus, IssuePriority tests
+    # TODO: Component, Issue, IssuePriority, IssueSeverity, IssueStatus, IssueType, Version tests
     # TODO: Tests with multiple users to check for cross-user data leakage
 
     def test_api_get_git_repositories(self):
@@ -109,4 +109,5 @@ class APITestCase(TestCase):
         self.api_client.login(username=self.api_test_user.user.username, password='password')
         response = self.api_client.get('/api/users/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()), 3)  # api_user, system_user, api_test_user
+        self.assertEqual(len(response.json()), 1)  # api_test_user can only see themselves
+        # TODO: Tests with multiple users to check for cross-user data leakage

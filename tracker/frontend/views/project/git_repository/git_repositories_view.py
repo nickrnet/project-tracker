@@ -12,15 +12,13 @@ def git_repositories(request):
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
-    # Get unique repositories from organizations and projects
-    organization_repositories = logged_in_user.organizations.values_list('repositories', flat=True)
-    project_repositories = logged_in_user.projects.values_list('git_repository', flat=True)
-
-    # Combine the user IDs and get distinct users
+    # Get repositories from organizations and projects
+    organization_repositories = logged_in_user.organizationmembers_set.values_list('repositories', flat=True)
+    project_repositories = logged_in_user.project_set.values_list('git_repository', flat=True)
+    # Combine the repository IDs and get distinct repositories
     repository_ids = set(organization_repositories).union(set(project_repositories))
     repositories = git_repository_models.GitRepository.objects.filter(id__in=repository_ids)
 
-    # repositories = logged_in_user.git_repositories.all()
     return render(
         request=request,
         template_name="project/git_repository/git_repositories_template.html",

@@ -27,4 +27,4 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         logged_in_user = core_user_models.CoreUser.objects.get(user__username=self.request.user)
-        return logged_in_user.organization_created_by.all()
+        return logged_in_user.organizationmembers_set.all()
