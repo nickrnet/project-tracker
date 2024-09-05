@@ -12,7 +12,7 @@ test_organization_02 = {
     'state': 'NY',
     'postal_code': '12345',
     'country': 'USA',
-    'timezone': 'America/New_York',
+    'timezone': 'America/Chicago',
     'responsible_party_email': test_user_02.get('email'),
     'responsible_party_phone': test_user_02.get('work_phone'),
     'is_paid': False,

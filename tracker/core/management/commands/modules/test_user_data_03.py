@@ -23,7 +23,7 @@ test_user_03 = {
     'state': 'NY',
     'postal_code': '12345',
     'country': 'USA',
-    'timezone': 'America/New_York',
+    'timezone': 'America/Chicago',
     'password': 'password123'
 }
 

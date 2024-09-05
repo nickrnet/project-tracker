@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load tz %}
 {% block content %}
 <div class="container">
     <h2 class="my-4">Git Repositories</h2>
@@ -21,7 +22,7 @@
                 {% with repo_project=repository.project_set.first %}
                 <p>Used by project <a href="{% url 'project' repo_project.id %}">{{ repo_project.current.name }}</a></p>
                 {% endwith %}
-                <p class="text-muted">Created {{ repository.created_on }} by <a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.last_name }}, {{ repository.created_by.current.first_name }}</a></p>
+                <p class="text-muted">Created {{ repository.created_on|timezone:logged_in_user.current.timezone }} by <a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.last_name }}, {{ repository.created_by.current.first_name }}</a></p>
             </div>
         </div>
         {% empty %}

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load tz %}
 {% block content %}
   <div class="container">
       <h2 class="my-4">Users</h2>
@@ -10,7 +11,7 @@
             <div class="card h-100 p-4">
                 <a href="{% url 'user' user.id %}"><h4>{{ user.current.last_name }}, {{ user.current.first_name }}</h4></a>
                 <p class="text-muted">{{ user.current.email }}</p>
-                <p class="text-muted">Created {{ user.created_on }} by {{ user.created_by.current.last_name }}, {{ user.created_by.current.first_name }}</p>
+                <p class="text-muted">Created {{ user.created_on|timezone:logged_in_user.current.timezone }} by {{ user.created_by.current.last_name }}, {{ user.created_by.current.first_name }}</p>
                 <p class="text-muted">Owns
                 {% with user_projects=user.projects.all %}
                     {% for project in user_projects %}

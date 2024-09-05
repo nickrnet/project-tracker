@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load tz %}
 {% block content %}
 <div class="container">
     <h2 class="my-4">Add a new git repository</h2>
@@ -22,7 +23,7 @@
                 {% else %}
                 <h4></h4>
                 {% endif %}
-                <p class="text-muted">Created {{ repository.created_on }} by <a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.last_name }}, {{ repository.created_by.current.first_name }}</a></p>
+                <p class="text-muted">Created {{ repository.created_on|timezone:logged_in_user.current.timezone }} by <a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.last_name }}, {{ repository.created_by.current.first_name }}</a></p>
             </div>
         </div>
     {% empty %}
