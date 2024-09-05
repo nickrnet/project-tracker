@@ -18,12 +18,11 @@
     </head>
     <body>
         <div class="container">
-            {% comment %} <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-light" style="min-width: 210px; max-width: 210px; min-height: 100vh;"> {% endcomment %}
+            {% include "header.html" %}
             <div class="row justify-content-start">
                 <div class="col-md-2">
                     {% include "navigation_template.html" %}
                 </div>
-                {% comment %} <div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 83%; min-height: 100vh;"> {% endcomment %}
                 <div class="col-md-10">
                     {% block content %} {% endblock %}
                 </div>
