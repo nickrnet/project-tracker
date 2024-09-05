@@ -1,12 +1,15 @@
+import pytz
 from django.contrib.auth.models import User as DjangoUser
 from django.db import models
-from django.utils import timezone
 
 from phone_field import PhoneField
 
 # DO NOT IMPORT OTHER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREMODEL
 # Use the string reference to the model here instead to lazy-load it
 from . import core as core_models
+
+
+TIMEZONE_CHOICES = tuple((tz, tz) for tz in pytz.all_timezones)
 
 
 class CoreUserData(core_models.CoreModel):
@@ -26,7 +29,7 @@ class CoreUserData(core_models.CoreModel):
     city = models.CharField(max_length=255, blank=True, null=True, default="")
     state = models.CharField(max_length=255, blank=True, null=True, default="")
     country = models.CharField(max_length=255, blank=True, null=True, default="")
-    timezone = models.CharField(max_length=255, default=timezone.get_default_timezone_name())
+    timezone = models.CharField(max_length=255, default='UTC', choices=TIMEZONE_CHOICES)
 
 
 class CoreUserActiveManager(models.Manager):
