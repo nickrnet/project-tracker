@@ -63,11 +63,11 @@ class APITestCase(TestCase):
         self.test_project.save()
 
         self.test_project.users.add(self.api_test_user.id)
-        self.test_project.git_repository.add(self.test_git_respository)
+        self.test_project.git_repositories.add(self.test_git_respository)
         self.test_project.save()
         self.test_organization.members.add(self.api_test_user)
         self.test_organization.projects.add(self.test_project)
-        self.test_organization.repositories.add(self.test_git_respository)
+        self.test_organization.git_repositories.add(self.test_git_respository)
         self.test_organization.save()
         self.api_test_user.git_repositories.add(self.test_git_respository)
         self.api_test_user.projects.add(self.test_project)

@@ -6,8 +6,8 @@ from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 
 from core.models import user as core_user_models
-from frontend.forms.project.git_repository import git_repository_form
 from frontend.forms.project.project import project_form
+from project.models import git_repository as git_repository_models
 from project.models import project as project_models
 
 
@@ -48,7 +48,6 @@ def project(request, project_id=None):
         handle_post(request, project_id, logged_in_user)
 
     try:
-        # TODO: Check all projects the user has access to including other organizations and other users' projects in both the try and except blocks
         project_uuid = uuid.UUID(str(project_id))
         project = logged_in_user.project_set.get(id=project_uuid)
     except ValueError:
@@ -58,17 +57,21 @@ def project(request, project_id=None):
         return redirect("new_project")
 
     form = project_form.ProjectDataForm(model_to_dict(project.current))
-    git_repo_form = git_repository_form.GitRepositoryDataForm()
-    # TODO: Use all git repositories the user has access to, including other organizations and projects
-    git_repositories = logged_in_user.git_repositories.all()
+    # Get repositories from organizations and projects the user can see
+    organization_repositoriess = logged_in_user.organizationmembers_set.values_list('git_repositories', flat=True)
+    project_repositories = logged_in_user.project_set.values_list('git_repositories', flat=True)
+    # Combine the repository IDs and get distinct ones
+    repository_ids = set(organization_repositoriess).union(set(project_repositories))
+    repositories = git_repository_models.GitRepository.objects.filter(id__in=repository_ids)
+    git_repositories = repositories.all()
 
     return render(
         request=request,
         template_name="project/project/project_template.html",
         context={
             'logged_in_user': logged_in_user,
+            'project': project,
             'project_form': form,
-            'git_repository_form': git_repo_form,
-            'repositories': git_repositories,
+            'git_repositories': git_repositories,
         }
     )

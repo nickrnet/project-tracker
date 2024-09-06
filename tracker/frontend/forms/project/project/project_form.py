@@ -9,4 +9,9 @@ class ProjectDataForm(forms.Form):
     is_private = forms.BooleanField(required=False)
     start_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
     end_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
-    git_repository = forms.UUIDField(required=False, widget=forms.SelectMultiple())
+
+
+class ProjectForm(forms.Form):
+    current = ProjectDataForm()
+    git_repositories = forms.UUIDField(required=False)
+    users = forms.UUIDField(required=False)

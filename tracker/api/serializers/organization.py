@@ -45,7 +45,7 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'current',
             'members',
-            'repositories',
+            'git_repositories',
             'projects',
         ]
 
@@ -53,5 +53,5 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     deleted = DeletedModelDataSerializer()
     current = OrganizationDataSerializer()
     members = CoreUserSerializer(many=True)
-    repositories = GitRepositorySerializer(many=True)
+    git_repositories = GitRepositorySerializer(many=True)
     projects = ProjectSerializer(many=True)

@@ -1,51 +1,122 @@
 {% extends 'base.html' %}
+{% load tz %}
 {% block content %}
 <div class="container">
+    <h2 class="my-4">{{ project.current.name }}</h2>
     {% include "messages.html" %}
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <table>
-            <tr>
-                <td>{{ project_form.name.label_tag }}</td>
-                <td>{{ project_form.name }}</td>
-            </tr>
-            <tr>
-                <td>{{ project_form.description.label_tag }}</td>
-                <td>{{ project_form.description }}</td>
-            </tr>
-            <tr>
-                <td>{{ project_form.label.label_tag }}</td>
-                <td>{{ project_form.label }}</td>
-            </tr>
-            <tr>
-                <td>{{ project_form.is_active.label_tag }}</td>
-                <td>{{ project_form.is_active }}</td>
-            </tr>
-            <tr>
-                <td>{{ project_form.is_private.label_tag }}</td>
-                <td>{{ project_form.is_private }}</td>
-            </tr>
-            <tr>
-                <td>{{ project_form.start_date.label_tag }}</td>
-                <td>{{ project_form.start_date }}</td>
-            </tr>
-            <tr>
-                <td>{{ project_form.end_date.label_tag }}</td>
-                <td>{{ project_form.end_date }}</td>
-            </tr>
-            <tr>
-                <td>{{ project_form.git_repository.label_tag }}</td>
-                <td>
-                    <select name="git_repository" multiple>
-                    {% for repository in repositories %}
-                    {% comment %} TODO: Make this a select the repositories the project uses {% endcomment %}
-                        <option value="{{ repository.id|stringformat:"s" }}">{{ repository.current.name }}</option>
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="issues-tab" data-bs-toggle="tab" data-bs-target="#issues-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Issues</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="repositories-tab" data-bs-toggle="tab" data-bs-target="#repositories-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Git Repositories</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Users</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab" aria-controls="disabled-tab-pane" aria-selected="false"><i class="bi bi-gear"></i></button>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="issues-tab-pane" role="tabpanel" aria-labelledby="issues-tab" tabindex="0">
+            <div class="row">
+                <h3 class="my-4">Issues <a href="{% url 'new_issue' %}"><i class="bi bi-plus-circle"></i></a></h3>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Summary</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Priority</th>
+                            <th scope="col">Severity</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for issue in project.issue_set.all %}
+                    <tr>
+                        <th scope="row">{{ issue.id|stringformat:"s" }}</th>  {% comment %} TODO: User-friendly id's {% endcomment %}
+                        <td>{{ issue.current.summary }}</th>
+                        <td>{{ issue.current.description }}</td>
+                        <td>{{ issue.built_in_type }}</td>
+                        <td>{{ issue.built_in_priority }}</td>
+                        <td>{{ issue.built_in_serverity }}</td>
+                        <td>{{ issue.built_in_status }}</td>
+                        <td>{{ issue.created_on|timezone:logged_in_user.current.timezone }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-muted">No issues found for this project.</td>  {% comment %} TODO: Link to a new one for this project {% endcomment %}
+                    </tr>
                     {% endfor %}
-                    </select>
-                </td>
-            </tr>
-        </table>
-        <button class="btn btn-primary my-4" type="submit">Submit</button>
-    </form>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="repositories-tab-pane" role="tabpanel" aria-labelledby="repositories-tab" tabindex="0">
+            <div class="row">
+                <h3 class="my-4">Git Repositories <a href="{% url 'new_git_repository' %}"><i class="bi bi-plus-circle"></i></a></h3>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">URL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for repository in project.git_repositories.all %}
+                    <tr>
+                        <td>{{ repository.current.name }}</th>
+                        <td>{{ repository.current.description }}</td>
+                        <td><a href="{{ repository.current.url }}">{{ repository.current.url }}</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-muted">No repositories associated with this project.</td>  {% comment %} TODO: Link to a new one for this project {% endcomment %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="users-tab-pane" role="tabpanel" aria-labelledby="users-tab" tabindex="0">
+            <div class="row">
+                <h3 class="my-4">Project Users <a href="{% url 'new_user' %}"><i class="bi bi-plus-circle"></i></a></h3>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Last Name</th>
+                            <th scope="col">First Name</th>
+                            <th scope="col">Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in project.users.all %}
+                    <tr>
+                        <td>{{ user.current.last_name }}</th>
+                        <td>{{ user.current.first_name }}</td>
+                        <td>{{ user.current.email }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-muted">No users associated with this project.</td>  {% comment %} TODO: Link to a new one for this project {% endcomment %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="settings-tab-pane" role="tabpanel" aria-labelledby="settings-tab" tabindex="0">
+            <div class="row">
+                <h3 class="my-4">Project Settings</h3>
+                {{ project_form.as_table }}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

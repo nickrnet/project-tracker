@@ -7,7 +7,7 @@ from project.models import git_repository as git_repository_models
 test_git_repository_02 = {
     'name': 'Test Git Repository 02',
     'description': 'This is a test git repository.',
-    'url': ''
+    'url': 'https://github.com/nickrnet/project-tracker'
 }
 
 
@@ -27,7 +27,7 @@ def initialize_test_git_repository_02():
         current=git_repository_data,
     )
     new_git_repository.save()
-    test_organization_02_instance.repositories.add(new_git_repository)
+    test_organization_02_instance.git_repositories.add(new_git_repository)
     test_organization_02_instance.save()
     test_user_02_instance.git_repositories.add(new_git_repository)
     test_user_02_instance.save()

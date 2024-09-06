@@ -40,5 +40,5 @@ class Organization(core_models.CoreModel):
 
     current = models.OneToOneField(OrganizationData, on_delete=models.CASCADE)
     members = models.ManyToManyField('core.CoreUser', related_name='organizationmembers_set')
-    repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationrepositories_set')
+    git_repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationgitrepositories_set')
     projects = models.ManyToManyField(project_models.Project, related_name='organizationprojects_set')

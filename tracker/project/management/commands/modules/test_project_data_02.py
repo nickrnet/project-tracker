@@ -29,7 +29,7 @@ def initialize_test_project_02():
         current=project_data_02_instance,
     )
     new_project.save()
-    new_project.git_repository.add(test_git_repository_02_instance)
+    new_project.git_repositories.add(test_git_repository_02_instance)
     new_project.users.add(test_user_02_instance)
     new_project.save()
     test_organization_02_instance.projects.add(new_project)

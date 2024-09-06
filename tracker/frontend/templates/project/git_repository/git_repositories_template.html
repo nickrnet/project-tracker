@@ -12,11 +12,11 @@
                 <a href="{% url 'git_repository' repository.id %}"><h4>{{ repository.current.name }}</h4></a>
                 <p class="text-muted">{{ repository.current.description }}</p>
                 {% if repository.current.url %}
-                <h4>{{ repository.current.url }}</h4>
+                <p><a href="{{ repository.current.url }}">{{ repository.current.url }}</a></p>
                 {% else %}
-                <h4></h4>
+                <h4> </h4>
                 {% endif %}
-                {% with repo_org=repository.organizationrepositories_set.first %}
+                {% with repo_org=repository.organizationgitrepositories_set.first %}
                 <p>In organization <a href="{% url 'organization' repo_org.id %}">{{ repo_org.current.name }}</a></p>
                 {% endwith %}
                 {% with repo_project=repository.project_set.first %}
