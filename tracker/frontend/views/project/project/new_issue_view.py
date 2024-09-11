@@ -30,8 +30,9 @@ def new_issue(request, project_id=None):
             issue = issue_models.Issue.objects.create(
                 created_by=logged_in_user,
                 current=issue_data,
-                project=logged_in_user.project_set.get(id=received_new_issue_form.cleaned_data.get("project")),
+                project=project,
                 reporter=logged_in_user,
+                sequence=issue_models.Issue.objects.get_next_sequence_number(project.id)
             )
             issue.save()
             logged_in_user.issues.add(issue)

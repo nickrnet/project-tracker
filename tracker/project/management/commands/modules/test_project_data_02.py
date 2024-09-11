@@ -8,6 +8,7 @@ from project.models import project as project_models
 project_data_02 = {
     'name': 'Test Project 02',
     'description': 'This is a test project.',
+    'label': 'test02',
     'git_repository': None,
     'project_type': None
 }
@@ -24,9 +25,25 @@ def initialize_test_project_02():
         description=project_data_02.get('description', ''),
     )
     project_data_02_instance.save()
+    project_label_name = project_models.ProjectLabelName(
+        created_by_id=test_user_02_instance.id,
+        name=project_data_02.get('label', ''),
+    )
+    project_label_name.save()
+    project_label_data = project_models.ProjectLabelData(
+        created_by_id=test_user_02_instance.id,
+        name=project_label_name,
+    )
+    project_label_data.save()
+    project_label = project_models.ProjectLabel(
+        created_by_id=test_user_02_instance.id,
+        current=project_label_data,
+    )
+    project_label.save()
     new_project = project_models.Project(
         created_by_id=test_user_02_instance.id,
         current=project_data_02_instance,
+        label=project_label,
     )
     new_project.save()
     new_project.git_repositories.add(test_git_repository_02_instance)

@@ -26,7 +26,7 @@
         <tbody>
         {% for issue in issues %}
         <tr>
-            <th scope="row">{{ issue.id|stringformat:"s" }}</th>  {% comment %} TODO: User-friendly id's {% endcomment %}
+            <th scope="row">{{ issue.project.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>  {% comment %} TODO: User-friendly id's {% endcomment %}
             <td>{{ issue.current.summary|safe }}</th>
             <td>{{ issue.current.description|safe }}</td>
             <td>{{ issue.built_in_type|safe }}</td>

@@ -14,16 +14,25 @@ class IssueData(core_models.CoreModel):
     description = models.TextField(blank=True, null=True)
 
 
+class IssueObjectManager(models.Manager):
+    def get_next_sequence_number(self, project_id):
+        try:
+            return self.filter(project_id=project_id).latest('sequence').sequence + 1
+        except self.model.DoesNotExist:
+            return 1
+
+
 class IssueActiveManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(deleted=None)
 
 
-class Issue(core_models.CoreModel):
+class Issue(core_models.Sequenced):
     class Meta:
         ordering = ['-created_on']
 
     active_objects = IssueActiveManager()
+    objects = IssueObjectManager()
 
     current = models.OneToOneField(IssueData, on_delete=models.CASCADE)
     project = models.ForeignKey('project.Project', on_delete=models.CASCADE)

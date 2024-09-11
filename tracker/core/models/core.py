@@ -105,3 +105,11 @@ class CoreModel(models.Model):
 
         self.deleted = None
         self.save()
+
+
+class Sequenced(CoreModel):
+    class Meta:
+        abstract = True
+        ordering = ['sequence']
+
+    sequence = models.PositiveIntegerField()

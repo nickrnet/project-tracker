@@ -15,6 +15,23 @@ class ProjectData(core_models.CoreModel):
     is_private = models.BooleanField(default=False)
 
 
+class ProjectLabelName(core_models.CoreModel):
+    class Meta:
+        unique_together = ['name']
+
+    name = models.CharField(max_length=255)
+
+
+class ProjectLabelData(core_models.CoreModel):
+    name = models.ForeignKey(ProjectLabelName, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True, default="")
+    color = models.CharField(max_length=7, default="#000000")
+
+
+class ProjectLabel(core_models.CoreModel):
+    current = models.ForeignKey('ProjectLabelData', on_delete=models.CASCADE)
+
+
 class ProjectActiveManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(deleted=None).filter(current__is_active=True)
@@ -27,6 +44,7 @@ class Project(core_models.CoreModel):
     active_objects = ProjectActiveManager()
 
     current = models.ForeignKey(ProjectData, on_delete=models.CASCADE)
+    label = models.ForeignKey(ProjectLabel, on_delete=models.CASCADE, blank=True, null=True)
     git_repositories = models.ManyToManyField(git_repository_models.GitRepository)
     users = models.ManyToManyField('core.CoreUser')
 
