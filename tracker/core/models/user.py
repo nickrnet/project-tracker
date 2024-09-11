@@ -158,3 +158,27 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
             potential_names.append(self.current.last_name)
         potential_names.append(f"({self.current.email})")
         return ' '.join(potential_names)
+
+
+class UserLogin(core_models.CoreModel):
+    class Meta:
+        ordering = ['-login_time']
+
+    user = models.ForeignKey(CoreUser, on_delete=models.CASCADE)
+    login_time = models.DateTimeField(auto_now_add=True)
+    x_forwarded_for = models.GenericIPAddressField(blank=True, null=True)
+    remote_addr = models.GenericIPAddressField(blank=True, null=True)
+    user_agent = models.CharField(max_length=255, blank=True, null=True)
+    session_key = models.CharField(max_length=255, blank=True, null=True)
+
+
+class UserLogout(core_models.CoreModel):
+    class Meta:
+        ordering = ['-logout_time']
+
+    user = models.ForeignKey(CoreUser, on_delete=models.CASCADE)
+    logout_time = models.DateTimeField(auto_now_add=True)
+    x_forwarded_for = models.GenericIPAddressField(blank=True, null=True)
+    remote_addr = models.GenericIPAddressField(blank=True, null=True)
+    user_agent = models.CharField(max_length=255, blank=True, null=True)
+    session_key = models.CharField(max_length=255, blank=True, null=True)
