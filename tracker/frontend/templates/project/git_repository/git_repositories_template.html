@@ -4,7 +4,6 @@
 <div class="container">
     <h2 class="my-4">Git Repositories</h2>
     <p><a href="{% url 'new_git_repository' %}">Make one!</a></p>
-    {% include "messages.html" %}
     <div class="row">
         {% for repository in repositories %}
         <div class="col-lg-4 col-md-6 col-sm-12 pb-4">

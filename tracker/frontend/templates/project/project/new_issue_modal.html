@@ -1,0 +1,47 @@
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">New Issue</h5>
+        </div>
+        <form
+            hx-post={% url 'new_project_issue' %}
+            hx-target="#issues-tab-pane"
+            hx-swap="outerHTML"
+            data-bs-toggle="toast"
+            data-bs-target="#toast">
+            <div class="modal-body">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <td>{{ new_issue_form.project.label_tag }}</td>
+                        <td>
+                            <select name="project">
+                            {% for known_project in projects %}
+                                {% if project_id and project_id|stringformat:"s" == known_project.id|stringformat:"s" %}
+                                    <option value="{{ known_project.id }}" selected>{{ known_project.current.name }}</option>
+                                {% else %}
+                                    <option value="{{ known_project.id }}">{{ known_project.current.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ new_issue_form.summary.label_tag }}</td>
+                        <td>{{ new_issue_form.summary }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ new_issue_form.description.label_tag }}</td>
+                        <td>{{ new_issue_form.description }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+            <input type="hidden" name="reporter" value="{{ logged_in_user.id }}">
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</div>

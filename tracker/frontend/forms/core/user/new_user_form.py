@@ -21,7 +21,7 @@ class NewUserDataForm(forms.Form):
     city = forms.CharField(required=False)
     state = forms.CharField(required=False)
     country = forms.CharField(required=False)
-    timezone = forms.CharField(required=False)
+    timezone = forms.CharField(required=False, widget=forms.Select(choices=core_user_models.TIMEZONE_CHOICES))
 
 
 class NewUserForm(forms.ModelForm):

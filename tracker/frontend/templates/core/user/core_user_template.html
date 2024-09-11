@@ -2,7 +2,6 @@
 {% block content %}
 <div class="container">
     <h2 class="my-4">{{ logged_in_user.current.email }}</h2>
-    {% include "messages.html" %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <table>

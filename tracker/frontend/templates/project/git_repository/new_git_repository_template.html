@@ -3,7 +3,6 @@
 {% block content %}
 <div class="container">
     <h2 class="my-4">Add a new git repository</h2>
-    {% include "messages.html" %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <table>

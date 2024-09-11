@@ -42,7 +42,7 @@ def new_issue(request, project_id=None):
 
         return render(
             request=request,
-            template_name="project/issue/issues_table.html",
+            template_name="project/project/issues_tab_pane.html",
             context={
                 'logged_in_user': logged_in_user,
                 'new_issue_form': received_new_issue_form,
@@ -61,7 +61,7 @@ def new_issue(request, project_id=None):
 
     return render(
         request=request,
-        template_name="project/issue/new_issue_modal.html",
+        template_name="project/project/new_issue_modal.html",
         context={
             'logged_in_user': logged_in_user,
             'new_issue_form': issue_form,

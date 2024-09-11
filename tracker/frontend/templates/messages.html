@@ -1,20 +1,41 @@
 <script>
-    window.onload = (event) => {
-        let myAlert = document.querySelector('.toast');
-        let bsAlert = new  bootstrap.Toast(myAlert);
-        bsAlert.show();
-    }
+    // window.onload = (event) => {
+    //     let myAlert = document.querySelector('.toast');
+    //     let bsAlert = new  bootstrap.Toast(myAlert);
+    //     bsAlert.show();
+    // }
+    // document.addEventListener('hx:xhr:success', (event) => {
+    //     const toast = new bootstrap.Toast(document.getElementById('toasts'));
+    //     toast.show();
+    // });
+    // const toastElement = document.getElementById("toast");
+    // const toastBody = document.getElementById("toast-body");
+    // const toast = new bootstrap.Toast(toastElement, { delay: 2000 })
+    // htmx.on("showToast", (e) => {
+    //     toastBody.innerText = e.detail.value
+    //     toast.show()
+    // });
+    function showToast() {
+        console.log("showToast");
+        const toast = new bootstrap.Toast(document.getElementById('toast'));
+        toast.show();
+    };
 </script>
 <div class="toast-container position-fixed top-0 left-0 p-3" id="toasts">
     {% for message in messages %}
-    <div class="toast" role="status" aria-live="polite" aria-atomic="true">
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">{{ message.tags|capfirst }}</strong>
+            <strong class="me-auto">{{ message.tags|safe|capfirst }}</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">
-            {{ message }}
+        <div class="toast-body" id="toast-body">
+            {{ message|safe }}
         </div>
     </div>
     {% endfor %}
+    {% if messages %}
+    <script>
+        showToast();
+    </script>
+    {% endif %}
 </div>

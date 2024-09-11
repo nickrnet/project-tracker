@@ -4,7 +4,6 @@
 <div class="container">
     <h2 class="my-4">Organizations</h2>
     <p><a href="{% url 'new_organization' %}">Make one!</a></p>
-    {% include "messages.html" %}
     <div class="row">
     {% for organization in organizations %}
         <div class="col-lg-4 col-md-6 col-sm-12 pb-4">

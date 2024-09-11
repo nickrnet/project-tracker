@@ -51,7 +51,7 @@ def project(request, project_id=None):
         project_uuid = uuid.UUID(str(project_id))
         project = logged_in_user.project_set.get(id=project_uuid)
     except ValueError:
-        project = logged_in_user.project_set.get(label=project_id)
+        project = logged_in_user.project_set.get(current__label=project_id)
     except project_models.Project.DoesNotExist:
         messages.error(request, 'The specified Project does not exist. Create it and try again.')
         return redirect("new_project")
@@ -71,7 +71,9 @@ def project(request, project_id=None):
         context={
             'logged_in_user': logged_in_user,
             'project': project,
+            'project_id': project_id,
             'project_form': form,
             'git_repositories': git_repositories,
+            'issues': project.issue_set.all(),
         }
     )

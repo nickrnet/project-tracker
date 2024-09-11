@@ -4,17 +4,16 @@
 <div class="container">
     <h2 class="my-4">Projects</h2>
     <p><a href="{% url 'new_project' %}">Make one!</a></p>
-    {% include "messages.html" %}
     <div class="row">
         {% for project in projects %}
         <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
             <div class="card h-100 p-4">
             <h4><a href="{% url 'project' project.id %}">{{ project.current.name }}</a></h4>
             <p class="text-muted">{{ project.current.description }}</p>
-            {% with project_repos=project.git_repository.all %}
+            {% with project_repos=project.git_repositories.all %}
             <p class="text-muted">Git Repositories:
                 {% for repository in project_repos %}
-                <a href="{% url 'git_repository' repository.id %}">{{ repository }}</a>
+                <a href="{% url 'git_repository' repository.id %}">{{ repository.current.name }}</a>
                 {% endfor %}
             </p>
             {% endwith %}
