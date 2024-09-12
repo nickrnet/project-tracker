@@ -29,5 +29,3 @@ def initialize_test_git_repository_01():
     new_git_repository.save()
     test_organization_01_instance.git_repositories.add(new_git_repository)
     test_organization_01_instance.save()
-    test_user_01_instance.git_repositories.add(new_git_repository)
-    test_user_01_instance.save()

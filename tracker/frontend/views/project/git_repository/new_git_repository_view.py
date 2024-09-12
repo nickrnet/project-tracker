@@ -29,8 +29,6 @@ def new_git_repository(request):
                 current=git_repository_data
             )
             git_repository.save()
-            logged_in_user.git_repositories.add(git_repository)
-            logged_in_user.save()
             messages.success(request, ('Your git repository was successfully added!'))
             return redirect("git_repository", git_repository_id=git_repository.id)
         else:
@@ -38,7 +36,14 @@ def new_git_repository(request):
             return redirect("new_git_repository", new_git_repository_form=received_new_git_repository_data_form)
 
     git_repository_form = new_git_repository_form.NewGitRepositoryDataForm()
-    repositories = logged_in_user.git_repositories.all()
+
+    # Get repositories from organizations and projects the user can see
+    organization_repositoriess = logged_in_user.organizationmembers_set.values_list('git_repositories', flat=True)
+    project_repositories = logged_in_user.project_set.values_list('git_repositories', flat=True)
+    # Combine the repository IDs and get distinct ones
+    repository_ids = set(organization_repositoriess).union(set(project_repositories))
+    repositories = git_repository_models.GitRepository.objects.filter(id__in=repository_ids)
+
     return render(
         request=request,
         template_name="project/git_repository/new_git_repository_template.html",

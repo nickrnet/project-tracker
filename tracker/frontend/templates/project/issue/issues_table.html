@@ -26,15 +26,19 @@
         </thead>
         <tbody>
         {% for issue in issues %}
-        <tr>
-            <th scope="row">{{ issue.project.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>  {% comment %} TODO: User-friendly id's {% endcomment %}
+        <tr
+            hx-get="{% url 'issue' issue.id %}"
+            hx-target="#modal"
+            data-bs-toggle="modal"
+            data-bs-target="#modal">
+            <th scope="row">{{ issue.project.label.current.name.name|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>  {% comment %} TODO: User-friendly id's {% endcomment %}
             <td>{{ issue.project.current.name|safe }}</th>
             <td>{{ issue.current.summary|safe }}</th>
             <td>{{ issue.current.description|safe }}</td>
-            <td>{{ issue.built_in_type|safe }}</td>
-            <td>{{ issue.built_in_priority|safe }}</td>
-            <td>{{ issue.built_in_serverity|safe }}</td>
-            <td>{{ issue.built_in_status|safe }}</td>
+            <td>{{ issue.built_in_type.type|safe }}</td>
+            <td>{{ issue.built_in_priority.name|safe }}</td>
+            <td>{{ issue.built_in_severity.name|safe }}</td>
+            <td>{{ issue.built_in_status.name|safe }}</td>
             <td>{{ issue.created_on|timezone:logged_in_user.current.timezone }}</td>
         </tr>
         {% empty %}

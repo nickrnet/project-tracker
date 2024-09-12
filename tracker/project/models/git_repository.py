@@ -15,6 +15,8 @@ class GitRepositoryActiveManager(models.Manager):
 
 
 class GitRepository(core_models.CoreModel):
+    # TODO: GitHub, GitLab, BitBucket, etc. integrations
+
     class Meta:
         ordering = ['current__name', 'current__url']
 

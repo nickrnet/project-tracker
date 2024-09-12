@@ -52,5 +52,3 @@ def initialize_test_project_01():
     new_project.save()
     test_organization_01_instance.projects.add(new_project)
     test_organization_01_instance.save()
-    test_user_01_instance.projects.add(new_project)
-    test_user_01_instance.save()

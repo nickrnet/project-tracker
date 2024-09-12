@@ -45,5 +45,3 @@ def initialize_test_organization_02():
     new_organization.save()
     new_organization.members.add(test_user_02_instance)
     new_organization.save()
-    test_user_02_instance.organizations.add(new_organization)
-    test_user_02_instance.save()

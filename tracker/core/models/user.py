@@ -5,7 +5,7 @@ from django.db import models
 from phone_field import PhoneField
 
 # DO NOT IMPORT OTHER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREMODEL
-# Use the string reference to the model here instead to lazy-load it
+# Use the string reference to the model here or import directly in helper functions instead to lazy-load it
 from . import core as core_models
 
 
@@ -140,14 +140,60 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
     current = models.OneToOneField(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
     user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, blank=True, null=True, related_name='django_user')
 
-    git_repositories = models.ManyToManyField('project.GitRepository', blank=True)
-    organizations = models.ManyToManyField('core.Organization', blank=True)
-    projects = models.ManyToManyField('project.Project', blank=True)
-    issues = models.ManyToManyField('project.Issue', blank=True)
-
     def deactivate_login(self):
         self.user.is_active = False
         self.user.save()
+
+    def list_projects(self):
+        """
+        Get all projects the user is a member of or owns.
+
+        Returns:
+            list: The projects the user is a member of or owns.
+        """
+
+        from project.models import project
+        # Get projects from organization memberships and projects the user owns
+        organization_projects = self.organizationmembers_set.values_list('projects', flat=True)
+        user_projects = self.project_set.values_list('id', flat=True)
+        # Combine the project IDs and get distinct ones
+        project_ids = set(organization_projects).union(set(user_projects))
+        projects = project.Project.objects.filter(id__in=project_ids)
+        return projects
+
+    def list_git_repositories(self):
+        """
+        A helper method to get all git repositories the user can see, useful in views.
+
+        Returns:
+            list: All git repositories the user can see.
+        """
+
+        from project.models import git_repository as git_repository_models
+        # Get repositories from organizations and projects the user can see
+        organization_repositoriess = self.organizationmembers_set.values_list('git_repositories', flat=True)
+        project_repositories = self.project_set.values_list('git_repositories', flat=True)
+        # Combine the repository IDs and get distinct ones
+        repository_ids = set(organization_repositoriess).union(set(project_repositories))
+        repositories = git_repository_models.GitRepository.objects.filter(id__in=repository_ids)
+        return repositories
+
+    def list_issues(self):
+        """
+        Get all issues the user is watching, assigned to, etc.
+
+        Returns:
+            list: The issues the user is watching, assigned to, etc.
+        """
+
+        from project.models import issue as issue_models
+        # TODO: Add issues watching, assigned to, etc.
+        user_projects = self.list_projects()
+        issue_ids = set()
+        for project in user_projects:
+            issue_ids = set(issue_ids).union(set(project.issue_set.values_list('id', flat=True)))
+        issues = issue_models.Issue.objects.filter(id__in=issue_ids)
+        return issues
 
     # This is here for the Django forms used in the frontend app. If you remove this, be prepared to rework every form ever.
     def __str__(self):

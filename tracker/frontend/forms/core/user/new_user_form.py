@@ -3,7 +3,7 @@ from django import forms
 from core.models import user as core_user_models
 
 
-class NewUserDataForm(forms.Form):
+class NewUserForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
     name_prefix = forms.CharField(required=False)
@@ -22,13 +22,3 @@ class NewUserDataForm(forms.Form):
     state = forms.CharField(required=False)
     country = forms.CharField(required=False)
     timezone = forms.CharField(required=False, widget=forms.Select(choices=core_user_models.TIMEZONE_CHOICES))
-
-
-class NewUserForm(forms.ModelForm):
-    current = NewUserDataForm()
-
-    class Meta:
-        model = core_user_models.CoreUser
-        fields = [
-            'current',
-        ]

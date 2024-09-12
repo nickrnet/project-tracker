@@ -8,19 +8,23 @@
         {% for project in projects %}
         <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
             <div class="card h-100 p-4">
-            <h4><a href="{% url 'project' project.id %}">{{ project.current.name }}</a></h4>
-            <p class="text-muted">{{ project.current.description }}</p>
-            {% with project_repos=project.git_repositories.all %}
-            <p class="text-muted">Git Repositories:
-                {% for repository in project_repos %}
-                <a href="{% url 'git_repository' repository.id %}">{{ repository.current.name }}</a>
-                {% endfor %}
-            </p>
-            {% endwith %}
-            {% with project_org=project.organizationprojects_set.first %}
-            <p class="text-muted">In organization <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></p>
-            {% endwith %}
-            <p class="text-muted">Created {{ project.created_on|timezone:logged_in_user.current.timezone }} by <a href="{% url 'user' project.created_by.id %}">{{ project.created_by.current.last_name }}, {{ project.created_by.current.first_name }}</a></p>
+                {% if project.label.current.name.name %}
+                <h4><a href="{% url 'project' project.label.current.name.name %}">{{ project.current.name }}</a></h4>
+                {% else %}
+                <h4><a href="{% url 'project' project.id %}">{{ project.current.name }}</a></h4>
+                {% endif %}
+                <p class="text-muted">{{ project.current.description }}</p>
+                {% with project_repos=project.git_repositories.all %}
+                <p class="text-muted">Git Repositories:
+                    {% for repository in project_repos %}
+                    <a href="{% url 'git_repository' repository.id %}">{{ repository.current.name }}</a>
+                    {% endfor %}
+                </p>
+                {% endwith %}
+                {% with project_org=project.organizationprojects_set.first %}
+                <p class="text-muted">In organization <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></p>
+                {% endwith %}
+                <p class="text-muted">Created {{ project.created_on|timezone:logged_in_user.current.timezone }} by <a href="{% url 'user' project.created_by.id %}">{{ project.created_by.current.last_name }}, {{ project.created_by.current.first_name }}</a></p>
             </div>
         </div>
         {% empty %}

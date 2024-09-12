@@ -1,19 +1,18 @@
 <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title">New Issue</h5>
+            <h5 class="modal-title">{{ issue.project.label.current.name.name|safe|upper }}-{{ issue.sequence|stringformat:"s" }}{% if issue.built_in_built_in_status.name %}: {{ issue.built_in_built_in_status.name }}{% endif %}</h5>
         </div>
-        <form
-            hx-post={% url 'new_project_issue' %}
-            hx-target="#issues-tab-pane"
-            hx-swap="outerHTML"
-            data-bs-toggle="toast"
-            data-bs-target="#toast">
+        <form>
             <div class="modal-body">
                 {% csrf_token %}
                 <table class="table table-hover">
                     <tr>
-                        <td>{{ new_issue_form.project.label_tag }}</td>
+                        <td>{{ issue_form.reporter.label_tag }}</td>
+                        <td colspan="7">{{ issue.reporter.current.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ issue_form.project.label_tag }}</td>
                         <td>
                             <select name="project">
                             {% for known_project in projects %}
@@ -25,7 +24,7 @@
                             {% endfor %}
                             </select>
                         </td>
-                        <td>{{ new_issue_form.component.label_tag }}</td>
+                        <td>{{ issue_form.component.label_tag }}</td>
                         <td>
                             <select name="component">
                             {% for component in issue_components %}
@@ -37,7 +36,7 @@
                             {% endfor %}
                             </select>
                         </td>
-                        <td>{{ new_issue_form.version.label_tag }}</td>
+                        <td>{{ issue_form.version.label_tag }}</td>
                         <td colspan="3">
                             <select name="version">
                             {% for version in issue_versions %}
@@ -89,8 +88,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>{{ new_issue_form.summary.label_tag }}</td>
-                        <td>{{ new_issue_form.summary }}</td>
+                        <td>{{ issue_form.summary.label_tag }}</td>
+                        <td>{{ issue_form.summary }}</td>
                         <td><label for="id_built_in_status">Status:</label></td>
                         <td colspan="7">
                             <select name="built_in_status">
@@ -105,14 +104,13 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>{{ new_issue_form.description.label_tag }}</td>
-                        <td colspan="7">{{ new_issue_form.description }}</td>
+                        <td>{{ issue_form.description.label_tag }}</td>
+                        <td colspan="7">{{ issue_form.description }}</td>
                     </tr>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
             <input type="hidden" name="reporter" value="{{ logged_in_user.id }}">
             <input type="hidden" name="next" value="{{ next }}">

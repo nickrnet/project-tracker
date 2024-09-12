@@ -7,7 +7,7 @@ from frontend.forms import signup_form
 
 def signup(request):
     if request.method == "POST":
-        new_user_data_form = signup_form.NewUserDataForm(request.POST, request.FILES)
+        new_user_data_form = signup_form.NewUserForm(request.POST, request.FILES)
         if new_user_data_form.is_valid():
             core_user_models.CoreUser.objects.create_core_user_from_web(new_user_data_form.cleaned_data)
             messages.success(request, ('Your signup was successful!'))
@@ -22,7 +22,7 @@ def signup(request):
                 }
             )
 
-    signup_form_data = signup_form.NewUserDataForm()
+    signup_form_data = signup_form.NewUserForm()
 
     return render(
         request=request,

@@ -7,7 +7,6 @@ from django.shortcuts import render, redirect
 
 from core.models import user as core_user_models
 from frontend.forms.project.project import project_form
-from project.models import git_repository as git_repository_models
 from project.models import project as project_models
 
 
@@ -19,11 +18,31 @@ def handle_post(request, project_id, logged_in_user):
             project_data_form = received_project_data_form.cleaned_data.copy()
             # TODO: Create a new git repository if needed
             project_data_form.pop("git_repository")
+
+            project_label = project_data_form.pop("label")
+            project_label_name = project_models.ProjectLabelName(
+                created_by_id=logged_in_user.id,
+                name=project_label,
+            )
+            project_label_name.save()
+            project_label_data = project_models.ProjectLabelData(
+                created_by_id=logged_in_user.id,
+                name=project_label_name,
+            )
+            project_label_data.save()
+            project_label = project_models.ProjectLabel(
+                created_by_id=logged_in_user.id,
+                current=project_label_data,
+            )
+            project_label.save()
+
             project_data_form["created_by_id"] = str(logged_in_user.id)
             project_data = project_models.ProjectData.objects.create(**project_data_form)
-            project_data.save()
+
             project.current = project_data
+            project.label = project_label
             project.save()
+
             messages.success(request, ('Your project was successfully updated!'))
             return redirect("project", project_id=project_id)
         except project_models.Project.DoesNotExist:
@@ -56,14 +75,10 @@ def project(request, project_id=None):
         messages.error(request, 'The specified Project does not exist. Create it and try again.')
         return redirect("new_project")
 
-    form = project_form.ProjectDataForm(model_to_dict(project.current))
-    # Get repositories from organizations and projects the user can see
-    organization_repositoriess = logged_in_user.organizationmembers_set.values_list('git_repositories', flat=True)
-    project_repositories = logged_in_user.project_set.values_list('git_repositories', flat=True)
-    # Combine the repository IDs and get distinct ones
-    repository_ids = set(organization_repositoriess).union(set(project_repositories))
-    repositories = git_repository_models.GitRepository.objects.filter(id__in=repository_ids)
-    git_repositories = repositories.all()
+    project_dict = model_to_dict(project.current)
+    project_dict['label'] = project.label.current.name.name
+    form = project_form.ProjectDataForm(project_dict)
+    repositories = logged_in_user.list_git_repositories()
 
     return render(
         request=request,
@@ -73,7 +88,7 @@ def project(request, project_id=None):
             'project': project,
             'project_id': project_id,
             'project_form': form,
-            'git_repositories': git_repositories,
+            'git_repositories': repositories,
             'issues': project.issue_set.all(),
         }
     )

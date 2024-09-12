@@ -14,7 +14,7 @@ def new_user(request):
         return redirect("logout")
 
     if request.method == "POST":
-        new_user_data_form = new_user_form.NewUserDataForm(request.POST, request.FILES)
+        new_user_data_form = new_user_form.NewUserForm(request.POST, request.FILES)
         if new_user_data_form.is_valid():
             new_user = core_user_models.CoreUser.objects.create_core_user_from_web(new_user_data_form.cleaned_data)
             messages.success(request, ('Your user was successfully added!'))
@@ -23,7 +23,7 @@ def new_user(request):
             messages.error(request, 'Error saving user.')
             return redirect("new_user")
 
-    new_user_data_form = new_user_form.NewUserDataForm()
+    new_user_data_form = new_user_form.NewUserForm()
 
     # Get unique users from organizations and projects
     organization_users = logged_in_user.organizations.values_list('members', flat=True)

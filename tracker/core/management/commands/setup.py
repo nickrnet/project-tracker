@@ -9,3 +9,4 @@ class Command(BaseCommand):
         call_command('initialize_built_in_issue_priorities')
         call_command('initialize_built_in_issue_statuses')
         call_command('initialize_built_in_issue_types')
+        call_command('initialize_built_in_issue_severities')

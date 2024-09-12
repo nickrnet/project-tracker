@@ -43,8 +43,6 @@ def new_project(request):
             )
             project.users.add(logged_in_user)
             project.save()
-            logged_in_user.projects.add(project)
-            logged_in_user.save()
             messages.success(request, ('Your project was successfully added!'))
             return redirect("project", project_id=project.id)
         else:
