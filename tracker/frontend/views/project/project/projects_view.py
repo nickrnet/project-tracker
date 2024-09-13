@@ -10,7 +10,7 @@ def projects(request):
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
-    projects = logged_in_user.project_set.all()
+    projects = logged_in_user.list_projects()
 
     return render(
         request=request,

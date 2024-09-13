@@ -14,7 +14,7 @@ def handle_post(request, project_id, logged_in_user):
     received_project_data_form = project_form.ProjectDataForm(request.POST, request.FILES)
     if received_project_data_form.is_valid():
         try:
-            project = logged_in_user.project_set.get(id=project_id)
+            project = logged_in_user.list_projects().get(id=project_id)
             project_data_form = received_project_data_form.cleaned_data.copy()
             # TODO: Create a new git repository if needed
             project_data_form.pop("git_repository")

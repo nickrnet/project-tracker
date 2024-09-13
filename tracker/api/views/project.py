@@ -168,7 +168,7 @@ class GitRepositoryViewSet(viewsets.ModelViewSet):
         logged_in_user = core_user_models.CoreUser.objects.get(user__username=self.request.user)
         # Get unique repositories from organizations and projects
         organization_repositories = logged_in_user.organizationmembers_set.values_list('git_repositories', flat=True)
-        project_repositories = logged_in_user.project_set.values_list('git_repositories', flat=True)
+        project_repositories = logged_in_user.list_projects().values_list('git_repositories', flat=True)
         # Combine the repository IDs and get distinct repositories
         repository_ids = set(organization_repositories).union(set(project_repositories))
         repositories = GitRepository.objects.filter(id__in=repository_ids)
@@ -216,7 +216,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         logged_in_user = core_user_models.CoreUser.objects.get(user__username=self.request.user)
-        return logged_in_user.project_set.all()
+        return logged_in_user.list_projects()
 
 
 class ProjectDataViewSet(viewsets.ModelViewSet):

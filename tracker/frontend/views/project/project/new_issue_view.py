@@ -21,7 +21,7 @@ def new_issue(request, project_id=None):
         received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
         if received_new_issue_form.is_valid():
             # We return the whole issues_tab_pane, so get its required data
-            project = logged_in_user.project_set.get(id=received_new_issue_form.cleaned_data.get('project'))
+            project = logged_in_user.list_projects().get(id=received_new_issue_form.cleaned_data.get('project'))
 
             issue_data = issue_models.IssueData.objects.create(
                 created_by=logged_in_user,
@@ -57,10 +57,10 @@ def new_issue(request, project_id=None):
 
     try:
         project_uuid = uuid.UUID(str(project_id))
-        project = logged_in_user.project_set.get(id=project_uuid)
+        project = logged_in_user.list_projects().get(id=project_uuid)
     except ValueError:
         try:
-            project = logged_in_user.project_set.get(label__current__name__name=project_id)
+            project = logged_in_user.list_projects().get(label__current__name__name=project_id)
         except project_models.Project.DoesNotExist:
             project = None
 

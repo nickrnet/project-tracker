@@ -51,7 +51,7 @@ def new_project(request):
 
     project_form = new_project_form.NewProjectForm()
     git_repository_form = new_git_repository_form.NewGitRepositoryDataForm()
-    projects = logged_in_user.project_set.all()
+    projects = logged_in_user.list_projects()
     # TODO: Show all git repositories the user has access to, include git repositories from organizations and projects the user is a member of
     git_repositories = logged_in_user.git_repositories.all()
 
