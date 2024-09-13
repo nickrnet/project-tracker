@@ -57,4 +57,4 @@ class CustomIssueStatus(core_models.CoreModel):
 
     active_objects = CustomIssueStatusActiveManager()
 
-    current = models.ForeignKey(CustomIssueStatusData, on_delete=models.CASCADE)
+    current = models.OneToOneField(CustomIssueStatusData, on_delete=models.CASCADE)

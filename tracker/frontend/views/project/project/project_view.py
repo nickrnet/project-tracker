@@ -68,12 +68,16 @@ def project(request, project_id=None):
 
     try:
         project_uuid = uuid.UUID(str(project_id))
-        project = logged_in_user.project_set.get(id=project_uuid)
+        project = logged_in_user.list_projects().get(id=project_uuid)
     except ValueError:
-        project = logged_in_user.project_set.get(label__current__name__name=project_id)
+        try:
+            project = logged_in_user.list_projects().get(label__current__name__name=project_id)
+        except project_models.Project.DoesNotExist:
+            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            return redirect("projects")
     except project_models.Project.DoesNotExist:
-        messages.error(request, 'The specified Project does not exist. Create it and try again.')
-        return redirect("new_project")
+        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        return redirect("projects")
 
     project_dict = model_to_dict(project.current)
     project_dict['label'] = project.label.current.name.name

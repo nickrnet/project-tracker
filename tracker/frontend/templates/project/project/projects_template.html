@@ -2,6 +2,7 @@
 {% load tz %}
 {% block content %}
 <div class="container">
+    {% include "messages.html" %}
     <h2 class="my-4">Projects</h2>
     <p><a href="{% url 'new_project' %}">Make one!</a></p>
     <div class="row">

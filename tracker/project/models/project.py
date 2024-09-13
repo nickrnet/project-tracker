@@ -29,7 +29,7 @@ class ProjectLabelData(core_models.CoreModel):
 
 
 class ProjectLabel(core_models.CoreModel):
-    current = models.ForeignKey('ProjectLabelData', on_delete=models.CASCADE)
+    current = models.OneToOneField('ProjectLabelData', on_delete=models.CASCADE)
 
 
 class ProjectActiveManager(models.Manager):
@@ -43,7 +43,7 @@ class Project(core_models.CoreModel):
 
     active_objects = ProjectActiveManager()
 
-    current = models.ForeignKey(ProjectData, on_delete=models.CASCADE)
+    current = models.OneToOneField(ProjectData, on_delete=models.CASCADE)
     label = models.ForeignKey(ProjectLabel, on_delete=models.CASCADE, blank=True, null=True)
     git_repositories = models.ManyToManyField(git_repository_models.GitRepository)
     users = models.ManyToManyField('core.CoreUser')

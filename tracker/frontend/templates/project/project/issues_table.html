@@ -25,7 +25,11 @@
         </thead>
         <tbody>
         {% for issue in issues %}
-        <tr>
+        <tr
+            hx-get="{% url 'issue' issue.id %}"
+            hx-target="#modal"
+            data-bs-toggle="modal"
+            data-bs-target="#modal">
             <th scope="row">{{ issue.project.label.current.name.name|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>  {% comment %} TODO: User-friendly id's {% endcomment %}
             <td>{{ issue.current.summary|safe }}</th>
             <td>{{ issue.current.description|safe }}</td>

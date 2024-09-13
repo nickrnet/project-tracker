@@ -57,4 +57,4 @@ class CustomIssuePriority(core_models.CoreModel):
 
     active_objects = CustomIssuePriorityActiveManager()
 
-    current = models.ForeignKey(CustomIssuePriorityData, on_delete=models.CASCADE)
+    current = models.OneToOneField(CustomIssuePriorityData, on_delete=models.CASCADE)

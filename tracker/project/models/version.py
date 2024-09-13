@@ -20,7 +20,8 @@ class Version(core_models.CoreModel):
         ordering = ['current__name']
 
     active_objects = VersionActiveManager()
-    current = models.ForeignKey(VersionData, on_delete=models.CASCADE)
+
+    current = models.OneToOneField(VersionData, on_delete=models.CASCADE)
     project = models.ForeignKey('project.Project', on_delete=models.CASCADE)
 
     def __str__(self):

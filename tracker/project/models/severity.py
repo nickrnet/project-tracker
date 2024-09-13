@@ -55,4 +55,4 @@ class CustomIssueSeverity(core_models.CoreModel):
 
     active_objects = CustomIssueSeverityActiveManager()
 
-    current = models.ForeignKey(CustomIssueSeverityData, on_delete=models.CASCADE)
+    current = models.OneToOneField(CustomIssueSeverityData, on_delete=models.CASCADE)

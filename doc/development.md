@@ -4,7 +4,7 @@ We have a concept of not deleting information or updating it in-place.
 
 The `core/models/user.py` classes demonstrate this by referencing `CoreModel` as the base class for all models, which contains a foreign key to a `Deleted` object.
 
-To comply with not deleting data, each model should have a corresponding `Data` class with a `current` on the object, in order to prevent live updates or deletes. This means instead of performing `record.objects.update(**data)`, we create a new `Data`, and link it to the related record. See `frontend/views/core/user/user_view.py` where a POST is handled for an example.
+To comply with not deleting data, each model should have a corresponding `Data` class with a `current` on the object, in order to prevent live updates or deletes. This means instead of performing `record.objects.update(**data)`, we create a new `Data`, and link it to the related record. See `frontend/views/core/user/user_view.py` where a POST is handled for an example. All `current` fields should be a "OneToOneField", not a "ForeignKey".
 
 See the [Project Structure](project_structure.md) documentation for filesystem layout.
 

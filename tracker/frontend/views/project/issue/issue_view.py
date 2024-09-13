@@ -24,8 +24,8 @@ def issue(request, issue_id=None):
     issue_priorities = issue.list_built_in_priorities()
     issue_statuses = issue.list_built_in_statuses()
     issue_severities = issue.list_built_in_severities()
-    issue_versions = issue.list_versions(issue.project.id)
-    issue_components = issue.list_components(issue.project.id)
+    issue_versions = issue.list_versions()
+    issue_components = issue.list_components()
 
     return render(
         request=request,
