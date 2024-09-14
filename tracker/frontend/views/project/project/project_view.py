@@ -82,7 +82,7 @@ def project(request, project_id=None):
     project_dict = model_to_dict(project.current)
     project_dict['label'] = project.label.current.name.name
     form = project_form.ProjectDataForm(project_dict)
-    repositories = logged_in_user.list_git_repositories()
+    repositories = project.git_repositories.all()
 
     return render(
         request=request,

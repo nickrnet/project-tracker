@@ -1,0 +1,29 @@
+<script>
+    function showToast() {
+        console.log("showToast");
+        const toast = new bootstrap.Toast(document.getElementById('git-repository-toast'));
+        toast.show();
+    };
+</script>
+<div class="toast-container position-fixed top-0 left-0 p-3" id="toasts">
+    {% for message in messages %}
+    {% if 'error' in message.tags %}
+    <div class="toast" id="git-repository-toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="10000">
+    {% else %}
+    <div class="toast" id="git-repository-toast" role="status" aria-live="polite" aria-atomic="true">
+    {% endif %}
+        <div class="toast-header">
+            <strong class="me-auto">{{ message.tags|safe|capfirst }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-body">
+            {{ message|safe }}
+        </div>
+    </div>
+    {% endfor %}
+    {% if messages %}
+    <script>
+        showToast();
+    </script>
+    {% endif %}
+</div>

@@ -12,6 +12,7 @@ from frontend.views.core.organization import organizations_view
 from frontend.views.core.organization import new_organization_view
 from frontend.views.project.project import project_view
 from frontend.views.project.project import projects_view
+from frontend.views.project.project import new_git_repository_view as new_project_git_repository_view
 from frontend.views.project.project import new_issue_view as new_project_issue_view
 from frontend.views.project.project import new_project_view
 from frontend.views.project.issue import issue_view
@@ -48,6 +49,8 @@ urlpatterns = [
     path('organization/<uuid:organization_id>/', organization_view.organization, name='organization'),
     path('organizations', organizations_view.organizations, name='organizations'),
     path('new_organization', new_organization_view.new_organization, name='new_organization'),
+    path('project/new_git_repository/', new_project_git_repository_view.new_git_repository, name='new_project_git_repository'),
+    path('project/new_git_repository/<uuid_or_label:project_id>/', new_project_git_repository_view.new_git_repository, name='new_project_git_repository'),
     path('project/new_issue/', new_project_issue_view.new_issue, name='new_project_issue'),
     path('project/new_issue/<uuid_or_label:project_id>/', new_project_issue_view.new_issue, name='new_project_issue'),
     path('project/<uuid_or_label:project_id>/', project_view.project, name='project'),

@@ -1,0 +1,63 @@
+{% load tz %}
+<div class="row" id="git-repositories-table">
+    <div id="git-repository-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-hidden="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    {% include "project/git_repository/git_repository_toast.html" %}
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">URL</th>
+                <th scope="col">Organization</th>
+                <th scope="col">Project</th>
+                <th scope="col">Date Created</th>
+                <th scope="col">Created By</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for repository in git_repositories %}
+        <tr
+            hx-get="{% url 'git_repository' repository.id %}"
+            hx-target="#git-repository-modal"
+            data-bs-toggle="modal"
+            data-bs-target="#git-repository-modal">
+            <th scope="row">{{ repository.current.name|safe|upper }}</th>
+            <td>{{ repository.current.description|safe }}</th>
+            <td><a href="{{ repository.current.url }}">{{ repository.current.url|safe }}</a></td>
+            <td>
+                {% with repo_org=repository.organizationgitrepositories_set.first %}
+                    {% if repo_org %}
+                <a href="{% url 'organization' repo_org.id %}">{{ repo_org.current.name }}</a>
+                    {% else %}
+                <span class="text-muted"> </span>
+                    {% endif %}
+                {% endwith %}
+            </td>
+            <td>
+                {% with repo_project=repository.project_set.first %}
+                    {% if repo_project %}
+                <a href="{% url 'project' repo_project.id %}">{{ repo_project.current.name }}</a>
+                    {% else %}
+                <span class="text-muted"> </span>
+                    {% endif %}
+                {% endwith %}
+            </td>
+            <td>{{ repository.created_on|timezone:logged_in_user.current.timezone }}</td>
+            <td><a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.email }}</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="text-muted">No git repositories found for this project.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

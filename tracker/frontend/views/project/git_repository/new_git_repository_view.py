@@ -15,7 +15,7 @@ def new_git_repository(request):
         return redirect("logout")
 
     if request.method == "POST":
-        received_new_git_repository_data_form = new_git_repository_form.NewGitRepositoryDataForm(request.POST, request.FILES)
+        received_new_git_repository_data_form = new_git_repository_form.NewGitRepositoryForm(request.POST, request.FILES)
         if received_new_git_repository_data_form.is_valid():
             git_repository_data = git_repository_models.GitRepositoryData(
                 created_by=logged_in_user,
@@ -35,7 +35,7 @@ def new_git_repository(request):
             messages.error(request, 'Invalid data received.')
             return redirect("new_git_repository", new_git_repository_form=received_new_git_repository_data_form)
 
-    git_repository_form = new_git_repository_form.NewGitRepositoryDataForm()
+    git_repository_form = new_git_repository_form.NewGitRepositoryForm()
 
     # Get repositories from organizations and projects the user can see
     organization_repositoriess = logged_in_user.organizationmembers_set.values_list('git_repositories', flat=True)
@@ -46,10 +46,10 @@ def new_git_repository(request):
 
     return render(
         request=request,
-        template_name="project/git_repository/new_git_repository_template.html",
+        template_name="project/git_repository/new_git_repository_modal.html",
         context={
             'logged_in_user': logged_in_user,
-            'new_git_repository_form': git_repository_form,
+            'git_repository_form': git_repository_form,
             'repositories': repositories
         }
     )

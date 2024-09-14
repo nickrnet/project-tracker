@@ -37,7 +37,7 @@ def git_repository(request, git_repository_id=None):
     form = git_repository_form.GitRepositoryDataForm()
 
     try:
-        git_repository = logged_in_user.git_repositories.get(id=git_repository_id)
+        git_repository = logged_in_user.list_git_repositories().get(id=git_repository_id)
         form = git_repository_form.GitRepositoryDataForm(model_to_dict(git_repository.current))
     except git_repository_models.GitRepository.DoesNotExist:
         messages.error(request, 'The specified Git Repository does not exist. Create it and try again.')
@@ -45,9 +45,12 @@ def git_repository(request, git_repository_id=None):
 
     return render(
         request=request,
-        template_name="project/git_repository/git_repository_template.html",
+        template_name="project/git_repository/git_repository_modal.html",
         context={
             'logged_in_user': logged_in_user,
-            'git_repository_form': form
+            'git_repository_form': form,
+            'git_repository': git_repository,
+            'project': git_repository.project_set.first(),
+            'organization': git_repository.organizationgitrepositories_set.first(),
         }
     )

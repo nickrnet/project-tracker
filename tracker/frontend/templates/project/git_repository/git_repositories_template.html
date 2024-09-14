@@ -2,31 +2,15 @@
 {% load tz %}
 {% block content %}
 <div class="container">
-    <h2 class="my-4">Git Repositories</h2>
-    <p><a href="{% url 'new_git_repository' %}">Make one!</a></p>
     <div class="row">
-        {% for repository in repositories %}
-        <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-            <div class="card h-100 p-4">
-                <a href="{% url 'git_repository' repository.id %}"><h4>{{ repository.current.name }}</h4></a>
-                <p class="text-muted">{{ repository.current.description }}</p>
-                {% if repository.current.url %}
-                <p><a href="{{ repository.current.url }}">{{ repository.current.url }}</a></p>
-                {% else %}
-                <h4> </h4>
-                {% endif %}
-                {% with repo_org=repository.organizationgitrepositories_set.first %}
-                <p>In organization <a href="{% url 'organization' repo_org.id %}">{{ repo_org.current.name }}</a></p>
-                {% endwith %}
-                {% with repo_project=repository.project_set.first %}
-                <p>Used by project <a href="{% url 'project' repo_project.id %}">{{ repo_project.current.name }}</a></p>
-                {% endwith %}
-                <p class="text-muted">Created {{ repository.created_on|timezone:logged_in_user.current.timezone }} by <a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.last_name }}, {{ repository.created_by.current.first_name }}</a></p>
-            </div>
-        </div>
-        {% empty %}
-        <p>No git repositories yet.</p>
-        {% endfor %}
+        <h2 class="my-4">Git Repositories <button
+            hx-get="{% url 'new_git_repository' %}"
+            hx-target="#git-repository-modal"
+            hx-target="#git-repository-modal"
+            data-bs-toggle="modal"
+            data-bs-target="#git-repository-modal"
+            class="btn primary"><i class="bi bi-plus-circle"></i></button></h2>
     </div>
+    {% include "project/git_repository/git_repositories_table.html" %}
 </div>
 {% endblock %}

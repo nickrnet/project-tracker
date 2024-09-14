@@ -2,50 +2,33 @@
 {% load tz %}
 {% block content %}
 <div class="container">
+    <div id="modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-hidden="false"
+        tabindex="-1">
+        <div class="modal-dialog modal-xlg modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
     <h2 class="my-4">{{ project.current.name }}</h2>
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="issues-tab" data-bs-toggle="tab" data-bs-target="#issues-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Issues</button>
+            <button class="nav-link active" id="issues-tab" data-bs-toggle="tab" data-bs-target="#issues-tab-pane" type="button" role="tab" aria-controls="issues-tab-pane" aria-selected="true">Issues</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="repositories-tab" data-bs-toggle="tab" data-bs-target="#repositories-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Git Repositories</button>
+            <button class="nav-link" id="git-repositories-tab" data-bs-toggle="tab" data-bs-target="#git-repositories-tab-pane" type="button" role="tab" aria-controls="git-repositories-tab-pane" aria-selected="false">Git Repositories</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Users</button>
+            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-tab-pane" type="button" role="tab" aria-controls="users-tab-pane" aria-selected="false">Users</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab" aria-controls="disabled-tab-pane" aria-selected="false"><i class="bi bi-gear"></i></button>
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab" aria-controls="settings-tab-pane" aria-selected="false"><i class="bi bi-gear"></i></button>
         </li>
     </ul>
     <div class="tab-content" id="myTabContent">
         {% include "project/project/issues_tab_pane.html" %}
-        <div class="tab-pane fade" id="repositories-tab-pane" role="tabpanel" aria-labelledby="repositories-tab" tabindex="0">
-            <div class="row">
-                <h3 class="my-4">Git Repositories <a href="{% url 'new_git_repository' %}"><i class="bi bi-plus-circle"></i></a></h3>
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">URL</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for repository in project.git_repositories.all %}
-                    <tr>
-                        <td>{{ repository.current.name }}</th>
-                        <td>{{ repository.current.description }}</td>
-                        <td><a href="{{ repository.current.url }}" target="_blank">{{ repository.current.url }}</a></td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-muted">No repositories associated with this project.</td>  {% comment %} TODO: Link to a new one for this project {% endcomment %}
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        {% include "project/project/git_repositories_tab_pane.html" %}
         <div class="tab-pane fade" id="users-tab-pane" role="tabpanel" aria-labelledby="users-tab" tabindex="0">
             <div class="row">
                 <h3 class="my-4">Project Users <a href="{% url 'new_user' %}"><i class="bi bi-plus-circle"></i></a></h3>

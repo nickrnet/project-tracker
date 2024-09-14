@@ -50,10 +50,10 @@ def new_project(request):
             return redirect("new_project")
 
     project_form = new_project_form.NewProjectForm()
-    git_repository_form = new_git_repository_form.NewGitRepositoryDataForm()
+    git_repository_form = new_git_repository_form.NewGitRepositoryForm()
     projects = logged_in_user.list_projects()
     # TODO: Show all git repositories the user has access to, include git repositories from organizations and projects the user is a member of
-    git_repositories = logged_in_user.git_repositories.all()
+    git_repositories = logged_in_user.list_git_repositories()
 
     return render(
         request=request,

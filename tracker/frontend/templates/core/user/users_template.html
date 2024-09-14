@@ -2,10 +2,10 @@
 {% load tz %}
 {% block content %}
   <div class="container">
-      <h2 class="my-4">Users</h2>
-      <p><a href="{% url 'new_user' %}">Make one!</a></p>
+    <h2 class="my-4">Users</h2>
+    <p><a href="{% url 'new_user' %}">Make one!</a></p>
+    {% for user in users %}
     <div class="row">
-        {% for user in users %}
         <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
             <div class="card h-100 p-4">
                 <a href="{% url 'user' user.id %}"><h4>{{ user.current.last_name }}, {{ user.current.first_name }}</h4></a>
@@ -29,7 +29,7 @@
         </div>
         {% empty %}
         <p>Once you've created an organization, you'll be able to see its users.</p>
-        {% endfor %}
     </div>
+    {% endfor %}
   </div>
 {% endblock %}
