@@ -3,6 +3,15 @@
 {% block content %}
 <div class="container">
     {% include "messages.html" %}
+    <div id="projects-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-hidden="false"
+        tabindex="-1">
+        <div class="modal-dialog modal-xlg modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
     <h2 class="my-4">Projects</h2>
     <p><a href="{% url 'new_project' %}">Make one!</a></p>
     <div class="row">
@@ -17,9 +26,18 @@
                 <p class="text-muted">{{ project.current.description }}</p>
                 {% with project_repos=project.git_repositories.all %}
                 <p class="text-muted">Git Repositories:
-                    {% for repository in project_repos %}
-                    <a href="{% url 'git_repository' repository.id %}">{{ repository.current.name }}</a>
-                    {% endfor %}
+                    <ul class="nav">
+                        {% for repository in project_repos %}
+                        <li class="nav-item"
+                        class="nav-link"
+                        hx-get="{% url 'git_repository' repository.id %}"
+                        hx-target="#projects-modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#projects-modal">
+                            <a class="nav-link">{{ repository.current.name }}<a>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </p>
                 {% endwith %}
                 {% with project_org=project.organizationprojects_set.first %}
