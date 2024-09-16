@@ -10,7 +10,7 @@
             <div class="modal-content"></div>
         </div>
     </div>
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover" id="issues-table-data">
         <thead>
             <tr>
                 <th scope="col">ID</th>
@@ -48,4 +48,7 @@
         {% endfor %}
         </tbody>
     </table>
+    <script>
+        new DataTable('#issues-table-data');
+    </script>
 </div>
