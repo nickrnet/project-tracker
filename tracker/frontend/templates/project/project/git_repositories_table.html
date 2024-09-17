@@ -31,14 +31,15 @@
             <td>{{ repository.current.url|safe }}</td>
             <td>{{ repository.created_on|timezone:logged_in_user.current.timezone }}</td>
         </tr>
-        {% empty %}
-        <tr>
-            <td colspan="8" class="text-muted">No git repositories found for this project.</td>
-        </tr>
         {% endfor %}
         </tbody>
     </table>
     <script>
-        new DataTable('#project-git-repositories-table-data');
+        new DataTable('#project-git-repositories-table-data', {
+            order: [[3, 'desc']],
+            language: {
+                emptyTable: 'No records found.',
+            }
+        });
     </script>
 </div>

@@ -39,14 +39,15 @@
             <td>{{ issue.built_in_status.name|safe }}</td>
             <td>{{ issue.created_on|timezone:logged_in_user.current.timezone }}</td>
         </tr>
-        {% empty %}
-        <tr>
-            <td colspan="8" class="text-muted">No issues found for this project.</td>
-        </tr>
         {% endfor %}
         </tbody>
     </table>
     <script>
-        new DataTable('#project-issues-table-data');
+        new DataTable('#project-issues-table-data', {
+            order: [[7, 'desc']],
+            language: {
+                emptyTable: 'No records found.',
+            }
+        });
     </script>
 </div>

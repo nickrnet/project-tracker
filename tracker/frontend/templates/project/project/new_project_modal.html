@@ -1,0 +1,88 @@
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">New Project</h5>
+        </div>
+        <form
+            hx-post={% url "new_project" %}
+            hx-target="#projects-table"
+            hx-swap="outerHTML"
+            data-bs-toggle="toast"
+            data-bs-target="#projects-table">
+            <div class="modal-body">
+                {% csrf_token %}
+                <table class="table table-hover">
+                    <thead></thead>
+                    <tbody>
+                        {% if organizations %}
+                        <tr>
+                            <td>Organization:</td>
+                            <td colspan="2">
+                                <select name="organization">
+                                    <option value="" selected>--------------------------</option>
+                                    {% for organization in organizations %}
+                                    <option value="{{ organization.id }}">{{ organization.current.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td>{{ new_project_form.name.label_tag }}</td>
+                            <td colspan="2">{{ new_project_form.name }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ new_project_form.description.label_tag }}</td>
+                            <td colspan="2">{{ new_project_form.description }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ new_project_form.label.label_tag }}</td>
+                            <td colspan="2">{{ new_project_form.label }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ new_project_form.is_active.label_tag }}</td>
+                            <td colspan="2">{{ new_project_form.is_active }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ new_project_form.is_private.label_tag }}</td>
+                            <td colspan="2">{{ new_project_form.is_private }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ new_project_form.start_date.label_tag }}</td>
+                            <td colspan="2">{{ new_project_form.start_date }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ new_project_form.end_date.label_tag }}</td>
+                            <td colspan="2">{{ new_project_form.end_date }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ new_project_form.git_repository.label_tag }}</td>
+                            <td>
+                                <select name="git_repository" multiple>
+                                    {% if repositories %}
+                                    {% for repository in repositories %}
+                                    <option value="{{ repository.id }}">{{ repository }}</option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </td>
+                            <td>
+                                <button
+                                    hx-get="{% url 'new_project_new_git_repository' %}"
+                                    hx-target="#projects-new-git-repository-modal"
+                                    hx-swap="innerHTML"
+                                    class="btn btn-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#projects-new-git-repository-modal">Add Git Repository</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>

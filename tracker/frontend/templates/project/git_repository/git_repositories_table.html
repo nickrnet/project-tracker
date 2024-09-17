@@ -19,7 +19,6 @@
                 <th scope="col">Organization</th>
                 <th scope="col">Project</th>
                 <th scope="col">Date Created</th>
-                <th scope="col">Created By</th>
             </tr>
         </thead>
         <tbody>
@@ -51,16 +50,16 @@
                 {% endwith %}
             </td>
             <td>{{ repository.created_on|timezone:logged_in_user.current.timezone }}</td>
-            <td><a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.email }}</a></td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="7" class="text-muted">No git repositories found for this project.</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
     <script>
-        new DataTable('#git-repositories-table-data');
+        new DataTable('#git-repositories-table-data', {
+            order: [[5, 'desc']],
+            language: {
+                emptyTable: 'No records found.',
+            }
+        });
     </script>
 </div>

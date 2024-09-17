@@ -1,15 +1,15 @@
 <script>
     function showToast() {
-        const toast = new bootstrap.Toast(document.getElementById('git-repository-toast'));
+        const toast = new bootstrap.Toast(document.getElementById('projects-toast'));
         toast.show();
     };
 </script>
-<div class="toast-container position-fixed top-0 left-0 p-3" id="toasts">
+<div class="toast-container position-fixed top-0 left-0 p-3" id="toast-container">
     {% for message in messages %}
     {% if 'error' in message.tags %}
-    <div class="toast" id="git-repository-toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="10000">
+    <div class="toast" id="projects-toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="10000">
     {% else %}
-    <div class="toast" id="git-repository-toast" role="status" aria-live="polite" aria-atomic="true">
+    <div class="toast" id="projects-toast" role="status" aria-live="polite" aria-atomic="true">
     {% endif %}
         <div class="toast-header">
             <strong class="me-auto">{{ message.tags|safe|capfirst }}</strong>

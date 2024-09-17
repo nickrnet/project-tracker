@@ -4,9 +4,8 @@
             <h5 class="modal-title">New Git Repository</h5>
         </div>
         <form
-            hx-post={% url 'new_project_git_repository' %}
-            hx-target="#git-repositories-table"
-            hx-swap="outerHTML"
+            hx-post={% url 'new_project_new_git_repository' %}
+            hx-target="#projects-modal"
             data-bs-toggle="toast"
             data-bs-target="#toast">
             <div class="modal-body">
@@ -28,8 +27,16 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#projects-modal">Submit</button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#projects-modal">Cancel</button>
             </div>
             <input type="hidden" name="project_id" value="{{ project_id }}">
             <input type="hidden" name="next" value="{{ next }}">

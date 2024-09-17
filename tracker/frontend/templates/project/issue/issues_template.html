@@ -2,12 +2,14 @@
 {% load tz %}
 {% block content %}
 <div class="container">
-    <h2 class="my-4">Issues <button
-        hx-get="{% url 'new_issue' %}"
-        hx-target="#modal"
-        data-bs-toggle="modal"
-        data-bs-target="#modal"
-        class="btn primary"><i class="bi bi-plus-circle"></i></button></h2>
+    <div class="row">
+        <h2 class="my-4">Issues <button
+            hx-get="{% url 'new_issue' %}"
+            hx-target="#issues-modal"
+            data-bs-toggle="modal"
+            data-bs-target="#issues-modal"
+            class="btn primary"><i class="bi bi-plus-circle"></i></button></h2>
+    </div>
     {% include "project/issue/issues_table.html" %}
 </div>
 {% endblock %}

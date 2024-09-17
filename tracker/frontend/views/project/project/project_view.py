@@ -80,7 +80,8 @@ def project(request, project_id=None):
         return redirect("projects")
 
     project_dict = model_to_dict(project.current)
-    project_dict['label'] = project.label.current.name.name
+    if project.label:
+        project_dict['label'] = project.label.current.name.name
     form = project_form.ProjectDataForm(project_dict)
     repositories = project.git_repositories.all()
 

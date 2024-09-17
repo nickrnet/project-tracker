@@ -1,10 +1,11 @@
 {% load tz %}
 <div class="row" id="issues-table">
     {% include "messages.html" %}
-    <div id="modal"
+    <div id="issues-modal"
         class="modal modal-blur fade"
         style="display: none"
-        aria-hidden="false"
+        areia-labelledby="issues-modal"
+        aria-hidden="true"
         tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content"></div>
@@ -25,30 +26,31 @@
             </tr>
         </thead>
         <tbody>
-        {% for issue in issues %}
-        <tr
-            hx-get="{% url 'issue' issue.id %}"
-            hx-target="#modal"
-            data-bs-toggle="modal"
-            data-bs-target="#modal">
-            <th scope="row">{{ issue.project.label.current.name.name|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>  {% comment %} TODO: User-friendly id's {% endcomment %}
-            <td>{{ issue.project.current.name|safe }}</th>
-            <td>{{ issue.current.summary|safe }}</th>
-            <td>{{ issue.current.description|safe }}</td>
-            <td>{{ issue.built_in_type.type|safe }}</td>
-            <td>{{ issue.built_in_priority.name|safe }}</td>
-            <td>{{ issue.built_in_severity.name|safe }}</td>
-            <td>{{ issue.built_in_status.name|safe }}</td>
-            <td>{{ issue.created_on|timezone:logged_in_user.current.timezone }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="9" class="text-muted">No issues found.</td>  {% comment %} TODO: Link to a new one for this project {% endcomment %}
-        </tr>
-        {% endfor %}
+            {% for issue in issues %}
+            <tr
+                hx-get="{% url 'issue' issue.id %}"
+                hx-target="#modal"
+                data-bs-toggle="modal"
+                data-bs-target="#modal">
+                <th scope="row">{{ issue.project.label.current.name.name|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>  {% comment %} TODO: User-friendly id's {% endcomment %}
+                <td>{{ issue.project.current.name|safe }}</th>
+                <td>{{ issue.current.summary|safe }}</th>
+                <td>{{ issue.current.description|safe }}</td>
+                <td>{{ issue.built_in_type.type|safe }}</td>
+                <td>{{ issue.built_in_priority.name|safe }}</td>
+                <td>{{ issue.built_in_severity.name|safe }}</td>
+                <td>{{ issue.built_in_status.name|safe }}</td>
+                <td>{{ issue.created_on|timezone:logged_in_user.current.timezone }}</td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
     <script>
-        new DataTable('#issues-table-data');
+        new DataTable('#issues-table-data', {
+            order: [[8, 'desc']],
+            language: {
+                emptyTable: 'No records found.',
+            }
+        });
     </script>
 </div>

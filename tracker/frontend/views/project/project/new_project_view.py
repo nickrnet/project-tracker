@@ -1,14 +1,15 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import transaction
 from django.shortcuts import render, redirect
 from django.utils import timezone
 
-from frontend.forms.project.git_repository import new_git_repository_form
 from frontend.forms.project.project import new_project_form
 from core.models import user as core_user_models
 from project.models import project as project_models
 
 
+@transaction.atomic
 @login_required
 def new_project(request):
     try:
@@ -19,50 +20,83 @@ def new_project(request):
     if request.method == "POST":
         received_new_project_form = new_project_form.NewProjectForm(request.POST, request.FILES)
         if received_new_project_form.is_valid():
-            # TODO: Create a new git repo when creating a new project if specified
-            if received_new_project_form.cleaned_data.get("git_repository", None):
-                git_repository = logged_in_user.gitrepository_created_by.get(id=received_new_project_form.cleaned_data.get("git_repository"))
-            else:
-                git_repository = None
-            start_date = received_new_project_form.cleaned_data.get("start_date") if received_new_project_form.cleaned_data.get("start_date") else timezone.now()
+            new_project_data = received_new_project_form.cleaned_data.copy()
 
+            new_project_git_repository = new_project_data.pop("git_repository", None)
+            if new_project_git_repository:
+                git_repositories = logged_in_user.list_git_repositories().filter(id__in=new_project_git_repository)
+            else:
+                git_repositories = None
+
+            start_date = new_project_data.get("start_date") if new_project_data.get("start_date") else timezone.now()
             project_data = project_models.ProjectData.objects.create(
                 created_by=logged_in_user,
-                name=received_new_project_form.cleaned_data.get("name"),
-                description=received_new_project_form.cleaned_data.get("description"),
-                is_active=received_new_project_form.cleaned_data.get("is_active"),
-                is_private=received_new_project_form.cleaned_data.get("is_private"),
+                name=new_project_data.get("name"),
+                description=new_project_data.get("description"),
+                is_active=new_project_data.get("is_active"),
+                is_private=new_project_data.get("is_private"),
                 start_date=start_date,
-                end_date=received_new_project_form.cleaned_data.get("end_date"),
+                end_date=new_project_data.get("end_date"),
             )
             project_data.save()
             project = project_models.Project.objects.create(
                 created_by=logged_in_user,
                 current=project_data,
-                git_repository=git_repository,
             )
+
+            if new_project_data.get("label", None):
+                project_label_data = new_project_data.pop("label")
+                project_label_name = project_models.ProjectLabelName(
+                    created_by_id=logged_in_user.id,
+                    name=project_label_data,
+                )
+                project_label_name.save()
+                project_label_data = project_models.ProjectLabelData(
+                    created_by_id=logged_in_user.id,
+                    name=project_label_name,
+                )
+                project_label_data.save()
+                project_label = project_models.ProjectLabel(
+                    created_by_id=logged_in_user.id,
+                    current=project_label_data,
+                )
+                project_label.save()
+            else:
+                project_label = None
+
+            if project_label:
+                project.label = project_label
+
+            if git_repositories:
+                for repository in git_repositories:
+                    project.git_repositories.add(repository)
+
             project.users.add(logged_in_user)
             project.save()
             messages.success(request, ('Your project was successfully added!'))
-            return redirect("project", project_id=project.id)
         else:
             messages.error(request, 'Error saving project.')
-            return redirect("new_project")
+
+        return render(
+            request=request,
+            template_name="project/project/projects_table.html",
+            context={
+                'logged_in_user': logged_in_user,
+                'projects': logged_in_user.list_projects(),
+            }
+        )
 
     project_form = new_project_form.NewProjectForm()
-    git_repository_form = new_git_repository_form.NewGitRepositoryForm()
-    projects = logged_in_user.list_projects()
-    # TODO: Show all git repositories the user has access to, include git repositories from organizations and projects the user is a member of
     git_repositories = logged_in_user.list_git_repositories()
+    organizations = logged_in_user.list_organizations()
 
     return render(
         request=request,
-        template_name="project/project/new_project_template.html",
+        template_name="project/project/new_project_modal.html",
         context={
             'logged_in_user': logged_in_user,
             'new_project_form': project_form,
-            'projects': projects,
-            'git_repository_form': git_repository_form,
             'repositories': git_repositories,
+            'organizations': organizations,
         }
     )

@@ -2,16 +2,12 @@
 {% load tz %}
 {% block content %}
 <div class="container">
-    <div id="modal"
-        class="modal modal-blur fade"
-        style="display: none"
-        aria-hidden="false"
-        tabindex="-1">
-        <div class="modal-dialog modal-xlg modal-dialog-centered" role="document">
-            <div class="modal-content"></div>
-        </div>
-    </div>
     <h2 class="my-4">{{ project.current.name }}</h2>
+    {% with project_org=project.organizationprojects_set.first %}
+    {% if project_org %}
+    <p>Organization: <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></p>
+    {% endif %}
+    {% endwith %}
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="issues-tab" data-bs-toggle="tab" data-bs-target="#issues-tab-pane" type="button" role="tab" aria-controls="issues-tab-pane" aria-selected="true">Issues</button>

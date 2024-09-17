@@ -173,8 +173,9 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         # Get repositories from organizations and projects the user can see
         organization_repositoriess = self.organizationmembers_set.values_list('git_repositories', flat=True)
         project_repositories = self.project_set.values_list('git_repositories', flat=True)
+        user_repositories = git_repository_models.GitRepository.objects.filter(created_by=self).values_list('id', flat=True)
         # Combine the repository IDs and get distinct ones
-        repository_ids = set(organization_repositoriess).union(set(project_repositories))
+        repository_ids = set(organization_repositoriess).union(set(project_repositories)).union(set(user_repositories))
         repositories = git_repository_models.GitRepository.objects.filter(id__in=repository_ids)
         return repositories
 
@@ -194,6 +195,18 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
             issue_ids = set(issue_ids).union(set(project.issue_set.values_list('id', flat=True)))
         issues = issue_models.Issue.objects.filter(id__in=issue_ids)
         return issues
+
+    def list_organizations(self):
+        """
+        A helper method to get all organiations the user is a member of, etc.
+
+        Returns:
+            list: The organizations the user is a member of, etc.
+        """
+
+        organizations = self.organizationmembers_set.all()
+
+        return organizations
 
     # This is here for the Django forms used in the frontend app. If you remove this, be prepared to rework every form ever.
     def __str__(self):

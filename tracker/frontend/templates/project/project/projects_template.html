@@ -2,53 +2,14 @@
 {% load tz %}
 {% block content %}
 <div class="container">
-    {% include "messages.html" %}
-    <div id="projects-modal"
-        class="modal modal-blur fade"
-        style="display: none"
-        aria-hidden="false"
-        tabindex="-1">
-        <div class="modal-dialog modal-xlg modal-dialog-centered" role="document">
-            <div class="modal-content"></div>
-        </div>
-    </div>
-    <h2 class="my-4">Projects</h2>
-    <p><a href="{% url 'new_project' %}">Make one!</a></p>
     <div class="row">
-        {% for project in projects %}
-        <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-            <div class="card h-100 p-4">
-                {% if project.label.current.name.name %}
-                <h4><a href="{% url 'project' project.label.current.name.name %}">{{ project.current.name }}</a></h4>
-                {% else %}
-                <h4><a href="{% url 'project' project.id %}">{{ project.current.name }}</a></h4>
-                {% endif %}
-                <p class="text-muted">{{ project.current.description }}</p>
-                {% with project_repos=project.git_repositories.all %}
-                <p class="text-muted">Git Repositories:
-                    <ul class="nav">
-                        {% for repository in project_repos %}
-                        <li class="nav-item"
-                        class="nav-link"
-                        hx-get="{% url 'git_repository' repository.id %}"
-                        hx-target="#projects-modal"
-                        data-bs-toggle="modal"
-                        data-bs-target="#projects-modal">
-                            <a class="nav-link">{{ repository.current.name }}<a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </p>
-                {% endwith %}
-                {% with project_org=project.organizationprojects_set.first %}
-                <p class="text-muted">In organization <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></p>
-                {% endwith %}
-                <p class="text-muted">Created {{ project.created_on|timezone:logged_in_user.current.timezone }} by <a href="{% url 'user' project.created_by.id %}">{{ project.created_by.current.last_name }}, {{ project.created_by.current.first_name }}</a></p>
-            </div>
-        </div>
-        {% empty %}
-        <p>No projects yet.</p>
-        {% endfor %}
+        <h2 class="my-4">Projects <button
+            hx-get="{% url 'new_project' %}"
+            hx-target="#projects-modal"
+            data-bs-toggle="modal"
+            data-bs-target="#projects-modal"
+            class="btn primary"><i class="bi bi-plus-circle"></i></button></h2>
     </div>
+    {% include "project/project/projects_table.html" %}
 </div>
 {% endblock %}
