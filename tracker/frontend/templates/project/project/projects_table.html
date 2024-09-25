@@ -1,4 +1,12 @@
 {% load tz %}
+<script>
+    function loadTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    };
+</script>
 <div class="row" id="projects-table">
     {% include "project/project/projects_toast.html" %}
     <div id="projects-modal"
@@ -33,7 +41,7 @@
         </thead>
         <tbody>
             {% for project in projects %}
-            <tr  onclick="window.location='{% url 'project' project.id %}'">
+            <tr  onclick="window.location='{% url 'project' project.label.current.name.name %}'">
                 {% with label=project.label %}
                 {% if label %}
                 <th scope="row">{{ project.label.current.name.name|safe|upper }}</th>
@@ -59,8 +67,9 @@
         new DataTable('#projects-table-data', {
             order: [[4, 'desc']],
             language: {
-                emptyTable: 'No records found.',
+                emptyTable: 'No projects.',
             }
         });
+        loadTooltips();
     </script>
 </div>

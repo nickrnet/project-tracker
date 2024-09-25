@@ -1,0 +1,51 @@
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        <form
+            hx-post="{% url 'project_settings_git_repository' git_repository.id %}"
+            hx-target="#project-modal"
+            data-bs-toggle="mdoal"
+            data-bs-target="#project-modal">
+            <div class="modal-header">
+                <h5 class="modal-title">Git Repository "{{ git_repository.current.name }}"</h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-toggle="modal"
+                    data-bs-target="#project-modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% csrf_token %}
+                <table class="table table-hover">
+                    <tr>
+                        <td>{{ git_repository_form.name.label_tag }}</td>
+                        <td>{{ git_repository_form.name }}</td>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ git_repository_form.description.label_tag }}</td>
+                        <td>{{ git_repository_form.description }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ git_repository_form.url.label_tag }}</td>
+                        <td>{{ git_repository_form.url }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#project-modal">Submit</button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#project-modal">Cancel</button>
+            </div>
+            <input type="hidden" name="project_id" value="{{ project_id }}">
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</div>

@@ -11,6 +11,9 @@ from frontend.views.core.organization import organization_view
 from frontend.views.core.organization import organizations_view
 from frontend.views.core.organization import new_organization_view
 from frontend.views.project.project import project_view
+from frontend.views.project.project import project_settings_view
+from frontend.views.project.project import project_settings_git_repository_view as project_settings_git_repository_view
+from frontend.views.project.project import project_settings_new_git_repository_view
 from frontend.views.project.project import projects_view
 from frontend.views.project.project import new_git_repository_view as new_project_git_repository_view
 from frontend.views.project.project import new_project_new_git_repository_view as new_project_new_git_repository_view
@@ -56,6 +59,11 @@ urlpatterns = [
     path('project/new_issue/', new_project_issue_view.new_issue, name='new_project_issue'),
     path('project/new_issue/<uuid_or_label:project_id>/', new_project_issue_view.new_issue, name='new_project_issue'),
     path('project/<uuid_or_label:project_id>/', project_view.project, name='project'),
+    path('project-settings/<uuid_or_label:project_id>/', project_settings_view.project_settings, name='project_settings'),
+    path('project-settings/git-repository/', project_settings_git_repository_view.git_repository, name='project_settings_git_repository'),
+    path('project-settings/git-repository/<uuid:git_repository_id>/', project_settings_git_repository_view.git_repository, name='project_settings_git_repository'),
+    path('project-settings/new-git-repository/', project_settings_new_git_repository_view.new_git_repository, name='project_settings_new_git_repository'),
+    path('project-settings/new-git-repository/<uuid_or_label:project_id>/', project_settings_new_git_repository_view.new_git_repository, name='project_settings_new_git_repository'),
     path('projects', projects_view.projects, name='projects'),
     path('new_project', new_project_view.new_project, name='new_project'),
     path('issue/<uuid:issue_id>/', issue_view.issue, name='issue'),

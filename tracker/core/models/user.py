@@ -190,9 +190,11 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         from project.models import issue as issue_models
         # TODO: Add issues watching, assigned to, etc.
         user_projects = self.list_projects()
+        personal_issues = self.issue_created_by.values_list('id', flat=True)
         issue_ids = set()
         for project in user_projects:
             issue_ids = set(issue_ids).union(set(project.issue_set.values_list('id', flat=True)))
+        issue_ids = set(issue_ids).union(set(personal_issues))
         issues = issue_models.Issue.objects.filter(id__in=issue_ids)
         return issues
 

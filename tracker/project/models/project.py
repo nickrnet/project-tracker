@@ -14,6 +14,9 @@ class ProjectData(core_models.CoreModel):
     is_active = models.BooleanField(default=True)
     is_private = models.BooleanField(default=False)
 
+    def generate_label(self):
+        return "-".join(self.name.split()).lower()
+
 
 class ProjectLabelName(core_models.CoreModel):
     class Meta:

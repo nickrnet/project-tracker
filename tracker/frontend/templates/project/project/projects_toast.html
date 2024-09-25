@@ -3,6 +3,12 @@
         const toast = new bootstrap.Toast(document.getElementById('projects-toast'));
         toast.show();
     };
+    function loadTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    };
 </script>
 <div class="toast-container position-fixed top-0 left-0 p-3" id="toast-container">
     {% for message in messages %}
@@ -20,9 +26,10 @@
         </div>
     </div>
     {% endfor %}
-    {% if messages %}
     <script>
+        {% if messages %}
         showToast();
+        {% endif %}
+        loadTooltips();
     </script>
-    {% endif %}
 </div>

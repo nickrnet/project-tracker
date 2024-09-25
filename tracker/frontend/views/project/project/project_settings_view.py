@@ -14,23 +14,12 @@ def handle_post(request, project_id, logged_in_user):
     received_project_data_form = project_form.ProjectDataForm(request.POST, request.FILES)
     if received_project_data_form.is_valid():
         try:
-            project_uuid = uuid.UUID(str(project_id))
-            project = logged_in_user.list_projects().get(id=project_uuid)
-        except ValueError:
-            try:
-                project = logged_in_user.list_projects().get(label__current__name__name=project_id)
-            except project_models.Project.DoesNotExist:
-                messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
-                return redirect("projects")
-        except project_models.Project.DoesNotExist:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
-            return redirect("projects")
+            project = logged_in_user.list_projects().get(id=project_id)
+            project_data_form = received_project_data_form.cleaned_data.copy()
+            # TODO: Create a new git repository if needed
+            project_data_form.pop("git_repository")
 
-        repositories = project.git_repositories.all()
-        project_data_form = received_project_data_form.cleaned_data.copy()
-
-        project_label = project_data_form.pop("label")
-        if project_label != project.label.current.name.name:
+            project_label = project_data_form.pop("label")
             project_label_name = project_models.ProjectLabelName(
                 created_by_id=logged_in_user.id,
                 name=project_label,
@@ -46,29 +35,19 @@ def handle_post(request, project_id, logged_in_user):
                 current=project_label_data,
             )
             project_label.save()
-        else:
-            project_label = project.label
 
-        project_data_form["created_by_id"] = str(logged_in_user.id)
-        project_data = project_models.ProjectData.objects.create(**project_data_form)
+            project_data_form["created_by_id"] = str(logged_in_user.id)
+            project_data = project_models.ProjectData.objects.create(**project_data_form)
 
-        project.current = project_data
-        project.label = project_label
-        project.save()
+            project.current = project_data
+            project.label = project_label
+            project.save()
 
-        messages.success(request, ('Your project was successfully updated!'))
-
-        return render(
-            request=request,
-            template_name="project/project/project_pane.html",
-            context={
-                'logged_in_user': logged_in_user,
-                'project': project,
-                'project_id': project_id,
-                'git_repositories': repositories,
-                'issues': project.issue_set.all(),
-            }
-        )
+            messages.success(request, ('Your project was successfully updated!'))
+            return redirect("project", project_id=project_id)
+        except project_models.Project.DoesNotExist:
+            messages.error(request, "The specified Project does not exist. Create it and try again.")
+            return redirect("new_project")
     else:
         messages.error(request, 'Error saving project.')
         return render(
@@ -78,14 +57,14 @@ def handle_post(request, project_id, logged_in_user):
 
 
 @login_required
-def project(request, project_id=None):
+def project_settings(request, project_id=None):
     try:
         logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
     if request.method == "POST":
-        return handle_post(request, project_id, logged_in_user)
+        handle_post(request, project_id, logged_in_user)
 
     try:
         project_uuid = uuid.UUID(str(project_id))
@@ -108,7 +87,7 @@ def project(request, project_id=None):
 
     return render(
         request=request,
-        template_name="project/project/project_template.html",
+        template_name="project/project/project_settings.html",
         context={
             'logged_in_user': logged_in_user,
             'project': project,

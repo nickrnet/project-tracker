@@ -13,5 +13,3 @@ class ProjectDataForm(forms.Form):
 
 class ProjectForm(forms.Form):
     current = ProjectDataForm()
-    git_repositories = forms.UUIDField(required=False)
-    users = forms.UUIDField(required=False)

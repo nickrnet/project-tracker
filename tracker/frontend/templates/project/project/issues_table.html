@@ -1,4 +1,12 @@
 {% load tz %}
+<script>
+    function loadTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    };
+</script>
 <div class="row">
     <div id="issue-modal"
         class="modal modal-blur fade"
@@ -46,8 +54,9 @@
         new DataTable('#project-issues-table-data', {
             order: [[7, 'desc']],
             language: {
-                emptyTable: 'No records found.',
+                emptyTable: 'No issues.',
             }
         });
+        loadTooltips();
     </script>
 </div>

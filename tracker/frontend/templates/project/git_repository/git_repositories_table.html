@@ -1,4 +1,12 @@
 {% load tz %}
+<script>
+    function loadTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    };
+</script>
 <div class="row" id="git-repositories-table">
     <div id="git-repository-modal"
         class="modal modal-blur fade"
@@ -61,5 +69,6 @@
                 emptyTable: 'No records found.',
             }
         });
+        loadTooltips();
     </script>
 </div>
