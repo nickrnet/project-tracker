@@ -26,4 +26,8 @@ Try to keep management commands in the main application they work with. See the 
 
 Try to keep tests in the main application they are testing. `api` tests in api, `core` in core, etc.
 
-Be very careful placing things in the `tracker/settings.py` file, avoid things like secrets and credentials specifically.
+Be very careful placing configuration things in the `tracker/settings.py` file, avoid things like secrets and credentials specifically.
+
+## Frontend Views and Partials
+
+When developing frontend components (templates/partials), think about the template returning just a partial when working on the view code. See `frontend/templates/project/project/project_template.html`, `frontend/templates/project/project_pane.html`, and `frontend/templates/project/project/project_settings.html` for examples of a partial that is returned by a view called async. Those templates have a corresponding views in `frontend/views/project` and a corresponding endpoint in `frontend/urls.py`.
