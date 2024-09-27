@@ -36,28 +36,32 @@
             hx-target="#git-repository-modal"
             data-bs-toggle="modal"
             data-bs-target="#git-repository-modal">
-            <th scope="row">{{ repository.current.name|safe|upper }}</th>
-            <td>{{ repository.current.description|safe }}</th>
-            <td><a href="{{ repository.current.url }}">{{ repository.current.url|safe }}</a></td>
-            <td>
-                {% with repo_org=repository.organizationgitrepositories_set.first %}
-                    {% if repo_org %}
+            <th scope="row" class="text-truncate" style="max-width: 80px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.current.name|safe|upper }}">{{ repository.current.name|safe|upper }}</th>
+            <td class="text-truncate" style="max-width: 175px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.current.description|safe }}">{{ repository.current.description|safe }}</th>
+            <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.current.url|safe }}"><a href="{{ repository.current.url }}" target="_blank">{{ repository.current.url|safe }}</a></td>
+            {% with repo_org=repository.organizationgitrepositories_set.first %}
+                {% if repo_org %}
+            <td class="text-truncate" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-title="{{ repo_org.current.name }}">
                 <a href="{% url 'organization' repo_org.id %}">{{ repo_org.current.name }}</a>
-                    {% else %}
-                <span class="text-muted"> </span>
-                    {% endif %}
-                {% endwith %}
             </td>
-            <td>
-                {% with repo_project=repository.project_set.first %}
-                    {% if repo_project %}
+                {% else %}
+            <td style="max-width: 100px;">
+                <span class="text-muted">&nbsp;</span>
+            </td>
+                {% endif %}
+            {% endwith %}
+            {% with repo_project=repository.project_set.first %}
+                {% if repo_project %}
+            <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ repo_project.current.name }}">
                 <a href="{% url 'project' repo_project.id %}">{{ repo_project.current.name }}</a>
-                    {% else %}
-                <span class="text-muted"> </span>
-                    {% endif %}
-                {% endwith %}
             </td>
-            <td>{{ repository.created_on|timezone:logged_in_user.current.timezone }}</td>
+                {% else %}
+            <td style="max-width: 155px;">
+                <span class="text-muted">&nbsp;</span>
+            </td>
+                {% endif %}
+            {% endwith %}
+            <td class="text-truncate" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.created_on|timezone:logged_in_user.current.timezone }}">{{ repository.created_on|timezone:logged_in_user.current.timezone }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -66,9 +70,11 @@
         new DataTable('#git-repositories-table-data', {
             order: [[5, 'desc']],
             language: {
-                emptyTable: 'No records found.',
+                emptyTable: 'No git repositories found.',
+            },
+            drawCallback: function (settings) {
+                loadTooltips();
             }
         });
-        loadTooltips();
     </script>
 </div>

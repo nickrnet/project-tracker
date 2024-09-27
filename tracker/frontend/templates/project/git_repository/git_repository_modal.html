@@ -7,42 +7,57 @@
         <form>
             <div class="modal-body">
                 {% csrf_token %}
-                <table class="table table-hover">
-                    <tbody>
-                        <tr>
-                            <td>{{ git_repository_form.name.label_tag }}</td>
-                            <td>{{ git_repository_form.name }}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ git_repository_form.description.label_tag }}</td>
-                            <td>{{ git_repository_form.description }}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ git_repository_form.url.label_tag }}</td>
-                            <td>{{ git_repository_form.url }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="table table-hover">
-                    <tbody>
-                        {% if organization %}
-                        <tr>
-                            <td>In Organization:</td>
-                            <td>{{ organization.current.name }}</td>
-                        </tr>
-                        {% else %}
-                        <tr></tr>
-                        {% endif %}
-                        {% if project %}
-                        <tr>
-                            <td>Used by Project:</td>
-                            <td>{{ project.current.name }}</td>
-                        </tr>
-                        {% else %}
-                        <tr><td></td><td></td></tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="id_name" class="form-label">Name:</label>
+                        <input type="text" name="name" value="{{ git_repository.current.name }}" class="form-control" id="id_name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_description" class="form-label">Description:</label>
+                        <textarea name="description" value="{{ git_repository.current.description }}" class="form-control" id="id_description">{{ git_repository.current.description }}</textarea>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="id_url" class="form-label">URL:</label>
+                        <input type="url" name="url" value="{{ git_repository.current.url }}" class="form-control" id="id_url">
+                    </div>
+                    {% if valid_url %}
+                    <div class="col-sm-2">
+                        <p>&nbsp;</p>
+                        <a href="{{ git_repository.current.url }}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="row g-3">
+                    <div class="col">
+                        <span>&nbsp;</span>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col">
+                        <table class="table table-hover">
+                            <tbody>
+                                {% if organization %}
+                                <tr>
+                                    <td>In Organization:</td>
+                                    <td>{{ organization.current.name }}</td>
+                                </tr>
+                                {% else %}
+                                <tr></tr>
+                                {% endif %}
+                                {% if project %}
+                                <tr>
+                                    <td>Used by Project:</td>
+                                    <td>{{ project.current.name }}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td></td><td></td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -1,4 +1,5 @@
 {% load static %}
+{% load tz %}
 {% load django_htmx %}
 <!DOCTYPE html>
 <html data-bs-theme="dark">
@@ -31,6 +32,7 @@
         </style>
     </head>
     <body>
+        {% timezone logged_in_user.current.timezone %}
         <div class="container" id="whole-page">
             {% include "header.html" %}
             <div class="row justify-content-start">
@@ -42,5 +44,6 @@
                 </div>
             </div>
         </div>
+        {% endtimezone %}
     </body>
 </html>

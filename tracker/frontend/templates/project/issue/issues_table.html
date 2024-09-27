@@ -37,9 +37,9 @@
             {% for issue in issues %}
             <tr
                 hx-get="{% url 'issue' issue.id %}"
-                hx-target="#modal"
+                hx-target="#issues-modal"
                 data-bs-toggle="modal"
-                data-bs-target="#modal">
+                data-bs-target="#issues-modal">
                 <th scope="row">{{ issue.project.label.current.name.name|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>  {% comment %} TODO: User-friendly id's {% endcomment %}
                 <td>{{ issue.project.current.name|safe }}</th>
                 <td>{{ issue.current.summary|safe }}</th>
@@ -58,8 +58,10 @@
             order: [[8, 'desc']],
             language: {
                 emptyTable: 'No records found.',
-            }
+            },
+            drawCallback: function (settings) {
+                loadTooltips();
+            },
         });
-        loadTooltips();
     </script>
 </div>

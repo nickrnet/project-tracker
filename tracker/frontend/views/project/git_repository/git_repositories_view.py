@@ -18,6 +18,6 @@ def git_repositories(request):
         template_name="project/git_repository/git_repositories_template.html",
         context={
             'logged_in_user': logged_in_user,
-            'git_repositories': repositories
+            'git_repositories': repositories,
         }
     )

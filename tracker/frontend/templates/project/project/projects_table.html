@@ -68,8 +68,10 @@
             order: [[4, 'desc']],
             language: {
                 emptyTable: 'No projects.',
-            }
+            },
+            drawCallback: function (settings) {
+                loadTooltips();
+            },
         });
-        loadTooltips();
     </script>
 </div>

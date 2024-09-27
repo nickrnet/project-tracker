@@ -46,7 +46,7 @@
                 data-bs-target="#git-repository-modal">
                 <th scope="row" class="text-truncate" style="max-width: 155px;">{{ repository.current.name|safe|upper }}</th>
                 <td class="text-truncate" style="max-width: 155px;">{{ repository.current.description|safe }}</th>
-                <td class="text-truncate" style="max-width: 155px;">{{ repository.current.url|safe }}</td>
+                <td class="text-truncate" style="max-width: 155px;">{% if repository.current.url %}{{ repository.current.url|safe }}{% endif %}</td>
                 <td class="text-truncate" style="max-width: 155px;">{{ repository.created_on|timezone:logged_in_user.current.timezone }}</td>
             </tr>
             {% endfor %}
@@ -59,7 +59,9 @@
             language: {
                 emptyTable: 'No git repositories available.',
             },
+            drawCallback: function (settings) {
+                loadTooltips();
+            },
         });
-        loadTooltips();
     </script>
 </div>

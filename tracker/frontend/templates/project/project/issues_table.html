@@ -55,8 +55,10 @@
             order: [[7, 'desc']],
             language: {
                 emptyTable: 'No issues.',
-            }
+            },
+            drawCallback: function (settings) {
+                loadTooltips();
+            },
         });
-        loadTooltips();
     </script>
 </div>
