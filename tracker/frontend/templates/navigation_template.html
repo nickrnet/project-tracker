@@ -1,19 +1,19 @@
-<ul class="nav flex-column">
-    {% if user.is_authenticated %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'projects' %}">Projects</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'issues' %}">Issues</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'git_repositories' %}">Git Repositories</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'organizations' %}">Organizations</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'users' %}">Users</a>
-    </li>
-    {% endif %}
-</ul>
+    <ul class="nav flex-column">
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'projects' %}">Projects</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'issues' %}">Issues</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'git_repositories' %}">Git Repositories</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'organizations' %}">Organizations</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'users' %}">Users</a>
+        </li>
+        {% endif %}
+    </ul>

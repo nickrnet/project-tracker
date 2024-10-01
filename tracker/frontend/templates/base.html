@@ -32,8 +32,7 @@
         </style>
     </head>
     <body>
-        {% timezone logged_in_user.current.timezone %}
-        <div class="container" id="whole-page">
+        <div class="container-fluid" id="whole-page">
             {% include "header.html" %}
             <div class="row justify-content-start">
                 <div class="col-md-2">
@@ -44,6 +43,5 @@
                 </div>
             </div>
         </div>
-        {% endtimezone %}
     </body>
 </html>

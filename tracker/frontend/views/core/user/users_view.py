@@ -12,7 +12,7 @@ def users(request):
         return redirect("logout")
 
     # Get unique users from owned organizations and projects
-    organization_users = logged_in_user.organizationmembers_set.values_list('members', flat=True)
+    organization_users = logged_in_user.organizationmembers_set.first().members.values_list('id', flat=True)
     project_users = logged_in_user.list_projects().values_list('users', flat=True)
     # Managing users of an organization is a different view
     # Combine the user IDs and get distinct users

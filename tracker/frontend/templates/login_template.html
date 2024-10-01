@@ -4,9 +4,18 @@
     <h2 class="my-4">Log In to Project Tracker</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <table>
-        {{ login_form.as_table }}
-        </table>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="id_email" class="form-label">Email address:</label>
+                <input type="text" name="email" class="form-control" id="id_email" required>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="id_password" class="form-label">Password:</label>
+                <input type="password" name="password" class="form-control" id="id_password"></textarea>
+            </div>
+        </div>
         <button class="btn btn-primary my-4" type="submit">Login</button>
     </form>
 </div>

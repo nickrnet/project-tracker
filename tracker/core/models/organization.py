@@ -42,3 +42,6 @@ class Organization(core_models.CoreModel):
     members = models.ManyToManyField('core.CoreUser', related_name='organizationmembers_set')
     git_repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationgitrepositories_set')
     projects = models.ManyToManyField(project_models.Project, related_name='organizationprojects_set')
+
+    def __str__(self):
+        return self.current.name

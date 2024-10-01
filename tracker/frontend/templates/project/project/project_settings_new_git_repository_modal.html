@@ -1,6 +1,28 @@
+<script>
+    var newGitRepositoryForm = document.getElementById('new-git-repository-form');
+    var submitButton1 = document.getElementById('submitButton1');
+
+    submitButton1.addEventListener('click', (e) => {
+        if (!newGitRepositoryForm.checkValidity()) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+        }
+        else {
+            newGitRepositoryForm.dispatchEvent(new Event('submit'));
+            newGitRepositoryModal = bootstrap.Modal.getInstance("#project-settings-git-repository-modal");
+            newGitRepositoryModal.toggle();
+            const projectModal = new bootstrap.Modal('#project-modal');
+            projectModal.toggle();
+        }
+    });
+</script>
 <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
         <form
+            class="new-git-repository-form"
+            id="new-git-repository-form"
+            novalidate
             hx-post="{% url 'project_settings_new_git_repository' project_id %}"
             hx-target="#project-modal"
             data-bs-toggle="mdoal"
@@ -19,17 +41,17 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="id_name" class="form-label">Name:</label>
-                        <input type="text" name="name" value="{{ git_repository.current.name }}" class="form-control" id="id_name" required>
+                        <input hx-validate="true" type="text" name="name" class="form-control" id="id_name" required>
                     </div>
                     <div class="col-md-6">
                         <label for="id_description" class="form-label">Description:</label>
-                        <textarea name="description" value="{{ git_repository.current.description }}" class="form-control" id="id_description">{{ git_repository.current.description }}</textarea>
+                        <textarea hx-validate="true" name="description" class="form-control" id="id_description"></textarea>
                     </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="id_url" class="form-label">URL:</label>
-                        <input type="url" name="url" value="{{ git_repository.current.url }}" class="form-control" id="id_url">
+                        <input hx-validate="true" type="url" name="url" class="form-control" id="id_url">
                     </div>
                     {% if valid_url %}
                     <div class="col-sm-2">
@@ -41,10 +63,9 @@
             </div>
             <div class="modal-footer">
                 <button
-                    type="submit"
-                    class="btn btn-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#project-modal">Submit</button>
+                    id="submitButton1"
+                    type="button"
+                    class="btn btn-primary">Submit</button>
                 <button
                     type="button"
                     class="btn btn-secondary"

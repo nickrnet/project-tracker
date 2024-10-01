@@ -105,6 +105,7 @@ def project(request, project_id=None):
         project_dict['label'] = project.label.current.name.name
     form = project_form.ProjectDataForm(project_dict)
     repositories = project.git_repositories.all()
+    users = project.list_users(logged_in_user)
 
     return render(
         request=request,
@@ -115,6 +116,7 @@ def project(request, project_id=None):
             'project_id': project_id,
             'project_form': form,
             'git_repositories': repositories,
+            'users': users,
             'issues': project.issue_set.all(),
         }
     )

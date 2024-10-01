@@ -13,10 +13,10 @@
         <div class="col-2">
         <button
             hx-get="{% url 'project_settings_new_git_repository' project_id %}"
-            hx-target="#project-settings-git-repositories-modal"
+            hx-target="#project-settings-git-repository-modal"
             hx-swap="innerHTML"
             data-bs-toggle="modal"
-            data-bs-target="#project-settings-git-repositories-modal"
+            data-bs-target="#project-settings-git-repository-modal"
             class="btn primary"><i class="bi bi-plus-circle"></i></button>
         </div>
     </div>
@@ -34,13 +34,13 @@
             {% for repository in git_repositories %}
             <tr
                 hx-get="{% url 'project_settings_git_repository' repository.id %}"
-                hx-target="#project-settings-git-repositories-modal"
+                hx-target="#project-settings-git-repository-modal"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
-                data-bs-target="#project-settings-git-repositories-modal"
+                data-bs-target="#project-settings-git-repository-modal"
                 >
                 <th scope="row" class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.current.name|safe|upper }}">{{ repository.current.name|safe|upper }}</th>
-                <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.current.description|safe }}">{{ repository.current.description|safe }}</th>
+                <td class="text-truncate" style="max-width: 155px;" {% if repository.current.description %}data-bs-toggle="tooltip" data-bs-title="{{ repository.current.description|safe }}"{% endif %}>{% if repository.current.description %}{{ repository.current.description|safe }}{% endif %}</th>
                 <td class="text-truncate" style="max-width: 155px;" {% if repository.current.url %}data-bs-toggle="tooltip" data-bs-title="{{ repository.current.url|safe }}"{% endif %}>{% if repository.current.url %}{{ repository.current.url|safe }}{% endif %}</td>
                 <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.created_on|timezone:logged_in_user.current.timezone }}">{{ repository.created_on|timezone:logged_in_user.current.timezone }}</td>
             </tr>
