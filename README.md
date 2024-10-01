@@ -6,7 +6,7 @@
 
 The idea behind Project Tracker is to be able to track a project and its issues, of varying issue types and priorities and severities and progress states, through sprints, including test execution. The sprint and test execution bits are still work in progress. All of it is work in progress, frankly (it's a fairly new project), we're still making the app responsive vs hard page navigation, friendly links, etc.
 
-Inspiration comes from Jira, TestRail, Trac, and GitHub.
+Inspiration comes from Jira, Trello, TestRail, Trac, Vivify, ServiceNow, and GitHub.
 
 Eventually, if one assigns git repositories to a project, then tests _could_ get automatically flagged as executed for a project/sprint release, and their state (pass, fail).
 
