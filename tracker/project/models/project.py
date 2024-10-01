@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from core.models import core as core_models
+from core.models import user as core_user_models
 from . import git_repository as git_repository_models
 
 
@@ -47,9 +48,18 @@ class Project(core_models.CoreModel):
     active_objects = ProjectActiveManager()
 
     current = models.OneToOneField(ProjectData, on_delete=models.CASCADE)
-    label = models.ForeignKey(ProjectLabel, on_delete=models.CASCADE, blank=True, null=True)
+    label = models.ForeignKey(ProjectLabel, on_delete=models.CASCADE, blank=True, null=True, default="")
     git_repositories = models.ManyToManyField(git_repository_models.GitRepository)
     users = models.ManyToManyField('core.CoreUser')
+
+    def list_users(self, logged_in_user):
+        # Get unique users from owned organizations and projects
+        organization_users = logged_in_user.organizationmembers_set.first().members.values_list('id', flat=True)
+        project_users = logged_in_user.list_projects().values_list('users', flat=True)
+        # Managing users of an organization is a different view
+        # Combine the user IDs and get distinct users
+        user_ids = set(organization_users).union(set(project_users))
+        return core_user_models.CoreUser.objects.filter(id__in=user_ids)
 
     def __str__(self):
         potential_names = []

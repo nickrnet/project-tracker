@@ -11,7 +11,7 @@ from . import severity as severity_models
 
 class IssueData(core_models.CoreModel):
     summary = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, default="")
 
 
 class IssueObjectManager(models.Manager):

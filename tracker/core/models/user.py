@@ -13,13 +13,13 @@ TIMEZONE_CHOICES = tuple((tz, tz) for tz in pytz.all_timezones)
 
 
 class CoreUserData(core_models.CoreModel):
-    name_prefix = models.CharField(max_length=255, blank=True, null=True)
-    first_name = models.CharField(max_length=255, blank=True, null=True)
-    middle_name = models.CharField(max_length=255, blank=True, null=True)
-    last_name = models.CharField(max_length=255, blank=True, null=True)
-    name_suffix = models.CharField(max_length=255, blank=True, null=True)
+    name_prefix = models.CharField(max_length=255, blank=True, null=True, default="")
+    first_name = models.CharField(max_length=255, blank=True, null=True, default="")
+    middle_name = models.CharField(max_length=255, blank=True, null=True, default="")
+    last_name = models.CharField(max_length=255, blank=True, null=True, default="")
+    name_suffix = models.CharField(max_length=255, blank=True, null=True, default="")
     email = models.EmailField(max_length=255)
-    secondary_email = models.EmailField(max_length=255, blank=True, null=True)
+    secondary_email = models.EmailField(max_length=255, blank=True, null=True, default="")
     home_phone = PhoneField(blank=True, null=True)
     mobile_phone = PhoneField(blank=True, null=True)
     work_phone = PhoneField(blank=True, null=True)
@@ -229,8 +229,8 @@ class UserLogin(core_models.CoreModel):
     login_time = models.DateTimeField(auto_now_add=True)
     x_forwarded_for = models.GenericIPAddressField(blank=True, null=True)
     remote_addr = models.GenericIPAddressField(blank=True, null=True)
-    user_agent = models.CharField(max_length=255, blank=True, null=True)
-    session_key = models.CharField(max_length=255, blank=True, null=True)
+    user_agent = models.CharField(max_length=255, blank=True, null=True, default="")
+    session_key = models.CharField(max_length=255, blank=True, null=True, default="")
 
 
 class UserLogout(core_models.CoreModel):
@@ -241,5 +241,5 @@ class UserLogout(core_models.CoreModel):
     logout_time = models.DateTimeField(auto_now_add=True)
     x_forwarded_for = models.GenericIPAddressField(blank=True, null=True)
     remote_addr = models.GenericIPAddressField(blank=True, null=True)
-    user_agent = models.CharField(max_length=255, blank=True, null=True)
-    session_key = models.CharField(max_length=255, blank=True, null=True)
+    user_agent = models.CharField(max_length=255, blank=True, null=True, default="")
+    session_key = models.CharField(max_length=255, blank=True, null=True, default="")

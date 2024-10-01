@@ -35,7 +35,7 @@ class BuiltInIssuePriority(core_models.CoreModel):
     objects = BuiltInIssuePriorityManager()
 
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, default="")
 
 
 class CustomIssuePriorityData(core_models.CoreModel):
@@ -43,7 +43,7 @@ class CustomIssuePriorityData(core_models.CoreModel):
         ordering = ['name']
 
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, default="")
 
 
 class CustomIssuePriorityActiveManager(models.Manager):

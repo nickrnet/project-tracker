@@ -56,7 +56,7 @@ class BuiltInIssueType(core_models.CoreModel):
     objects = BuiltInIssueTypeManager()
 
     type = models.CharField(max_length=255, choices=IssueTypeChoices.choices)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, default="")
 
 
 class CustomIssueTypeActiveManager(models.Manager):
@@ -71,7 +71,7 @@ class CustomIssueTypeData(core_models.CoreModel):
     active_objects = CustomIssueTypeActiveManager()
 
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, default="")
 
 
 class CustomIssueType(core_models.CoreModel):

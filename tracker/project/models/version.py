@@ -5,8 +5,8 @@ from core.models import core as core_models
 
 class VersionData(core_models.CoreModel):
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    release_date = models.DateField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, default="")
+    release_date = models.DateField(blank=True, null=True, default="")
     is_active = models.BooleanField(default=True)
 
 

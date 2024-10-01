@@ -35,7 +35,7 @@ class BuiltInIssueStatus(core_models.CoreModel):
     objects = BuiltInIssueStatusManager()
 
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, default="")
 
 
 class CustomIssueStatusData(core_models.CoreModel):
@@ -43,7 +43,7 @@ class CustomIssueStatusData(core_models.CoreModel):
         ordering = ['name']
 
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, default="")
 
 
 class CustomIssueStatusActiveManager(models.Manager):
