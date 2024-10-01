@@ -1,3 +1,5 @@
+from importlib import resources
+
 from django.contrib import messages
 from django.shortcuts import render, redirect
 
@@ -23,11 +25,21 @@ def signup(request):
             )
 
     signup_form_data = signup_form.NewUserForm()
+    timezone_choices = core_user_models.TIMEZONE_CHOICES
+    with resources.files('tzdata.zoneinfo').joinpath('iso3166.tab').open('r') as f:
+        country_names = dict(
+            line.rstrip('\n').split('\t', 1)
+            for line in f
+            if not line.startswith('#')
+        )
+        country_names = sorted(country_names.items(), key=lambda x: x[1])
 
     return render(
         request=request,
         template_name="signup_template.html",
         context={
-            'signup_form': signup_form_data
+            'signup_form': signup_form_data,
+            'timezone_choices': timezone_choices,
+            'country_names': country_names,
         }
     )
