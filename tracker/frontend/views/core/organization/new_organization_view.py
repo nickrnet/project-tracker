@@ -45,7 +45,7 @@ def new_organization(request):
             )
 
     organization_data_form = new_organization_form.NewOrganizationDataForm()
-    organizations = logged_in_user.organizations.all()
+    organizations = logged_in_user.organizationmembers_set.all()
     return render(
         request=request,
         template_name="core/organization/new_organization_template.html",

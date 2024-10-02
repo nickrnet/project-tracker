@@ -1,7 +1,7 @@
 <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
     <span class="d-flex align-items-center mb-3 mb-md-0 me-md-auto fs-4">Project Tracker</span>
     <div class="text-end">
-        {% if user.is_authenticated %}
+        {% if logged_in_user %}
         <a class="btn btn-primary" role="button" aria-disabled="false" href="{% url 'logout' %}">Logout</a>
         {% else %}
         <a class="btn btn-primary" role="button" aria-disabled="false" href="{% url 'login' %}">Login</a>

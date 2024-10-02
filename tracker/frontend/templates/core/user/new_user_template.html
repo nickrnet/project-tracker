@@ -6,9 +6,7 @@
     <h2 class="my-4">Add a new user</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <table>
-        {{ new_user_form.as_table }}
-        </table>
+        {% include "core/user/user_form.html" %}
         <button class="btn btn-primary my-4" type="submit">Submit</button>
     </form>
     {% endif %}

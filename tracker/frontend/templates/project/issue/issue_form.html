@@ -1,0 +1,107 @@
+<div class="row">
+    <div class="col col-md-6">
+        <label for="id_project" class="form-label">Project:</label>
+        <select class="form-select" name="id_project">
+            <option value="">-----</option>
+            {% for known_project in projects %}
+            {% if project_id and project_id|stringformat:"s" == known_project.label.current.name.name %}
+            <option value="{{ known_project.id }}" selected>{{ known_project.current.name }}</option>
+            {% else %}
+            <option value="{{ known_project.id }}">{{ known_project.current.name }}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="id_component" class="form-label">Component:</label>
+        <select class="form-select" name="component">
+            <option value="">-----</option>
+            {% for component in issue_components %}
+            {% if issue.component.current.name == component.current.name %}
+            <option value="{{ component.id|stringformat:"s" }}" selected>{{ component.current.name }}</option>
+            {% else %}
+            <option value="{{ component.id|stringformat:"s" }}">{{ component.current.name}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="id_version" class="form-label">Version:</label>
+        <select class="form-select" name="Version">
+            <option value="">-----</option>
+            {% for version in issue_versions %}
+            {% if issue.version.current.name == version.current.name %}
+            <option value="{{ version.id|stringformat:"s" }}" selected>{{ version.current.name }}</option>
+            {% else %}
+            <option value="{{ version.id|stringformat:"s" }}">{{ version.current.name}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <label for="id_built_in_type" class="form-label">Type:</label>
+        <select class="form-select" name="built_in_type">
+            <option value="">-----</option>
+            {% for type in issue_types %}
+            {% if issue.built_in_type.type == type.type %}
+            <option value="{{ type.id|stringformat:"s" }}" selected>{{ type.type }}</option>
+            {% else %}
+            <option value="{{ type.id|stringformat:"s" }}">{{ type.type}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="id_built_in_priority" class="form-label">Priority:</label>
+        <select class="form-select" name="built_in_priority">
+            <option value="">-----</option>
+            {% for priority in issue_priorities %}
+            {% if issue.built_in_priority.name == priority.name %}
+            <option value="{{ priority.id|stringformat:"s" }}" selected>{{ priority.name }}</option>
+            {% else %}
+            <option value="{{ priority.id|stringformat:"s" }}">{{ priority.name}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="id_built_in_severity" class="form-label">Severity:</label>
+        <select class="form-select" name="built_in_severity">
+            <option value="">-----</option>
+            {% for severity in issue_severities %}
+            {% if issue.built_in_severity.name == severity.name %}
+            <option value="{{ severity.id|stringformat:"s" }}" selected>{{ severity.name }}</option>
+            {% else %}
+            <option value="{{ severity.id|stringformat:"s" }}">{{ severity.name}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="id_built_in_status" class="form-label">Status:</label>
+        <select class="form-select" name="built_in_status">
+            <option value="">-----</option>
+            {% for status in issue_statuses %}
+            {% if issue.built_in_status.name == status.name %}
+            <option value="{{ status.id|stringformat:"s" }}" selected>{{ status.name }}</option>
+            {% else %}
+            <option value="{{ status.id|stringformat:"s" }}">{{ status.name}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <label for="id_summary" class="form-label">Summary:</label>
+        <input type="text" name="summary" class="form-control" id="id_summary" value="{{ issue.summary }}">
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <label for="id_description" class="form-label">Description:</label>
+        <textarea name="description" class="form-control" rows=4 id="id_description">{{ issue.description }}</textarea>
+    </div>
+</div>

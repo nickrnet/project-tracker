@@ -1,3 +1,5 @@
+from importlib import resources
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
@@ -18,6 +20,14 @@ def users(request):
     # Combine the user IDs and get distinct users
     user_ids = set(organization_users).union(set(project_users))
     users = core_user_models.CoreUser.objects.filter(id__in=user_ids)
+    timezone_choices = core_user_models.TIMEZONE_CHOICES
+    with resources.files('tzdata.zoneinfo').joinpath('iso3166.tab').open('r') as f:
+        country_names = dict(
+            line.rstrip('\n').split('\t', 1)
+            for line in f
+            if not line.startswith('#')
+        )
+        country_names = sorted(country_names.items(), key=lambda x: x[1])
 
     return render(
         request=request,
@@ -25,5 +35,7 @@ def users(request):
         context={
             'logged_in_user': logged_in_user,
             'users': users,
+            'country_names': country_names,
+            'timezones': timezone_choices,
         }
     )

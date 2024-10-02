@@ -45,7 +45,8 @@ def organization(request, organization_id=None):
             template_name="core/organization/organization_template.html",
             context={
                 'logged_in_user': logged_in_user,
-                'organization_data_form': organization_data_form
+                'organization_data_form': organization_data_form,
+                'organization': organization,
             }
         )
     except core_organization_models.Organization.DoesNotExist:

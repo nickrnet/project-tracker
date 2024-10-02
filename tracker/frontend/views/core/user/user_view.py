@@ -1,3 +1,5 @@
+from importlib import resources
+
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
@@ -46,11 +48,22 @@ def user(request, user_id=None):
         return redirect("user", user_id=user_id)
 
     user_data_form = core_user_form.UserDataForm(model_to_dict(user.current))
+    timezone_choices = core_user_models.TIMEZONE_CHOICES
+    with resources.files('tzdata.zoneinfo').joinpath('iso3166.tab').open('r') as f:
+        country_names = dict(
+            line.rstrip('\n').split('\t', 1)
+            for line in f
+            if not line.startswith('#')
+        )
+        country_names = sorted(country_names.items(), key=lambda x: x[1])
     return render(
         request=request,
         template_name="core/user/core_user_template.html",
         context={
             "logged_in_user": logged_in_user,
-            "user_data_form": user_data_form
+            "user_data_form": user_data_form,
+            "user": user,
+            'timezone_choices': timezone_choices,
+            'country_names': country_names,
         }
     )

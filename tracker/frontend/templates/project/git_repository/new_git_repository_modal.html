@@ -12,22 +12,7 @@
         data-bs-target="#toast">
             <div class="modal-body">
                 {% csrf_token %}
-                <table class="table table-hover">
-                    <tbody>
-                        <tr>
-                            <td>{{ git_repository_form.name.label_tag }}</td>
-                            <td>{{ git_repository_form.name }}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ git_repository_form.description.label_tag }}</td>
-                            <td>{{ git_repository_form.description }}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ git_repository_form.url.label_tag }}</td>
-                            <td>{{ git_repository_form.url }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                {% include "project/git_repository/git_repository_form.html" %}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

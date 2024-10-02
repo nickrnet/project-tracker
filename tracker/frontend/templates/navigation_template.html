@@ -1,5 +1,5 @@
     <ul class="nav flex-column">
-        {% if user.is_authenticated %}
+        {% if logged_in_user %}
         <li class="nav-item">
             <a class="nav-link" href="{% url 'projects' %}">Projects</a>
         </li>

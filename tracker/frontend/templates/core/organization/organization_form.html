@@ -1,0 +1,88 @@
+<div class="row">
+    <div clas="col">
+        <label for="id_name" class="form-label">Name:</label>
+        <input type="text" name="name" class="form-control" id="id_name" value="{{ organization.current.name }}" required>
+    </div>
+</div>
+<div class="row">
+    <div clas="col">
+        <label for="id_description" class="form-label">Description:</label>
+        <textarea name="description" class="form-control" rows=4 id="id_description">{{ organization.current.description }}</textarea>
+    </div>
+</div>
+<div class="row">
+    <div clas="col">
+        <label for="id_responsible_party_email" class="form-label">Responsible party email address:</label>
+        <input type="text" name="responsible_party_email" class="form-control" id="id_responsible_party_email" value="{{ organization.current.responsible_party_email }}" required>
+    </div>
+</div>
+<div class="row">
+    <div clas="col">
+        <label for="id_responsible_party_phone" class="form-label">Responsible party phone:</label>
+        <input type="text" name="responsible_party_phone" class="form-control" id="id_responsible_party_phone" value="{{ organization.current.responsible_party_phone }}" required>
+    </div>
+</div>
+<div class="row">
+    <div clas="col">
+        <label for="id_address_line_1" class="form-label">Address line 1:</label>
+        <input type="text" name="address_line_1" class="form-control" id="id_address_line_1" value="{{ organization.current.address_line_1 }}" required>
+    </div>
+</div>
+<div class="row">
+    <div clas="col">
+        <label for="id_address_line_2" class="form-label">Address line 2:</label>
+        <input type="text" name="address_line_2" class="form-control" id="id_address_line_2" value="{{ organization.current.address_line_2 }}" required>
+    </div>
+</div>
+<div class="row">
+    <div clas="col">
+        <label for="id_city" class="form-label">City:</label>
+        <input type="text" name="city" class="form-control" id="id_city" value="{{ organization.current.city }}" required>
+    </div>
+</div>
+<div class="row">
+    <div clas="col">
+        <label for="id_state" class="form-label">State:</label>
+        <input type="text" name="state" class="form-control" id="id_state" value="{{ organization.current.state }}" required>
+    </div>
+</div>
+<div class="row">
+    <div clas="col">
+        <label for="id_postal_code" class="form-label">Postal code:</label>
+        <input type="text" name="postal_code" class="form-control" id="id_postal_code" value="{{ organization.current.postal_code }}" required>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <label for="id_country" class="form-label">Country:</label>
+        <select name="country" class="form-select" id="id_country">
+            <option value="">-----</option>
+            {% for country_choice in country_names %}
+            {% with country_choice.1 as country_name %}
+            {% if user %}
+            <option value="{{ country_name }}" {% if organization.current.country == country_name %}selected{% endif %}>{{ country_name }}</option>
+            {% else %}
+            <option value="{{ country_name }}">{{ country_name }}</option>
+            {% endif %}
+            {% endwith %}
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <label for="id_timezone" class="form-label">Timezone:</label>
+        <select name="timezone" class="form-select" id="id_timezone">
+            <option value="">-----</option>
+            {% for timezone_choice in timezone_choices %}
+            {% with timezone_choice.0 as timezone_name %}
+            {% if user %}
+            <option value="{{ timezone_name }}" {% if organization.current.timezone == timezone_name %}selected{% endif %}>{{ timezone_name }}</option>
+            {% else %}
+            <option value="{{ timezone_name }}">{{ timezone_name }}</option>
+            {% endif %}
+            {% endwith %}
+            {% endfor %}
+        </select>
+    </div>
+</div>

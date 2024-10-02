@@ -27,7 +27,7 @@ def create_core_user(num, users):
         'city': 'Anytown',
         'state': 'NY',
         'postal_code': '12345',
-        'country': 'USA',
+        'country': 'United States',
         'timezone': 'America/Chicago',
         'password': 'password123'
     }
