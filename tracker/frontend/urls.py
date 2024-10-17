@@ -11,6 +11,7 @@ from frontend.views.core.organization import organization_view
 from frontend.views.core.organization import organizations_view
 from frontend.views.core.organization import new_organization_view
 from frontend.views.project.project import project_view
+from frontend.views.project.project import check_project_label_availability_view
 from frontend.views.project.project import project_settings_view
 from frontend.views.project.project import project_settings_git_repository_view as project_settings_git_repository_view
 from frontend.views.project.project import project_settings_new_git_repository_view
@@ -52,6 +53,8 @@ urlpatterns = [
     path('logout', logout_view.logout_of_app, name='logout'),
 
     path('new_project', new_project_view.new_project, name='new_project'),
+    path('check_project_label_availability/', check_project_label_availability_view.check_project_label_availability, name='check_project_label_availability'),
+    path('check_project_label_availability/<slug:label_text>/', check_project_label_availability_view.check_project_label_availability, name='check_project_label_availability'),
     path('projects', projects_view.projects, name='projects'),
     path('project/<uuid_or_label:project_id>/', project_view.project, name='project'),
     path('project/new_git_repository/', new_project_git_repository_view.new_git_repository, name='new_project_git_repository'),
