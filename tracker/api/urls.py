@@ -42,4 +42,4 @@ router.register(r'custom_issue_type_data', project_api_view.CustomIssueTypeDataV
 urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
-]
+    ]

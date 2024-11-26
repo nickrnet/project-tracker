@@ -71,7 +71,7 @@ class CoreModel(models.Model):
             soft_deleted=False,
             hard_deleted=True,
             deleted_by_id=person_id,
-        )
+            )
         self.save()
 
     def soft_delete(self, person_id):
@@ -83,7 +83,7 @@ class CoreModel(models.Model):
             soft_deleted=True,
             hard_deleted=False,
             deleted_by_id=person_id,
-        )
+            )
         self.save()
 
     def undo_hard_delete(self, person_id):
@@ -95,7 +95,7 @@ class CoreModel(models.Model):
             soft_deleted=True,
             hard_deleted=False,
             deleted_by_id=person_id,
-        )
+            )
         self.save()
 
     def undo_soft_delete(self, person_id):

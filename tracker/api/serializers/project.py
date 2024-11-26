@@ -25,7 +25,7 @@ class GitRepositoryDataSerializer(serializers.HyperlinkedModelSerializer):
             'name',
             'description',
             'url'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -40,7 +40,7 @@ class GitRepositorySerializer(serializers.HyperlinkedModelSerializer):
             'created_on',
             'deleted',
             'current'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -57,7 +57,7 @@ class BuiltInIssuePrioritySerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'name',
             'description'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -73,7 +73,7 @@ class BuiltInIssueSeveritySerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'name',
             'description'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -89,7 +89,7 @@ class BuiltInIssueStatusSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'name',
             'description'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -105,7 +105,7 @@ class BuiltInIssueTypeSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'type',
             'description'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -123,7 +123,7 @@ class ComponentDataSerializer(serializers.HyperlinkedModelSerializer):
             'description',
             'label',
             'is_active'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -139,7 +139,7 @@ class CustomIssuePriorityDataSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'name',
             'description'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -154,7 +154,7 @@ class CustomIssuePrioritySerializer(serializers.HyperlinkedModelSerializer):
             'created_on',
             'deleted',
             'current'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -171,7 +171,7 @@ class CustomIssueSeverityDataSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'name',
             'description'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -186,7 +186,7 @@ class CustomIssueSeveritySerializer(serializers.HyperlinkedModelSerializer):
             'created_on',
             'deleted',
             'current'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -203,7 +203,7 @@ class CustomIssueStatusDataSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'name',
             'description'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -218,7 +218,7 @@ class CustomIssueStatusSerializer(serializers.HyperlinkedModelSerializer):
             'created_on',
             'deleted',
             'current'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -235,7 +235,7 @@ class CustomIssueTypeDataSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'name',
             'description'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -250,7 +250,7 @@ class CustomIssueTypeSerializer(serializers.HyperlinkedModelSerializer):
             'created_on',
             'deleted',
             'current'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -267,7 +267,7 @@ class IssueDataSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'summary',
             'description'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -282,7 +282,7 @@ class IssueSerializer(serializers.HyperlinkedModelSerializer):
             'created_on',
             'deleted',
             'current'
-        ]  # TODO: add all the issue fields
+            ]  # TODO: add all the issue fields
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -303,10 +303,14 @@ class ProjectDataSerializer(serializers.HyperlinkedModelSerializer):
             'end_date',
             'is_active',
             'is_private',
-        ]
+            'git_repositories',
+            'users',
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
+    git_repositories = GitRepositorySerializer(many=True)
+    users = CoreUserSerializer(many=True)
 
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
@@ -318,15 +322,11 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'created_on',
             'deleted',
             'current',
-            'git_repositories',
-            'users',
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
     current = ProjectDataSerializer()
-    git_repositories = GitRepositorySerializer(many=True)
-    users = CoreUserSerializer(many=True)
 
 
 class VersionDataSerializer(serializers.HyperlinkedModelSerializer):
@@ -341,7 +341,7 @@ class VersionDataSerializer(serializers.HyperlinkedModelSerializer):
             'description',
             'release_date',
             'is_active',
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -357,7 +357,7 @@ class VersionSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'current',
             'project'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
@@ -375,7 +375,7 @@ class ComponentSerializer(serializers.HyperlinkedModelSerializer):
             'deleted',
             'current',
             'project'
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()

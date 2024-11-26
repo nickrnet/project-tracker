@@ -12,4 +12,4 @@ class DeletedModelDataSerializer(serializers.HyperlinkedModelSerializer):
             'deleted_by',
             'soft_deleted',
             'hard_deleted',
-        ]
+            ]

@@ -23,17 +23,17 @@ def handle_post(request, project_id, logged_in_user):
             project_label_name = project_models.ProjectLabelName(
                 created_by_id=logged_in_user.id,
                 name=project_label,
-            )
+                )
             project_label_name.save()
             project_label_data = project_models.ProjectLabelData(
                 created_by_id=logged_in_user.id,
                 name=project_label_name,
-            )
+                )
             project_label_data.save()
             project_label = project_models.ProjectLabel(
                 created_by_id=logged_in_user.id,
                 current=project_label_data,
-            )
+                )
             project_label.save()
 
             project_data_form["created_by_id"] = str(logged_in_user.id)
@@ -53,7 +53,7 @@ def handle_post(request, project_id, logged_in_user):
         return render(
             request=request,
             template_name="project/project/new_project_template.html"
-        )
+            )
 
 
 @login_required
@@ -71,7 +71,7 @@ def project_settings(request, project_id=None):
         project = logged_in_user.list_projects().get(id=project_uuid)
     except ValueError:
         try:
-            project = logged_in_user.list_projects().get(label__current__name__name=project_id)
+            project = logged_in_user.list_projects().get(current__label__current__label=project_id)
         except project_models.Project.DoesNotExist:
             messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
             return redirect("projects")
@@ -80,10 +80,10 @@ def project_settings(request, project_id=None):
         return redirect("projects")
 
     project_dict = model_to_dict(project.current)
-    if project.label:
-        project_dict['label'] = project.label.current.name.name
+    if project.current.label:
+        project_dict['label'] = project.current.label.current.label
     form = project_form.ProjectDataForm(project_dict)
-    repositories = project.git_repositories.all()
+    repositories = project.current.git_repositories.all()
     users = project.list_users(logged_in_user)
 
     return render(
@@ -96,6 +96,6 @@ def project_settings(request, project_id=None):
             'project_form': form,
             'git_repositories': repositories,
             'users': users,
-            'issues': project.issue_set.all(),
-        }
-    )
+            'issues': project.issuedata_set.all(),
+            }
+        )

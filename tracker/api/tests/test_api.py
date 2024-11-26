@@ -19,7 +19,7 @@ class APITestCase(TestCase):
             "password": "password",
             "first_name": "API",
             "last_name": "Test User 01",
-        })
+            })
         self.test_organization_data = core_organization_models.OrganizationData(
             created_by=self.api_test_user,
             name="Test Organization 01",
@@ -31,43 +31,43 @@ class APITestCase(TestCase):
             city="Test City",
             state="Test State",
             country="Test Country"
-        )
+            )
         self.test_organization_data.save()
         self.test_organization = core_organization_models.Organization(
             created_by=self.api_test_user,
             current=self.test_organization_data
-        )
+            )
         self.test_organization.save()
         self.test_git_respository_data = git_repository_models.GitRepositoryData(
             created_by=self.api_test_user,
             name="Test Git Repository 01",
             description="Test Git Repository 01 Description",
             url="https://github.com/nickrnet/project-tracker"
-        )
+            )
         self.test_git_respository_data.save()
         self.test_git_respository = git_repository_models.GitRepository(
             created_by=self.api_test_user,
             current=self.test_git_respository_data
-        )
+            )
         self.test_git_respository.save()
         self.test_project_data = project_models.ProjectData(
             created_by=self.api_test_user,
             name="Test Project 01",
             description="Test Project 01 Description",
-        )
+            )
         self.test_project_data.save()
         self.test_project = project_models.Project(
             created_by=self.api_test_user,
             current=self.test_project_data,
-        )
+            )
         self.test_project.save()
 
-        self.test_project.users.add(self.api_test_user.id)
+        self.test_project.current.users.add(self.api_test_user.id)
         self.test_project.save()
-        self.test_organization.members.add(self.api_test_user)
-        self.test_organization.projects.add(self.test_project)
-        self.test_organization.git_repositories.add(self.test_git_respository)
-        self.test_organization.save()
+        self.test_organization.current.members.add(self.api_test_user)
+        self.test_organization.current.projects.add(self.test_project)
+        self.test_organization.current.git_repositories.add(self.test_git_respository)
+        self.test_organization.current.save()
         self.api_test_user.save()
 
     # TODO: Component, Issue, IssuePriority, IssueSeverity, IssueStatus, IssueType, Version tests

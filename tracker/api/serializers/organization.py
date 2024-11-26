@@ -29,10 +29,16 @@ class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
             'is_paid',
             'renewal_date',
             'number_users_allowed',
-        ]
+            'members',
+            'git_repositories',
+            'projects',
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
+    members = CoreUserSerializer(many=True)
+    git_repositories = GitRepositorySerializer(many=True)
+    projects = ProjectSerializer(many=True)
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
@@ -44,14 +50,8 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             'created_on',
             'deleted',
             'current',
-            'members',
-            'git_repositories',
-            'projects',
-        ]
+            ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
     current = OrganizationDataSerializer()
-    members = CoreUserSerializer(many=True)
-    git_repositories = GitRepositorySerializer(many=True)
-    projects = ProjectSerializer(many=True)

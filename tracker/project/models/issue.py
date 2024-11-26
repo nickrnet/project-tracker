@@ -13,6 +13,22 @@ class IssueData(core_models.CoreModel):
     summary = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True, default="")
 
+    project = models.ForeignKey('project.Project', on_delete=models.CASCADE)
+    reporter = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, related_name='issuereporter_set')
+    assignee = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, related_name='issueassignee_set', blank=True, null=True)
+    watchers = models.ManyToManyField('core.CoreUser', related_name='issuewatcher_set')
+    built_in_type = models.ForeignKey(issue_type_models.BuiltInIssueType, on_delete=models.CASCADE, blank=True, null=True)
+    custom_type = models.ForeignKey(issue_type_models.CustomIssueType, on_delete=models.CASCADE, blank=True, null=True)
+    built_in_priority = models.ForeignKey(priority_models.BuiltInIssuePriority, on_delete=models.CASCADE, blank=True, null=True)
+    custom_priority = models.ForeignKey(priority_models.CustomIssuePriority, on_delete=models.CASCADE, blank=True, null=True)
+    built_in_status = models.ForeignKey(status_models.BuiltInIssueStatus, on_delete=models.CASCADE, blank=True, null=True)
+    custom_status = models.ForeignKey(status_models.CustomIssueStatus, on_delete=models.CASCADE, blank=True, null=True)
+    built_in_severity = models.ForeignKey(severity_models.BuiltInIssueSeverity, on_delete=models.CASCADE, blank=True, null=True)
+    custom_severity = models.ForeignKey(severity_models.CustomIssueSeverity, on_delete=models.CASCADE, blank=True, null=True)
+    version = models.ForeignKey(version_models.Version, on_delete=models.CASCADE, blank=True, null=True)
+    component = models.ForeignKey(component_models.Component, on_delete=models.CASCADE, blank=True, null=True)
+    # TODO: attachments, other things a bug/story/epic needs
+
 
 class IssueObjectManager(models.Manager):
     def get_next_sequence_number(self, project_id):
@@ -101,21 +117,6 @@ class Issue(core_models.Sequenced):
     objects = IssueObjectManager()
 
     current = models.OneToOneField(IssueData, on_delete=models.CASCADE)
-    project = models.ForeignKey('project.Project', on_delete=models.CASCADE)
-    reporter = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, related_name='issuereporter_set')
-    assignee = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, related_name='issueassignee_set', blank=True, null=True)
-    watchers = models.ManyToManyField('core.CoreUser', related_name='issuewatcher_set')
-    built_in_type = models.ForeignKey(issue_type_models.BuiltInIssueType, on_delete=models.CASCADE, blank=True, null=True)
-    custom_type = models.ForeignKey(issue_type_models.CustomIssueType, on_delete=models.CASCADE, blank=True, null=True)
-    built_in_priority = models.ForeignKey(priority_models.BuiltInIssuePriority, on_delete=models.CASCADE, blank=True, null=True)
-    custom_priority = models.ForeignKey(priority_models.CustomIssuePriority, on_delete=models.CASCADE, blank=True, null=True)
-    built_in_status = models.ForeignKey(status_models.BuiltInIssueStatus, on_delete=models.CASCADE, blank=True, null=True)
-    custom_status = models.ForeignKey(status_models.CustomIssueStatus, on_delete=models.CASCADE, blank=True, null=True)
-    built_in_severity = models.ForeignKey(severity_models.BuiltInIssueSeverity, on_delete=models.CASCADE, blank=True, null=True)
-    custom_severity = models.ForeignKey(severity_models.CustomIssueSeverity, on_delete=models.CASCADE, blank=True, null=True)
-    version = models.ForeignKey(version_models.Version, on_delete=models.CASCADE, blank=True, null=True)
-    component = models.ForeignKey(component_models.Component, on_delete=models.CASCADE, blank=True, null=True)
-    # TODO: attachments, other things a bug/story/epic needs
 
     def list_built_in_types(self):
         """

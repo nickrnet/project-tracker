@@ -45,15 +45,10 @@ def new_project(request):
             )
 
             if new_project_data.get("label", None):
-                project_label_data = new_project_data.pop("label")
-                project_label_name = project_models.ProjectLabelName(
-                    created_by_id=logged_in_user.id,
-                    name=project_label_data,
-                )
-                project_label_name.save()
+                project_label_name = new_project_data.pop("label")
                 project_label_data = project_models.ProjectLabelData(
                     created_by_id=logged_in_user.id,
-                    name=project_label_name,
+                    label=project_label_name,
                 )
                 project_label_data.save()
                 project_label = project_models.ProjectLabel(
@@ -65,13 +60,14 @@ def new_project(request):
                 project_label = None
 
             if project_label:
-                project.label = project_label
+                project.current.label = project_label
 
             if git_repositories:
                 for repository in git_repositories:
-                    project.git_repositories.add(repository)
+                    project.current.git_repositories.add(repository)
 
-            project.users.add(logged_in_user)
+            project.current.users.add(logged_in_user)
+            project.current.save()
             project.save()
             messages.success(request, ('Your project was successfully added!'))
         else:

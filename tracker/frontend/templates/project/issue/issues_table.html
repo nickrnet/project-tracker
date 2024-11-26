@@ -40,8 +40,8 @@
                 hx-target="#issues-modal"
                 data-bs-toggle="modal"
                 data-bs-target="#issues-modal">
-                <th scope="row">{{ issue.project.label.current.name.name|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>
-                <td>{{ issue.project.current.name|safe }}</th>
+                <th scope="row">{{ issue.current.project.current.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>
+                <td>{{ issue.current.project.current.name|safe }}</th>
                 <td>{{ issue.current.summary|safe }}</th>
                 <td>{{ issue.current.description|safe }}</td>
                 <td>{{ issue.built_in_type.type|safe }}</td>

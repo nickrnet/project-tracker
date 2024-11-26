@@ -36,8 +36,8 @@ def handle_post(request, project_id, logged_in_user):
         messages.error(request, 'Invalid data received. Please try again.')
 
     project_dict = model_to_dict(project.current)
-    if project.label:
-        project_dict['label'] = project.label.current.name.name
+    if project.current.label.current.label:
+        project_dict['label'] = project.current.label.current.label
     form = project_form.ProjectDataForm(project_dict)
     repositories = project.git_repositories.all()
     return render(

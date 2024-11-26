@@ -48,8 +48,8 @@ def git_repository(request, git_repository_id=None):
         project = git_repository.project_set.first()
         project_id = str(project.id)
         project_dict = model_to_dict(project.current)
-        if project.label:
-            project_dict['label'] = project.label.current.name.name
+        if project.current.label.current.label:
+            project_dict['label'] = project.current.label.current.label
         form = project_form.ProjectDataForm(project_dict)
         return render(
             request=request,

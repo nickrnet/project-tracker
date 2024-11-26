@@ -25,7 +25,7 @@ class BuiltInIssueSeverity(core_models.CoreModel):
         ordering = ['name']
         unique_together = ['name', 'description']
 
-    class IssuePriorities(models.TextChoices):
+    class IssueSeverities(models.TextChoices):
         CRITICAL = 'CRITICAL', 'Critical'
         MAJOR = 'MAJOR', 'Major'
         MINOR = 'MINOR', 'Minor'

@@ -1,11 +1,11 @@
 import pytz
-from django.contrib.auth.models import User as DjangoUser
-from django.db import models
 
+from django.contrib.auth.models import User as DjangoUser
+from django.db import models, transaction
 from phone_field import PhoneField
 
-# DO NOT IMPORT OTHER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREMODEL
-# Use the string reference to the model here or import directly in helper functions instead to lazy-load it
+# DO NOT IMPORT OTHER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREUSER and/or CORE.COREMODEL
+# Use the string reference to the model here or import directly in helper functions instead to lazy-load it - See CoreUser.list_projects() for an example
 from . import core as core_models
 
 
@@ -13,6 +13,10 @@ TIMEZONE_CHOICES = tuple((tz, tz) for tz in pytz.all_timezones)
 
 
 class CoreUserData(core_models.CoreModel):
+    """
+    Demographic information about a user.
+    """
+
     name_prefix = models.CharField(max_length=255, blank=True, null=True, default="")
     first_name = models.CharField(max_length=255, blank=True, null=True, default="")
     middle_name = models.CharField(max_length=255, blank=True, null=True, default="")
@@ -33,101 +37,134 @@ class CoreUserData(core_models.CoreModel):
 
 
 class CoreUserActiveManager(models.Manager):
+    """
+    Active CoreUsers are not deleted.
+    """
+
     def get_queryset(self):
         return super().get_queryset().filter(deleted=None)
 
 
 class CoreUserManager(core_models.CoreModelManager):
+    """
+    General helper methods for a CoreUser, active or deleted.
+    """
+
     def get_or_create_api_user(self):
+        """
+        Creates an API user if it does not exist, primarily for Web tasks.
+
+        Returns:
+            api_user (CoreUser): The API user.
+        """
         try:
             api_user = CoreUser.objects.get(pk='75af4764-0f94-49f2-a6dc-3dbfe1b577f9')
         except CoreUser.DoesNotExist:
-            api_user = CoreUser(
-                id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
-                created_by_id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
-            )
-            api_user.save()
-            api_user_data = CoreUserData(
-                id='373f414f-9692-4e5c-92f2-5781dbad5c04',
-                created_by_id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
-                first_name='API',
-                last_name='USER',
-                address_line_1='',
-                address_line_2='',
-                city='',
-                state='',
-                country='',
-                postal_code=0,
-            )
-            api_user_data.save()
-            api_user.current = api_user_data
-            api_user.save()
+            with transaction.atomic():
+                api_user = CoreUser(
+                    id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
+                    created_by_id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
+                    )
+                api_user.save()
+                api_user_data = CoreUserData(
+                    id='373f414f-9692-4e5c-92f2-5781dbad5c04',
+                    created_by_id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
+                    first_name='API',
+                    last_name='USER',
+                    address_line_1='',
+                    address_line_2='',
+                    city='',
+                    state='',
+                    country='',
+                    postal_code=0,
+                    )
+                api_user_data.save()
+                api_user.current = api_user_data
+                api_user.save()
 
         return api_user
 
     def get_or_create_system_user(self):
+        """
+        Creates a system user if it does not exist, primarily for setup and system tasks.
+
+        Returns:
+            system_user (CoreUser): The system user.
+        """
         try:
             system_user = CoreUser.objects.get(pk='45407f07-21e9-42ba-8c39-03b57767fe76')
         except CoreUser.DoesNotExist:
-            system_user = CoreUser(
-                id='45407f07-21e9-42ba-8c39-03b57767fe76',
-                created_by_id='45407f07-21e9-42ba-8c39-03b57767fe76',
-            )
-            system_user.save()
-            system_user_data = CoreUserData(
-                id='02e94188-5b8e-494a-922c-bc6ed2ffcfc4',
-                created_by_id='45407f07-21e9-42ba-8c39-03b57767fe76',
-                first_name='SYSTEM',
-                last_name='USER',
-                address_line_1='',
-                address_line_2='',
-                city='',
-                state='',
-                country='',
-                postal_code=0,
-            )
-            system_user_data.save()
-            system_user.current = system_user_data
-            system_user.save()
+            with transaction.atomic():
+                system_user = CoreUser(
+                    id='45407f07-21e9-42ba-8c39-03b57767fe76',
+                    created_by_id='45407f07-21e9-42ba-8c39-03b57767fe76',
+                    )
+                system_user.save()
+                system_user_data = CoreUserData(
+                    id='02e94188-5b8e-494a-922c-bc6ed2ffcfc4',
+                    created_by_id='45407f07-21e9-42ba-8c39-03b57767fe76',
+                    first_name='SYSTEM',
+                    last_name='USER',
+                    address_line_1='',
+                    address_line_2='',
+                    city='',
+                    state='',
+                    country='',
+                    postal_code=0,
+                    )
+                system_user_data.save()
+                system_user.current = system_user_data
+                system_user.save()
 
         return system_user
 
-    def create_core_user_from_web(self, request_data):
-        api_user = CoreUser.objects.get_or_create_api_user()
+    def create_core_user_from_web(self, request_data: dict) -> 'CoreUser':
+        """
+        Takes a flat dictionary and creates a CoreUser and CoreUserData object.
 
-        django_user = DjangoUser.objects.create_user(
-            username=request_data.get('email'),
-            email=request_data.get('email'),
-            password=request_data.get('password')
-        )
+        Args:
+            request_data (dict): Probaby a JSON payload from a POST request.
 
-        core_user_data = CoreUserData(
-            created_by_id=api_user.id,
-            first_name=request_data.get('first_name', ''),
-            last_name=request_data.get('last_name', ''),
-            email=request_data.get('email'),
-            secondary_email=request_data.get('secondary_email', ''),
-            home_phone=request_data.get('home_phone', ''),
-            mobile_phone=request_data.get('mobile_phone', ''),
-            work_phone=request_data.get('work_phone', ''),
-            address_line_1=request_data.get('address_line_1', ''),
-            address_line_2=request_data.get('address_line_2', ''),
-            postal_code=request_data.get('postal_code', ''),
-            city=request_data.get('city', ''),
-            state=request_data.get('state', ''),
-            country=request_data.get('country', ''),
-            timezone=request_data.get('timezone', ''),
-        )
-        core_user_data.save()
+        Returns:
+            new_user (CoreUser): The new user that was created.
+        """
 
-        new_user = CoreUser(
-            created_by_id=api_user.id,
-            current=core_user_data,
-            user=django_user
-        )
-        new_user.save()
+        with transaction.atomic():
+            api_user = CoreUser.objects.get_or_create_api_user()
 
-        return new_user
+            django_user = DjangoUser.objects.create_user(
+                username=request_data.get('email'),
+                email=request_data.get('email'),
+                password=request_data.get('password')
+                )
+
+            core_user_data = CoreUserData(
+                created_by_id=api_user.id,
+                first_name=request_data.get('first_name', ''),
+                last_name=request_data.get('last_name', ''),
+                email=request_data.get('email'),
+                secondary_email=request_data.get('secondary_email', ''),
+                home_phone=request_data.get('home_phone', ''),
+                mobile_phone=request_data.get('mobile_phone', ''),
+                work_phone=request_data.get('work_phone', ''),
+                address_line_1=request_data.get('address_line_1', ''),
+                address_line_2=request_data.get('address_line_2', ''),
+                postal_code=request_data.get('postal_code', ''),
+                city=request_data.get('city', ''),
+                state=request_data.get('state', ''),
+                country=request_data.get('country', ''),
+                timezone=request_data.get('timezone', ''),
+                )
+            core_user_data.save()
+
+            new_user = CoreUser(
+                created_by_id=api_user.id,
+                current=core_user_data,
+                user=django_user
+                )
+            new_user.save()
+
+            return new_user
 
 
 class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_models.CoreModelManager):
@@ -141,6 +178,10 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
     user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, blank=True, null=True, related_name='django_user')
 
     def deactivate_login(self):
+        """
+        Deactivates a user's login.
+        """
+
         self.user.is_active = False
         self.user.save()
 
@@ -149,13 +190,13 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         Get all projects the user is a member of or owns.
 
         Returns:
-            list: The projects the user is a member of or owns.
+            projects (list): The projects the user is a member of or owns.
         """
 
         from project.models import project
         # Get projects from organization memberships and projects the user owns
         organization_projects = self.organizationmembers_set.values_list('projects', flat=True)
-        user_projects = self.project_set.values_list('id', flat=True)
+        user_projects = self.project_created_by.values_list('id', flat=True)
         # Combine the project IDs and get distinct ones
         project_ids = set(organization_projects).union(set(user_projects))
         projects = project.Project.objects.filter(id__in=project_ids)
@@ -163,10 +204,10 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
 
     def list_git_repositories(self):
         """
-        A helper method to get all git repositories the user can see, useful in views.
+        A helper method to get all git repositories the user can see or owns.
 
         Returns:
-            list: All git repositories the user can see.
+            repositories (list): All git repositories the user can see.
         """
 
         from project.models import git_repository as git_repository_models
@@ -184,7 +225,7 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         Get all issues the user is watching, assigned to, etc.
 
         Returns:
-            list: The issues the user is watching, assigned to, etc.
+            issues (list): The issues the user is watching, assigned to, etc.
         """
 
         from project.models import issue as issue_models
@@ -203,14 +244,13 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         A helper method to get all organiations the user is a member of, etc.
 
         Returns:
-            list: The organizations the user is a member of, etc.
+            organizations (list): The organizations the user is a member of, etc.
         """
 
         organizations = self.organizationmembers_set.all()
 
         return organizations
 
-    # This is here for the Django forms used in the frontend app. If you remove this, be prepared to rework every form ever.
     def __str__(self):
         potential_names = []
         if self.current.first_name:

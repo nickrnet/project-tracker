@@ -18,7 +18,7 @@
                 <p>Created by: <a href="{% url 'user' project.created_by.id %}">{{ project.created_by.current.last_name }}, {{ project.created_by.current.first_name }}</a> on {{ project.created_on|timezone:logged_in_user.current.timezone }}</p>
             </div>
             <div class="row">
-                {% with project_org=project.organizationprojects_set.first %}
+                {% with project_org=project.current.organizationprojects_set.first %}
                 {% if project_org %}
                 <p>Organization: <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></p>
                 {% endif %}
@@ -55,7 +55,7 @@
                                     <div class="row g-3">
                                         <div class="col-md-3">
                                             <label for="id_label" class="form-label">Label:</label>
-                                            <input type="text" name="label" value="{{ project.label.current.name.name }}" class="form-control" id="id_label" required>
+                                            <input type="text" name="label" value="{{ project.current.label.current.label }}" class="form-control" id="id_label" required>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="id_is_active" class="form-label">Is active?</label>

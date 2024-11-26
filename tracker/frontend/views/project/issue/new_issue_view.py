@@ -74,8 +74,8 @@ def new_issue(request, project_id=None):
     issue_priorities = issue_models.Issue.active_objects.list_built_in_priorities()
     issue_statuses = issue_models.Issue.active_objects.list_built_in_statuses()
     issue_severities = issue_models.Issue.active_objects.list_built_in_severities()
-    issue_versions = issue_models.Issue.active_objects.list_versions(issue.project.id) if project else []
-    issue_components = issue_models.Issue.active_objects.list_components(issue.project.id) if project else []
+    issue_versions = issue_models.Issue.active_objects.list_versions(issue.current.project.id) if project else []
+    issue_components = issue_models.Issue.active_objects.list_components(issue.current.project.id) if project else []
 
     return render(
         request=request,

@@ -1,7 +1,7 @@
 <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title">{{ issue.project.label.current.name.name|safe|upper }}-{{ issue.sequence|stringformat:"s" }}{% if issue.built_in_built_in_status.name %}: {{ issue.built_in_built_in_status.name }}{% endif %}</h5>
+            <h5 class="modal-title">{{ issue.current.project.current.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}{% if issue.built_in_built_in_status.name %}: {{ issue.built_in_built_in_status.name }}{% endif %}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form>

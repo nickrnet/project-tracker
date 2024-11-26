@@ -1,0 +1,45 @@
+[run]
+source =
+    api/serializers
+    api/views
+    core/models
+    project/models
+    ; frontend/views
+branch = true
+
+[report]
+format = text
+show_missing = true
+precision = 2
+include =
+    api/serializers/*
+    api/views/*
+    core/models/*
+    project/models/*
+    ; frontend/views/*
+omit =
+    */__init__.py
+    api/*.py
+    api/tests/*
+    core/*.py
+    core/management/*
+    core/migrations/*
+    core/tests/*
+    project/*.py
+    project/management/*
+    project/migrations/*
+    project/tests/*
+    ; frontend/*.py
+
+[html]
+directory = ../doc/coverage
+
+[json]
+output = ../doc/coverage/coverage.json
+pretty_print = true
+
+[lcov]
+output = ../doc/coverage/coverage.lcov
+
+[xml]
+output = ../doc/coverage/coverage.xml

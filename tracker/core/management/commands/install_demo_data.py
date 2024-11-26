@@ -7,7 +7,7 @@ from django.db import transaction
 from core.models.organization import Organization, OrganizationData
 from core.models.user import CoreUser
 from project.models.git_repository import GitRepository, GitRepositoryData
-from project.models.project import Project, ProjectData, ProjectLabelName, ProjectLabelData, ProjectLabel
+from project.models.project import Project, ProjectData, ProjectLabelData, ProjectLabel
 
 
 def create_core_user(num, users):
@@ -30,8 +30,9 @@ def create_core_user(num, users):
         'country': 'United States',
         'timezone': 'America/Chicago',
         'password': 'password123'
-    }
+        }
     user = CoreUser.objects.create_core_user_from_web(test_user)
+
     users.append(user.id)
 
 
@@ -46,28 +47,31 @@ def create_organization(num, organizations):
         print("Duplicate organization name found. Trying again...")
         organization_name = random.choice(organization_random_names)
 
-    organization_data = OrganizationData.objects.create(
-        created_by_id=user.id,
-        name=organization_name,
-        description=f'This is a test organization number {str(num).zfill(2)}.',
-        responsible_party_email=user.current.email,
-        responsible_party_phone=user.current.work_phone,
-        address_line_1=user.current.address_line_1,
-        address_line_2=user.current.address_line_2,
-        city=user.current.city,
-        state=user.current.state,
-        postal_code=user.current.postal_code,
-        country=user.current.country,
-        timezone=user.current.timezone,
-        is_paid=True,
-    )
-    organization = Organization.objects.create(
-        created_by_id=user.id,
-        current=organization_data,
-    )
-    organization.members.add(user)
-    organization.save()
-    organizations.append(organization.id)
+    with transaction.atomic():
+        organization_data = OrganizationData.objects.create(
+            created_by_id=user.id,
+            name=organization_name,
+            description=f'This is a test organization number {str(num).zfill(2)}.',
+            responsible_party_email=user.current.email,
+            responsible_party_phone=user.current.work_phone,
+            address_line_1=user.current.address_line_1,
+            address_line_2=user.current.address_line_2,
+            city=user.current.city,
+            state=user.current.state,
+            postal_code=user.current.postal_code,
+            country=user.current.country,
+            timezone=user.current.timezone,
+            is_paid=True,
+            )
+        organization = Organization.objects.create(
+            created_by_id=user.id,
+            current=organization_data,
+            )
+        organization.current.members.add(user)
+        organization.current.save()
+        organization.save()
+
+        organizations.append(organization.id)
 
 
 def create_project(num, organization_id, user_id, projects):
@@ -75,7 +79,7 @@ def create_project(num, organization_id, user_id, projects):
     organization = None
     if organization_id:
         organization = Organization.objects.get(id=organization_id)
-        user = organization.members.first()
+        user = organization.current.members.first()
 
     if user_id and not user:
         user = CoreUser.objects.get(id=user_id)
@@ -86,65 +90,76 @@ def create_project(num, organization_id, user_id, projects):
             name=f'Test Project {str(num).zfill(2)}',
             description=f'This is a test project, number {str(num).zfill(2)}.',
             is_active=True,
-        )
-        project_label_name = ProjectLabelName.objects.create(
-            created_by_id=user.id,
-            name=project_data.generate_label(),
-        )
+            )
         project_label_data = ProjectLabelData.objects.create(
             created_by_id=user.id,
-            name=project_label_name,
-        )
+            label=project_data.generate_label(),
+            )
         project_label = ProjectLabel.objects.create(
             created_by_id=user.id,
             current=project_label_data,
-        )
+            )
+        project_data.label = project_label
+        project_data.save()
         project = Project.objects.create(
             created_by_id=user.id,
             current=project_data,
-            label=project_label,
-        )
-        project.users.add(user)
+            )
+        project.current.users.add(user)
+        project.current.save()
         project.save()
+
         if organization:
-            organization.projects.add(project)
-            organization.save()
-    projects.append(project.id)
+            organization_projects = list(organization.current.projects.all())
+            organization_projects.append(project)
+            organization.update_organization_data(user.id, {'projects': organization_projects})
+
+        projects.append(project.id)
 
 
-def create_git_repository(project_id, repository_name=None):
+def create_git_repository(project_id, repository_name=None, git_repositories=[]):
     project = Project.objects.get(id=project_id)
     if not repository_name:
         repository_name = f'Git Repository for {project.current.name}'
     else:
         repository_name = f'{repository_name} for {project.current.name}'
 
-    git_repository_data = GitRepositoryData.objects.create(
-        created_by_id=project.created_by_id,
-        name=repository_name,
-        description=f'This is a git repository for the project {project.current.name}.',
-        url='https://github.com/nickrnet/project-tracker',
-    )
-    git_repository = GitRepository.objects.create(
-        created_by_id=project.created_by_id,
-        current=git_repository_data,
-    )
-    project.git_repositories.add(git_repository)
-    project.save()
-    if project.organizationprojects_set.exists():
-        organization = project.organizationprojects_set.first()
-        organization.git_repositories.add(git_repository)
-        organization.save()
+    with transaction.atomic():
+        git_repository_data = GitRepositoryData.objects.create(
+            created_by_id=project.created_by_id,
+            name=repository_name,
+            description=f'This is a git repository for the project {project.current.name}.',
+            url='https://github.com/nickrnet/project-tracker',
+            )
+        git_repository = GitRepository.objects.create(
+            created_by_id=project.created_by_id,
+            current=git_repository_data,
+            )
+
+        project.current.git_repositories.add(git_repository)
+        project.current.save()
+
+        if project.organizationprojects_set.exists():
+            # Typically, a project would only belong to one organization
+            organization_data = project.organizationprojects_set.first()
+            # But, we may have many instances of edits to the organization data, so get the current one for the organization
+            organization_data = organization_data.organization.current
+            organization_data.git_repositories.add(git_repository)
+            organization_data.save()
+
+        git_repositories.append(git_repository.id)
 
 
 class Command(BaseCommand):
-    def handle(self, *args, **options):
+    # TODO: Refactor this to make is simpler, ditch the noqa bit
+    def handle(self, *args, **options):  # noqa
         total_users = 50
         total_organizations = 30
         user_id = None
         users = []
         organizations = []
         projects = []
+        git_repositories = []
 
         self.stdout.write("Flushing database...")
         call_command('flush', '--noinput')
@@ -158,46 +173,47 @@ class Command(BaseCommand):
         for x in range(1, total_organizations + 1):
             create_organization(x, organizations)
 
-        self.stdout.write("Adding all users to the first organization...")
         organization = Organization.objects.get(id=organizations[0])
+        self.stdout.write(f"Adding all users to the first organization {organization.id} - {organization.current.name}...")
         for user_id in users:
             user = CoreUser.objects.get(id=user_id)
-            organization.members.add(user)
+            organization.current.members.add(user)
         organization.save()
 
         self.stdout.write("Creating a personal project per user...")
         for index, user_id in enumerate(users):
-            create_project(index + 100, None, user_id, projects)
+            create_project(index + 10000, None, user_id, projects)
 
         user_id = users[0]
         self.stdout.write(f"Creating 100 personal projects for the first user {user_id}...")
         for y in range(1, 101):
-            create_project(y + 10000, None, user_id, projects)
+            create_project(y + 20000, None, user_id, projects)
 
         user_id = users[random.randint(0, total_users - 1)]
         while user_id == users[0]:
             users[random.randint(0, total_users - 1)]
+
         self.stdout.write(f"Creating 100 personal projects for a randomly selected user {user_id}...")
         for y in range(1, 101):
-            create_project(y + 20000, None, user_id, projects)
+            create_project(y + 30000, None, user_id, projects)
 
         self.stdout.write("Creating a project in every organization...")
         for x in range(1, total_organizations + 1):
             organization = Organization.objects.get(id=organizations[x - 1])
-            create_project(x + 30000, organization.id, users[0], projects)
+            create_project(x + 40000, organization.id, users[0], projects)
 
         self.stdout.write("Creating projects randomly assigned to organizations...")
         for x in range(1, total_organizations + 1):
             organization = Organization.objects.get(id=organizations[random.randint(0, total_organizations - 1)])
-            create_project(x + 40000, organization.id, organization.members.first(), projects)
+            create_project(x + 50000, organization.id, organization.current.members.first(), projects)
 
         self.stdout.write("Adding one git repository to each project...")
         for project in projects:
-            create_git_repository(project)
+            create_git_repository(project, None, git_repositories)
 
         self.stdout.write("Adding 100 git repositories to the first project owned by the first user...")
         for y in range(1, 101):
-            create_git_repository(projects[0], f"Git Repository {y + 1000}")
+            create_git_repository(projects[0], f"Git Repository {y + 1000}", git_repositories)
 
         self.stdout.write("Users with projects:")
         for user_id in users:
