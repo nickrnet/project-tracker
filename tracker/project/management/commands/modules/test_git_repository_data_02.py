@@ -8,24 +8,26 @@ test_git_repository_02 = {
     'name': 'Test Git Repository 02',
     'description': 'This is a test git repository.',
     'url': 'https://github.com/nickrnet/project-tracker'
-}
+    }
 
 
 def initialize_test_git_repository_02():
-    test_user_02_instance = core_user_models.CoreUser.objects.get(user__email=test_user_02.get('email'))
-    test_organization_02_instance = core_organization_models.Organization.objects.get(current__name='Test Organization 02')
+    test_user_02_instance = core_user_models.CoreUser.objects.get(
+        user__email=test_user_02.get('email'))
+    test_organization_02_instance = core_organization_models.Organization.objects.get(
+        current__name='Test Organization 02')
 
     git_repository_data = git_repository_models.GitRepositoryData(
         created_by_id=test_user_02_instance.id,
         name=test_git_repository_02.get('name', ''),
         description=test_git_repository_02.get('description', ''),
         url=test_git_repository_02.get('url', ''),
-    )
+        )
     git_repository_data.save()
     new_git_repository = git_repository_models.GitRepository(
         created_by_id=test_user_02_instance.id,
         current=git_repository_data,
-    )
+        )
     new_git_repository.save()
     test_organization_02_instance.git_repositories.add(new_git_repository)
     test_organization_02_instance.save()

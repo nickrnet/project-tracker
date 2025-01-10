@@ -30,4 +30,4 @@ class UserForm(forms.ModelForm):
         model = core_user_models.CoreUser
         fields = [
             'current',
-        ]
+            ]

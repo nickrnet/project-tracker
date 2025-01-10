@@ -6,7 +6,7 @@
     class="btn primary"><i class="bi bi-gear"></i></button></h2>
 {% with project_org=project.organizationprojects_set.first %}
 {% if project_org %}
-<p>Organization: <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></p>
+<p>Organization: <a href="{% url 'organization' project_org.id %}">{{ project_org.name }}</a></p>
 {% endif %}
 {% endwith %}
 <ul class="nav nav-tabs" id="myTab" role="tablist">

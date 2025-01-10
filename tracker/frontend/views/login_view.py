@@ -13,7 +13,8 @@ def login_to_app(request):
     if request.method == "POST":
         received_login_form = login_form.LoginForm(request.POST, request.FILES)
         if received_login_form.is_valid():
-            user = authenticate(username=received_login_form.cleaned_data['email'], password=received_login_form.cleaned_data['password'])
+            user = authenticate(
+                username=received_login_form.cleaned_data['email'], password=received_login_form.cleaned_data['password'])
             if user is not None:
                 login(request, user)
                 try:
@@ -23,12 +24,13 @@ def login_to_app(request):
                     core_user_models.UserLogin.objects.create(
                         created_by=core_user,
                         user=core_user,
-                        x_forwarded_for=validate_ip_address(x_forwarded_for).split(',')[0] if x_forwarded_for else None,
+                        x_forwarded_for=validate_ip_address(x_forwarded_for).split(',')[
+                            0] if x_forwarded_for else None,
                         remote_addr=validate_ip_address(remote_addr) if remote_addr else None,
                         user_agent=request.META['HTTP_USER_AGENT'],
                         login_time=timezone.now(),
                         session_key=request.session.session_key
-                    )
+                        )
                     messages.success(request, ('You were successfully logged in!'))
                     return redirect(request.GET.get("next", '/projects'))
                 except core_user_models.CoreUser.DoesNotExist:
@@ -38,8 +40,8 @@ def login_to_app(request):
                         template_name="login_template.html",
                         context={
                             'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})
-                        }
-                    )
+                            }
+                        )
             else:
                 messages.error(request, 'Error logging in.')
                 return render(
@@ -47,8 +49,8 @@ def login_to_app(request):
                     template_name="login_template.html",
                     context={
                         'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})
-                    }
-                )
+                        }
+                    )
         else:
             messages.error(request, 'Check the values you entered and try again.')
             return render(
@@ -56,13 +58,13 @@ def login_to_app(request):
                 template_name="login_template.html",
                 context={
                     'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})
-                }
-            )
+                    }
+                )
 
     return render(
         request=request,
         template_name="login_template.html",
         context={
             'login_form': login_form.LoginForm(data={'next': request.GET.get("next")})
-        }
-    )
+            }
+        )

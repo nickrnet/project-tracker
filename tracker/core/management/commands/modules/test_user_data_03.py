@@ -25,7 +25,7 @@ test_user_03 = {
     'country': 'USA',
     'timezone': 'America/Chicago',
     'password': 'password123'
-}
+    }
 
 
 def initialize_test_user_03():
@@ -35,7 +35,7 @@ def initialize_test_user_03():
         username=test_user_03.get('email'),
         email=test_user_03.get('email'),
         password=test_user_03.get('password')
-    )
+        )
 
     core_user_data = core_user_models.CoreUserData(
         created_by_id=api_user.id,
@@ -54,18 +54,20 @@ def initialize_test_user_03():
         postal_code=test_user_03.get('postal_code', ''),
         country=test_user_03.get('country', ''),
         timezone=test_user_03.get('timezone', ''),
-    )
+        )
     core_user_data.save()
 
     new_user = core_user_models.CoreUser(
         created_by_id=api_user.id,
         current=core_user_data,
         user=django_user
-    )
+        )
     new_user.save()
 
-    test_organization_01_instance = core_organization_models.Organization.objects.get(current__name=test_organization_01.get('name'))
-    test_organization_02_instance = core_organization_models.Organization.objects.get(current__name=test_organization_02.get('name'))
+    test_organization_01_instance = core_organization_models.Organization.objects.get(
+        current__name=test_organization_01.get('name'))
+    test_organization_02_instance = core_organization_models.Organization.objects.get(
+        current__name=test_organization_02.get('name'))
     test_organization_01_instance.members.add(new_user)
     test_organization_01_instance.save()
     test_organization_02_instance.members.add(new_user)

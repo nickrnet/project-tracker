@@ -37,7 +37,7 @@ def user(request, user_id=None):
                 state=user_data_form.cleaned_data.get('state', ''),
                 country=user_data_form.cleaned_data.get('country', ''),
                 timezone=user_data_form.cleaned_data.get('timezone', ''),
-            )
+                )
             user_data.save()
             user.current = user_data
             user.save()
@@ -54,7 +54,7 @@ def user(request, user_id=None):
             line.rstrip('\n').split('\t', 1)
             for line in f
             if not line.startswith('#')
-        )
+            )
         country_names = sorted(country_names.items(), key=lambda x: x[1])
     return render(
         request=request,
@@ -65,5 +65,5 @@ def user(request, user_id=None):
             "user": user,
             'timezone_choices': timezone_choices,
             'country_names': country_names,
-        }
-    )
+            }
+        )

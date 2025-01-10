@@ -18,5 +18,5 @@ def projects(request):
         context={
             'logged_in_user': logged_in_user,
             'projects': projects,
-        }
-    )
+            }
+        )

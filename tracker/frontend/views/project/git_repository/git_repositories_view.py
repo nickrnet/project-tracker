@@ -19,5 +19,5 @@ def git_repositories(request):
         context={
             'logged_in_user': logged_in_user,
             'git_repositories': repositories,
-        }
-    )
+            }
+        )

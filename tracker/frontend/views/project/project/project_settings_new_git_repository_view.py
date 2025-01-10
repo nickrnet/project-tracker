@@ -12,7 +12,8 @@ from project.models import git_repository as git_repository_models
 
 
 def handle_post(request, project_id, logged_in_user):
-    received_new_git_repository_form = new_git_repository_form.NewGitRepositoryForm(request.POST, request.FILES)
+    received_new_git_repository_form = new_git_repository_form.NewGitRepositoryForm(
+        request.POST, request.FILES)
     if received_new_git_repository_form.is_valid():
         project_id = received_new_git_repository_form.cleaned_data.get('project_id')
         project = get_project(logged_in_user, project_id)
@@ -22,11 +23,11 @@ def handle_post(request, project_id, logged_in_user):
             name=received_new_git_repository_form.cleaned_data.get('name'),
             description=received_new_git_repository_form.cleaned_data.get('description'),
             url=received_new_git_repository_form.cleaned_data.get('url'),
-        )
+            )
         git_repository = git_repository_models.GitRepository.objects.create(
             created_by=logged_in_user,
             current=git_repository_data
-        )
+            )
         if project:
             update_project_repositories(project, git_repository)
 
@@ -50,8 +51,8 @@ def handle_post(request, project_id, logged_in_user):
             'project_form': form,
             'git_repositories': repositories,
             'issues': project.issue_set.all(),
-        },
-    )
+            },
+        )
 
 
 def get_project(logged_in_user, project_id):
@@ -91,5 +92,5 @@ def new_git_repository(request, project_id=None):
             'logged_in_user': logged_in_user,
             'new_git_repository_form': git_repository_form,
             'project_id': project_id,
-        }
-    )
+            }
+        )

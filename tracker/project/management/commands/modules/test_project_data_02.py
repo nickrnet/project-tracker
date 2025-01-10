@@ -11,40 +11,43 @@ project_data_02 = {
     'label': 'test02',
     'git_repository': None,
     'project_type': None
-}
+    }
 
 
 def initialize_test_project_02():
-    test_user_02_instance = core_user_models.CoreUser.objects.get(user__email=test_user_02.get('email'))
-    test_organization_02_instance = core_organization_models.Organization.objects.get(current__name='Test Organization 02')
-    test_git_repository_02_instance = git_repository_models.GitRepository.objects.get(current__name='Test Git Repository 02')
+    test_user_02_instance = core_user_models.CoreUser.objects.get(
+        user__email=test_user_02.get('email'))
+    test_organization_02_instance = core_organization_models.Organization.objects.get(
+        current__name='Test Organization 02')
+    test_git_repository_02_instance = git_repository_models.GitRepository.objects.get(
+        current__name='Test Git Repository 02')
 
     project_data_02_instance = project_models.ProjectData(
         created_by_id=test_user_02_instance.id,
         name=project_data_02.get('name', ''),
         description=project_data_02.get('description', ''),
-    )
+        )
     project_data_02_instance.save()
     project_label_name = project_models.ProjectLabelName(
         created_by_id=test_user_02_instance.id,
         name=project_data_02.get('label', ''),
-    )
+        )
     project_label_name.save()
     project_label_data = project_models.ProjectLabelData(
         created_by_id=test_user_02_instance.id,
         name=project_label_name,
-    )
+        )
     project_label_data.save()
     project_label = project_models.ProjectLabel(
         created_by_id=test_user_02_instance.id,
         current=project_label_data,
-    )
+        )
     project_label.save()
     new_project = project_models.Project(
         created_by_id=test_user_02_instance.id,
         current=project_data_02_instance,
         label=project_label,
-    )
+        )
     new_project.save()
     new_project.git_repositories.add(test_git_repository_02_instance)
     new_project.users.add(test_user_02_instance)

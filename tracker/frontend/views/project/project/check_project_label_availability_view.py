@@ -16,23 +16,23 @@ def check_project_label_availability(request, label_text=''):
         project_label_availability_form = ProjectLabelAvailabilityForm(request.POST)
         if project_label_availability_form.is_valid():
             project_label_to_try = project_label_availability_form.cleaned_data.get('label')
-            existing_label = project_models.ProjectLabelName.objects.filter(name=project_label_to_try)
+            existing_label = project_models.ProjectLabelData.objects.filter(label=project_label_to_try)
             if existing_label.count():
                 return render(
                     request=request,
                     template_name="project/project/project_check_project_label_availability.html",
                     context={
                         'available': False,
-                    }
-                )
+                        }
+                    )
             else:
                 return render(
                     request=request,
                     template_name="project/project/project_check_project_label_availability.html",
                     context={
                         'available': True,
-                    }
-                )
+                        }
+                    )
 
     return render(
         request=request,
@@ -40,5 +40,5 @@ def check_project_label_availability(request, label_text=''):
         context={
             'logged_in_user': logged_in_user,
             'available': False,
-        }
-    )
+            }
+        )

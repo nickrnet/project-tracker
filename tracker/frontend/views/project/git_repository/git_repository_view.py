@@ -27,7 +27,8 @@ def git_repository(request, git_repository_id=None):
         return redirect("logout")
 
     if request.method == "POST":
-        received_git_repository_form = git_repository_form.GitRepositoryDataForm(request.POST, request.FILES)
+        received_git_repository_form = git_repository_form.GitRepositoryDataForm(
+            request.POST, request.FILES)
         if received_git_repository_form.is_valid():
             git_repository = logged_in_user.git_repositories.get(pk=git_repository_id)
             git_repository_data = git_repository_models.GitRepositoryData(
@@ -35,7 +36,7 @@ def git_repository(request, git_repository_id=None):
                 name=received_git_repository_form.cleaned_data.get('name'),
                 description=received_git_repository_form.cleaned_data.get('description'),
                 url=received_git_repository_form.cleaned_data.get('url'),
-            )
+                )
             git_repository_data.save()
             git_repository.current = git_repository_data
             git_repository.save()
@@ -52,7 +53,8 @@ def git_repository(request, git_repository_id=None):
         form = git_repository_form.GitRepositoryDataForm(model_to_dict(git_repository.current))
         valid_url = validate_url(git_repository.current.url)
     except git_repository_models.GitRepository.DoesNotExist:
-        messages.error(request, 'The specified Git Repository does not exist. Create it and try again.')
+        messages.error(
+            request, 'The specified Git Repository does not exist. Create it and try again.')
         return redirect("new_git_repository")
 
     return render(
@@ -65,5 +67,5 @@ def git_repository(request, git_repository_id=None):
             'project': git_repository.project_set.first(),
             'organization': git_repository.organizationgitrepositories_set.first(),
             'valid_url': valid_url,
-        }
-    )
+            }
+        )

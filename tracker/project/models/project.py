@@ -7,6 +7,7 @@ from django.utils import timezone
 from core.models import core as core_models
 from core.models import user as core_user_models
 from . import git_repository as git_repository_models
+from . import issue as issue_models
 
 
 class ProjectLabelData(core_models.CoreModel):
@@ -132,6 +133,13 @@ class Project(core_models.CoreModel):
         # Combine the user IDs and get distinct users
         user_ids = set(organization_users).union(set(project_users))
         return core_user_models.CoreUser.objects.filter(id__in=user_ids)
+
+    def list_issues(self):
+        # Get the issue data for the project
+        issue_ids = set()
+        issue_datas = self.issuedata_set.values_list('issue', flat=True).filter(project=self)
+        issue_ids.update(issue_datas)
+        return issue_models.Issue.objects.filter(id__in=issue_ids)
 
     def __str__(self):
         potential_names = []

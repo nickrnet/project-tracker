@@ -23,7 +23,7 @@ class BuiltInIssueTypeManager(models.Manager):
             ('00305b27-674b-469a-85b9-8a0b8cb63597', 'SUB_TASK', 'Sub-task'),
             ('c5da1c3c-ffa1-47fb-adbf-087a9d3527f9', 'TASK', 'Task'),
             ('849a2e5a-9920-47f8-8545-2546645995da', 'TEST', 'Test'),
-        ]
+            ]
         system_user = core_user_models.CoreUser.objects.get_or_create_system_user()
 
         for id, type, description in built_in_types:

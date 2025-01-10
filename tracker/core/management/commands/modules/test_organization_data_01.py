@@ -18,11 +18,12 @@ test_organization_01 = {
     'is_paid': False,
     'renewal_date': None,
     'number_users_allowed': 5
-}
+    }
 
 
 def initialize_test_organization_01():
-    test_user_01_instance = core_user_models.CoreUser.objects.get(user__email=test_user_01.get('email'))
+    test_user_01_instance = core_user_models.CoreUser.objects.get(
+        user__email=test_user_01.get('email'))
 
     core_organization_data = core_organization_models.OrganizationData(
         created_by_id=test_user_01_instance.id,
@@ -36,12 +37,12 @@ def initialize_test_organization_01():
         timezone=test_organization_01.get('timezone', ''),
         responsible_party_email=test_organization_01.get('responsible_party_email'),
         responsible_party_phone=test_organization_01.get('responsible_party_phone'),
-    )
+        )
     core_organization_data.save()
     new_organization = core_organization_models.Organization(
         created_by_id=test_user_01_instance.id,
         current=core_organization_data,
-    )
+        )
     new_organization.save()
     new_organization.members.add(test_user_01_instance)
     new_organization.save()

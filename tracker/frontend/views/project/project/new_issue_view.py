@@ -19,31 +19,32 @@ def new_issue(request, project_id=None):
 
     if request.method == "POST":
         received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
-        if received_new_issue_form.is_valid():
-            # We return the whole issues_tab_pane, so get its required data
-            project = logged_in_user.list_projects().get(id=received_new_issue_form.cleaned_data.get('project'))
 
+        if received_new_issue_form.is_valid():
+            project = logged_in_user.list_projects().get(id=received_new_issue_form.cleaned_data.get('project'))
+            # We return the whole issues_tab_pane, so get its required data
             issue_data = issue_models.IssueData.objects.create(
                 created_by=logged_in_user,
+                project_id=project.id,
+                reporter=logged_in_user,  # TODO: This could be a user selected in the form
                 summary=received_new_issue_form.cleaned_data.get("summary"),
                 description=received_new_issue_form.cleaned_data.get("description"),
-            )
-            issue_models.Issue.objects.create(
-                created_by=logged_in_user,
-                current=issue_data,
-                project=project,
-                reporter=logged_in_user,
                 built_in_type_id=received_new_issue_form.cleaned_data.get("built_in_type"),
                 built_in_priority_id=received_new_issue_form.cleaned_data.get("built_in_priority"),
                 built_in_status_id=received_new_issue_form.cleaned_data.get("built_in_status"),
                 built_in_severity_id=received_new_issue_form.cleaned_data.get("built_in_severity"),
                 version=received_new_issue_form.cleaned_data.get("version"),
                 component=received_new_issue_form.cleaned_data.get("component"),
+                )
+            issue_models.Issue.objects.create(
+                created_by=logged_in_user,
+                current=issue_data,
                 sequence=issue_models.Issue.objects.get_next_sequence_number(project.id)
-            )
+                )
 
             messages.success(request, ('Your issue was successfully added!'))
         else:
+            project = None
             messages.error(request, 'Error saving issue.')
 
         return render(
@@ -51,16 +52,16 @@ def new_issue(request, project_id=None):
             template_name="project/project/issues_tab_pane.html",
             context={
                 'logged_in_user': logged_in_user,
-                'issues': project.issue_set.all(),
-            },
-        )
+                'issues': project.list_issues() if project else [],
+                },
+            )
 
     try:
         project_uuid = uuid.UUID(str(project_id))
         project = logged_in_user.list_projects().get(id=project_uuid)
     except ValueError:
         try:
-            project = logged_in_user.list_projects().get(label__current__name__name=project_id)
+            project = logged_in_user.list_projects().get(current__label__current__label=project_id)
         except project_models.Project.DoesNotExist:
             project = None
 
@@ -81,11 +82,12 @@ def new_issue(request, project_id=None):
             'new_issue_form': issue_form,
             'project_id': project_id,
             'projects': projects,
+            'project': project,
             'issue_types': issue_types,
             'issue_priorities': issue_priorities,
             'issue_statuses': issue_statuses,
             'issue_severities': issue_severities,
             'issue_versions': issue_versions,
             'issue_components': issue_components,
-        }
-    )
+            }
+        )

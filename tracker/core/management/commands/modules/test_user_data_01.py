@@ -21,7 +21,7 @@ test_user_01 = {
     'country': 'USA',
     'timezone': 'America/Chicago',
     'password': 'password123'
-}
+    }
 
 
 def initialize_test_user_01():
@@ -31,7 +31,7 @@ def initialize_test_user_01():
         username=test_user_01.get('email'),
         email=test_user_01.get('email'),
         password=test_user_01.get('password')
-    )
+        )
 
     core_user_data = core_user_models.CoreUserData(
         created_by_id=api_user.id,
@@ -50,12 +50,12 @@ def initialize_test_user_01():
         postal_code=test_user_01.get('postal_code', ''),
         country=test_user_01.get('country', ''),
         timezone=test_user_01.get('timezone', ''),
-    )
+        )
     core_user_data.save()
 
     new_user = core_user_models.CoreUser(
         created_by_id=api_user.id,
         current=core_user_data,
         user=django_user
-    )
+        )
     new_user.save()

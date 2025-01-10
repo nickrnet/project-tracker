@@ -16,7 +16,8 @@ def organization(request, organization_id=None):
         return redirect("logout")
 
     if request.method == "POST":
-        received_organization_data_form = organization_form.OrganizationDataForm(request.POST, request.FILES)
+        received_organization_data_form = organization_form.OrganizationDataForm(
+            request.POST, request.FILES)
         if received_organization_data_form.is_valid():
             organization = core_organization_models.Organization.objects.get(pk=organization_id)
             # TODO: Move these to the Organization
@@ -25,7 +26,8 @@ def organization(request, organization_id=None):
             # received_organization_data_form.cleaned_data.pop('projects')
             if received_organization_data_form.cleaned_data['number_users_allowed'] is None:
                 received_organization_data_form.cleaned_data.pop('number_users_allowed')
-            organization_data = core_organization_models.OrganizationData(**received_organization_data_form.cleaned_data)
+            organization_data = core_organization_models.OrganizationData(
+                **received_organization_data_form.cleaned_data)
             organization_data.created_by = logged_in_user
             organization_data.save()
 
@@ -39,7 +41,8 @@ def organization(request, organization_id=None):
 
     try:
         organization = core_organization_models.Organization.objects.get(pk=organization_id)
-        organization_data_form = organization_form.OrganizationDataForm(model_to_dict(organization.current))
+        organization_data_form = organization_form.OrganizationDataForm(
+            model_to_dict(organization.current))
         return render(
             request=request,
             template_name="core/organization/organization_template.html",
@@ -47,8 +50,8 @@ def organization(request, organization_id=None):
                 'logged_in_user': logged_in_user,
                 'organization_data_form': organization_data_form,
                 'organization': organization,
-            }
-        )
+                }
+            )
     except core_organization_models.Organization.DoesNotExist:
         messages.error(request, 'The specified Organization does not exist. Create it and try again.')
         return redirect("new_organization")

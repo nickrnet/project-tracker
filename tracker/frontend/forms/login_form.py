@@ -10,7 +10,7 @@ class LoginForm(forms.ModelForm):
             'email',
             'password',
             'next',
-        ]
+            ]
 
     next = forms.CharField(required=False, widget=forms.HiddenInput())
     password = forms.CharField(required=False, widget=forms.PasswordInput())

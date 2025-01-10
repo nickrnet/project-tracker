@@ -51,9 +51,9 @@
                 {% endwith %}
                 <th>{{ project.current.name|safe|upper }}</th>
                 <td>{{ project.current.description|safe }}</th>
-                {% with project_org=project.organizationprojects_set.first %}
-                {% if project_org %}
-                <td><a href="{% url 'organization' project_org.id %}">{{ project_org.name }}</a></td>
+                {% with project_org_data=project.organizationprojects_set.first %}
+                {% if project_org_data %}
+                <td><a href="{% url 'organization' project_org_data.organization.id %}">{{ project_org_data.name }}</a></td>
                 {% else %}
                 <td></td>
                 {% endif %}

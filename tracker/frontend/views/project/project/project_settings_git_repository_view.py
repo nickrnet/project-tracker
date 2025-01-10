@@ -36,7 +36,7 @@ def git_repository(request, git_repository_id=None):
                 name=received_git_repository_form.cleaned_data.get('name'),
                 description=received_git_repository_form.cleaned_data.get('description'),
                 url=received_git_repository_form.cleaned_data.get('url'),
-            )
+                )
             git_repository_data.save()
             git_repository.current = git_repository_data
             git_repository.save()
@@ -61,8 +61,8 @@ def git_repository(request, git_repository_id=None):
                 'project_form': form,
                 'git_repositories': project.git_repositories.all(),
                 'issues': project.issue_set.all(),
-            }
-        )
+                }
+            )
 
     form = git_repository_form.GitRepositoryDataForm()
 
@@ -81,8 +81,8 @@ def git_repository(request, git_repository_id=None):
             'logged_in_user': logged_in_user,
             'git_repository_form': form,
             'git_repository': git_repository,
-            'project': git_repository.project_set.first(),
+            'project': git_repository.projectdata_set.first(),
             'organization': git_repository.organizationgitrepositories_set.first(),
             'valid_url': valid_url,
-        }
-    )
+            }
+        )

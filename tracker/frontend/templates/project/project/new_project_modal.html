@@ -28,75 +28,88 @@
             data-bs-toggle="toast"
             data-bs-target="#projects-table">
             <div class="modal-body">
-                {% csrf_token %}
-                {% if organizations %}
-                <div class="row g-3">
-                    <div class="col-sm-2">
-                        <label for="id_organization" class="form-label align-middle">Organization:</label>
+                <div class="container overflow-hidden">
+                    {% csrf_token %}
+                    {% if organizations %}
+                    <div class="row align-items-center">
+                        <div class="col-1">
+                            <label for="id_organization" class="form-label align-middle">Organization:</label>
+                        </div>
+                        <div class="col">
+                            <select name="organization" id="id_organization" class="form-select">
+                                <option value="">-----</option>
+                                {% for organization in organizations %}
+                                <option value="{{ organization.id }}">{{ organization.current.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-sm-5">
-                        <select name="organization" id="id_organization" class="form-select">
-                            <option value="">-----</option>
-                            {% for organization in organizations %}
-                            <option value="{{ organization.id }}">{{ organization.current.name }}</option>
-                            {% endfor %}
-                        </select>
+                    {% endif %}
+                    <div class="row align-items-center">
+                        <div class="col-1">
+                            <label for="id_name" class="form-label">Name:</label>
+                        </div>
+                        <div class="col">
+                            <input type="text" name="name" class="form-control" id="id_name" required onkeyup="setLabelFromName()">
+                        </div>
                     </div>
-                </div>
-                {% endif %}
-                <div class="row g-3 mt-1">
-                    <div class="col-sm-2">
-                        <label for="id_name" class="form-label">Name:</label>
+                    <div class="row align-items-top">
+                        <div class="col-1">
+                            <label for="id_description" class="form-label">Description:</label>
+                        </div>
+                        <div class="col">
+                            <textarea name="description" class="form-control" id="id_description">{{ project.current.description }}</textarea>
+                        </div>
                     </div>
-                    <div class="col-sm-5">
-                        <input type="text" name="name" class="form-control" id="id_name" required onkeyup="setLabelFromName()">
+                    <div class="row align-items-center">
+                        <div class="col-1">
+                            <label for="id_label" class="form-label">Label: </label>
+                        </div>
+                        <div class="col">
+                            <input type="text" name="label" id="id_label" class="form-control" required hx-post="{% url 'check_project_label_availability' %}" hx-trigger="keyup changed delay:1s" hx-target="#project-label-availability">
+                        </div>
+                        <div class="col">
+                            <i id="project-label-availability" class="bi bi-dash-circle" data-bs-toggle="tooltip" data-bs-title="Enter a project label."></i>
+                        </div>
+                        <div class="col-2">
+                            <label for="id_is_active" class="form-label">Is active?</label>
+                        </div>
+                        <div class="col-1">
+                            <input type="checkbox" name="is_active" class="form-check-input mt-9" id="id_is_active" checked>
+                        </div>
+                        <div class="col-2">
+                            <label for="id_is_private" class="form-label">Is private?</label>
+                        </div>
+                        <div class="col-1">
+                            <input type="checkbox" name="is_private" class="form-check-input mt-9" id="id_is_private">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <p>&nbsp;</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="row g-3 mt-1">
-                    <div class="col-sm-2">
-                        <label for="id_description" class="form-label">Description:</label>
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            {% include "today_date_selector.html" %}
+                        </div>
+                        <div class="col-md-6">
+                            {% include "unset_date_selector.html" %}
+                        </div>
                     </div>
-                    <div class="col-sm-10">
-                        <textarea name="description" class="form-control" id="id_description">{{ project.current.description }}</textarea>
-                    </div>
-                </div>
-                <div class="row g-3 mt-1">
-                    <div class="col-sm-2">
-                        <label for="id_label" class="form-label">Label: </label>
-                    </div>
-                    <div class="col-sm-3">
-                        <input type="text" name="label" id="id_label" class="form-control" required hx-post="{% url 'check_project_label_availability' %}" hx-trigger="keyup changed delay:1s" hx-target="#project-label-availability">
-                    </div>
-                    <div class="col-sm-1">
-                        <i id="project-label-availability" class="bi bi-dash-circle" data-bs-toggle="tooltip" data-bs-title="Enter a project label."></i>
-                    </div>
-                    <div class="col-sm-1">
-                        <label for="id_is_active" class="form-label">Is active?</label>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="checkbox" name="is_active" class="form-check-input mt-9" id="id_is_active" checked>
-                    </div>
-                    <div class="col-sm-1">
-                        <label for="id_is_private" class="form-label">Is private?</label>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="checkbox" name="is_private" class="form-check-input mt-9" id="id_is_private">
-                    </div>
-                </div>
-                {% include "today_date_selector.html" %}
-                {% include "unset_date_selector.html" %}
-                <div class="row g-3 mt-1">
-                    <div class="col-sm-2">
-                        <label for="id_git_repository" class="form-label">Git Repository:</label>
-                    </div>
-                    <div class="col-sm-10">
-                        <select name="git_repository" id="id_git_repository" multiple class="form-select">
-                            {% if repositories %}
-                            {% for repository in repositories %}
-                            <option value="{{ repository.id }}">{{ repository }}</option>
-                            {% endfor %}
-                            {% endif %}
-                        </select>
+                    <div class="row align-items-top">
+                        <div class="col-2">
+                            <label for="id_git_repository" class="form-label">Git Repository:</label>
+                        </div>
+                        <div class="col">
+                            <select name="git_repository" id="id_git_repository" multiple class="form-select">
+                                {% if repositories %}
+                                {% for repository in repositories %}
+                                <option value="{{ repository.id }}">{{ repository }}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>

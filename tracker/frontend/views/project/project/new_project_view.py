@@ -37,24 +37,24 @@ def new_project(request):
                 is_private=new_project_data.get("is_private"),
                 start_date=start_date,
                 end_date=new_project_data.get("end_date"),
-            )
+                )
             project_data.save()
             project = project_models.Project.objects.create(
                 created_by=logged_in_user,
                 current=project_data,
-            )
+                )
 
             if new_project_data.get("label", None):
                 project_label_name = new_project_data.pop("label")
                 project_label_data = project_models.ProjectLabelData(
                     created_by_id=logged_in_user.id,
                     label=project_label_name,
-                )
+                    )
                 project_label_data.save()
                 project_label = project_models.ProjectLabel(
                     created_by_id=logged_in_user.id,
                     current=project_label_data,
-                )
+                    )
                 project_label.save()
             else:
                 project_label = None
@@ -79,9 +79,11 @@ def new_project(request):
             context={
                 'logged_in_user': logged_in_user,
                 'projects': logged_in_user.list_projects(),
-            }
-        )
+                }
+            )
 
+    project_data = project_models.ProjectData(start_date=timezone.now())
+    project = project_models.Project(current=project_data)
     project_form = new_project_form.NewProjectForm()
     git_repositories = logged_in_user.list_git_repositories()
     organizations = logged_in_user.list_organizations()
@@ -94,5 +96,6 @@ def new_project(request):
             'new_project_form': project_form,
             'repositories': git_repositories,
             'organizations': organizations,
-        }
-    )
+            'project': project,
+            }
+        )

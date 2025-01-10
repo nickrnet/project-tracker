@@ -17,23 +17,25 @@ class IssueData(core_models.CoreModel):
     reporter = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, related_name='issuereporter_set')
     assignee = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, related_name='issueassignee_set', blank=True, null=True)
     watchers = models.ManyToManyField('core.CoreUser', related_name='issuewatcher_set')
+
     built_in_type = models.ForeignKey(issue_type_models.BuiltInIssueType, on_delete=models.CASCADE, blank=True, null=True)
-    custom_type = models.ForeignKey(issue_type_models.CustomIssueType, on_delete=models.CASCADE, blank=True, null=True)
     built_in_priority = models.ForeignKey(priority_models.BuiltInIssuePriority, on_delete=models.CASCADE, blank=True, null=True)
-    custom_priority = models.ForeignKey(priority_models.CustomIssuePriority, on_delete=models.CASCADE, blank=True, null=True)
     built_in_status = models.ForeignKey(status_models.BuiltInIssueStatus, on_delete=models.CASCADE, blank=True, null=True)
-    custom_status = models.ForeignKey(status_models.CustomIssueStatus, on_delete=models.CASCADE, blank=True, null=True)
     built_in_severity = models.ForeignKey(severity_models.BuiltInIssueSeverity, on_delete=models.CASCADE, blank=True, null=True)
+    custom_type = models.ForeignKey(issue_type_models.CustomIssueType, on_delete=models.CASCADE, blank=True, null=True)
+    custom_priority = models.ForeignKey(priority_models.CustomIssuePriority, on_delete=models.CASCADE, blank=True, null=True)
     custom_severity = models.ForeignKey(severity_models.CustomIssueSeverity, on_delete=models.CASCADE, blank=True, null=True)
-    version = models.ForeignKey(version_models.Version, on_delete=models.CASCADE, blank=True, null=True)
+    custom_status = models.ForeignKey(status_models.CustomIssueStatus, on_delete=models.CASCADE, blank=True, null=True)
+
     component = models.ForeignKey(component_models.Component, on_delete=models.CASCADE, blank=True, null=True)
+    version = models.ForeignKey(version_models.Version, on_delete=models.CASCADE, blank=True, null=True)
     # TODO: attachments, other things a bug/story/epic needs
 
 
 class IssueObjectManager(models.Manager):
     def get_next_sequence_number(self, project_id):
         try:
-            return self.filter(project_id=project_id).latest('sequence').sequence + 1
+            return self.filter(current__project_id=project_id).latest('sequence').sequence + 1
         except self.model.DoesNotExist:
             return 1
 
@@ -166,7 +168,7 @@ class Issue(core_models.Sequenced):
             list: All versions for a project.
         """
 
-        return version_models.Version.objects.filter(project_id=self.project.id)
+        return version_models.Version.objects.filter(project_id=self.current.project.id)
 
     def list_components(self):
         """
@@ -176,4 +178,4 @@ class Issue(core_models.Sequenced):
             list: All components for a project.
         """
 
-        return component_models.Component.objects.filter(project_id=self.project.id)
+        return component_models.Component.objects.filter(project_id=self.current.project.id)

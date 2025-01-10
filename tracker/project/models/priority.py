@@ -14,7 +14,7 @@ class BuiltInIssuePriorityManager(models.Manager):
             ('9756bb3a-521f-40a1-ae26-d1d2ecf2a54d', 'MEDIUM', 'Medium'),
             ('376295d8-2132-410f-a9aa-4e32757f5324', 'HIGH', 'High'),
             ('cbb014f3-f9ab-46da-926e-7d76bca69470', 'CRITICAL', 'Critical'),
-        ]
+            ]
         system_user = core_user_models.CoreUser.objects.get_or_create_system_user()
 
         for id, name, description in built_in_issue_priorities:

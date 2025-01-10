@@ -14,7 +14,7 @@ class BuiltInIssueStatusManager(models.Manager):
             ('332f5852-a6e1-415f-bef5-44fcd36dbfc9', 'IN_PROGRESS', 'In Progress'),
             ('bef3f9f1-0f37-41be-b405-322731c76b16', 'RESOLVED', 'Resolved'),
             ('24c03dc0-a98f-4125-a9db-51781e610444', 'CLOSED', 'Closed'),
-        ]
+            ]
         system_user = core_user_models.CoreUser.objects.get_or_create_system_user()
 
         for id, name, description in built_in_issue_statuses:

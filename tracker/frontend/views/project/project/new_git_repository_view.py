@@ -36,7 +36,8 @@ def new_git_repository(request, project_id=None):
         return redirect("logout")
 
     if request.method == "POST":
-        received_new_git_repository_form = new_git_repository_form.NewGitRepositoryForm(request.POST, request.FILES)
+        received_new_git_repository_form = new_git_repository_form.NewGitRepositoryForm(
+            request.POST, request.FILES)
         if received_new_git_repository_form.is_valid():
             # We return the whole git_repositories_tab_pane, so get its required data
             project_id = received_new_git_repository_form.cleaned_data.get('project_id')
@@ -47,11 +48,11 @@ def new_git_repository(request, project_id=None):
                 name=received_new_git_repository_form.cleaned_data.get('name'),
                 description=received_new_git_repository_form.cleaned_data.get('description'),
                 url=received_new_git_repository_form.cleaned_data.get('url'),
-            )
+                )
             git_repository = git_repository_models.GitRepository.objects.create(
                 created_by=logged_in_user,
                 current=git_repository_data
-            )
+                )
             if project:
                 update_project_repositories(project, git_repository)
 
@@ -65,8 +66,8 @@ def new_git_repository(request, project_id=None):
             context={
                 'logged_in_user': logged_in_user,
                 'git_repositories': project.git_repositories.all() if project else [],
-            },
-        )
+                },
+            )
 
     try:
         project_uuid = uuid.UUID(str(project_id))
@@ -86,5 +87,5 @@ def new_git_repository(request, project_id=None):
             'logged_in_user': logged_in_user,
             'new_git_repository_form': git_repository_form,
             'project_id': project_id,
-        }
-    )
+            }
+        )

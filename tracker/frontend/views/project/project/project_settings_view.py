@@ -46,7 +46,8 @@ def handle_post(request, project_id, logged_in_user):
             messages.success(request, ('Your project was successfully updated!'))
             return redirect("project", project_id=project_id)
         except project_models.Project.DoesNotExist:
-            messages.error(request, "The specified Project does not exist. Create it and try again.")
+            messages.error(
+                request, "The specified Project does not exist. Create it and try again.")
             return redirect("new_project")
     else:
         messages.error(request, 'Error saving project.')
@@ -73,10 +74,12 @@ def project_settings(request, project_id=None):
         try:
             project = logged_in_user.list_projects().get(current__label__current__label=project_id)
         except project_models.Project.DoesNotExist:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(
+                request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
             return redirect("projects")
     except project_models.Project.DoesNotExist:
-        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        messages.error(
+            request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
         return redirect("projects")
 
     project_dict = model_to_dict(project.current)

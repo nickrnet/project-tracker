@@ -20,10 +20,12 @@ def handle_post(request, project_id, logged_in_user):
             try:
                 project = logged_in_user.list_projects().get(label__current__name__name=project_id)
             except project_models.Project.DoesNotExist:
-                messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+                messages.error(
+                    request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
                 return redirect("projects")
         except project_models.Project.DoesNotExist:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(
+                request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
             return redirect("projects")
 
         repositories = project.git_repositories.all()
@@ -34,17 +36,17 @@ def handle_post(request, project_id, logged_in_user):
             project_label_name = project_models.ProjectLabelName(
                 created_by_id=logged_in_user.id,
                 name=project_label,
-            )
+                )
             project_label_name.save()
             project_label_data = project_models.ProjectLabelData(
                 created_by_id=logged_in_user.id,
                 name=project_label_name,
-            )
+                )
             project_label_data.save()
             project_label = project_models.ProjectLabel(
                 created_by_id=logged_in_user.id,
                 current=project_label_data,
-            )
+                )
             project_label.save()
         else:
             project_label = project.current.label.current.label
@@ -67,14 +69,14 @@ def handle_post(request, project_id, logged_in_user):
                 'project_id': project_id,
                 'git_repositories': repositories,
                 'issues': project.issue_set.all(),
-            }
-        )
+                }
+            )
     else:
         messages.error(request, 'Error saving project.')
         return render(
             request=request,
             template_name="project/project/new_project_template.html"
-        )
+            )
 
 
 @login_required
@@ -94,10 +96,12 @@ def project(request, project_id=None):
         try:
             project = logged_in_user.list_projects().get(current__label__current__label=project_id)
         except project_models.Project.DoesNotExist:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(
+                request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
             return redirect("projects")
     except project_models.Project.DoesNotExist:
-        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        messages.error(
+            request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
         return redirect("projects")
 
     project_dict = model_to_dict(project.current)
@@ -117,6 +121,6 @@ def project(request, project_id=None):
             'project_form': form,
             'git_repositories': repositories,
             'users': users,
-            'issues': project.issuedata_set.all(),
-        }
-    )
+            'issues': project.list_issues(),
+            }
+        )

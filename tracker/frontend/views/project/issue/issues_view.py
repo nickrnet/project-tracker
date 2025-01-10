@@ -19,5 +19,5 @@ def issues(request):
         context={
             'logged_in_user': logged_in_user,
             'issues': issues,
-        }
-    )
+            }
+        )

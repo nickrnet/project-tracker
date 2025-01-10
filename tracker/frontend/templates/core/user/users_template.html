@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load tz %}
 {% block content %}
-  <div class="container">
+  <div class="container-fluid pe-5">
     <h2 class="my-4">Users</h2>
     <p><a href="{% url 'new_user' %}">Make one!</a></p>
     {% for user in users %}

@@ -8,9 +8,12 @@ from project.models.git_repository import GitRepository, GitRepositoryData
 
 class ProjectModelTest(TestCase):
     def setUp(self):
-        self.user1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password'})
-        self.user2 = CoreUser.objects.create_core_user_from_web({'email': 'testuser2@project-tracker.dev', 'password': 'password'})
-        self.user3 = CoreUser.objects.create_core_user_from_web({'email': 'testuser3@project-tracker.dev', 'password': 'password'})
+        self.user1 = CoreUser.objects.create_core_user_from_web(
+            {'email': 'testuser1@project-tracker.dev', 'password': 'password'})
+        self.user2 = CoreUser.objects.create_core_user_from_web(
+            {'email': 'testuser2@project-tracker.dev', 'password': 'password'})
+        self.user3 = CoreUser.objects.create_core_user_from_web(
+            {'email': 'testuser3@project-tracker.dev', 'password': 'password'})
         self.project_data = ProjectData.objects.create(
             created_by=self.user1,
             name="Initial Project",
@@ -19,14 +22,16 @@ class ProjectModelTest(TestCase):
             is_active=True
             )
         self.project = Project.objects.create(created_by=self.user1, current=self.project_data)
-        self.project.update_project_data(user_id=self.user1.id, project_data={'users': [self.user1.id, self.user2.id, self.user3.id]})
+        self.project.update_project_data(user_id=self.user1.id, project_data={
+                                         'users': [self.user1.id, self.user2.id, self.user3.id]})
         self.git_repository_data = GitRepositoryData.objects.create(
             created_by=self.user1,
             name="Initial Repo",
             description="Initial Repo Description",
             url="https://github.com/example/repo"
             )
-        self.git_repository = GitRepository.objects.create(created_by=self.user1, current=self.git_repository_data)
+        self.git_repository = GitRepository.objects.create(
+            created_by=self.user1, current=self.git_repository_data)
         self.project.current.git_repositories.add(self.git_repository)
         self.project.current.users.add(self.user1)
         self.project.current.save()
@@ -61,11 +66,13 @@ class ProjectModelTest(TestCase):
 
         self.assertEqual(self.project.current.name, 'Updated Project with Label')
         self.assertEqual(self.project.current.label.current.label, 'new-project-label')
-        self.assertEqual(self.project.current.label.current.description, 'New Project Label Description')
+        self.assertEqual(self.project.current.label.current.description,
+                         'New Project Label Description')
         self.assertEqual(self.project.current.label.current.color, '#123456')
 
     def test_update_project_data_with_m2m_fields(self):
-        new_user = CoreUser.objects.create_core_user_from_web({'email': 'newuser@project-tracker.dev', 'password': 'password'})
+        new_user = CoreUser.objects.create_core_user_from_web(
+            {'email': 'newuser@project-tracker.dev', 'password': 'password'})
         new_repo_data = GitRepositoryData.objects.create(
             created_by=self.user1,
             name="New Repo",

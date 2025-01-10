@@ -15,19 +15,23 @@ def new_organization(request):
         return redirect("logout")
 
     if request.method == "POST":
-        received_new_organization_data_form = new_organization_form.NewOrganizationDataForm(request.POST, request.FILES)
+        received_new_organization_data_form = new_organization_form.NewOrganizationDataForm(
+            request.POST, request.FILES)
         if received_new_organization_data_form.is_valid():
             # received_new_organization_data_form.cleaned_data.pop('members')  # TODO: Fix the form and memberships, repos, and projects
             # received_new_organization_data_form.cleaned_data.pop('repositories')
             # received_new_organization_data_form.cleaned_data.pop('projects')
             if received_new_organization_data_form.cleaned_data['number_users_allowed'] is None:
-                received_new_organization_data_form.cleaned_data['number_users_allowed'] = received_new_organization_data_form.fields['number_users_allowed'].initial
+                received_new_organization_data_form.cleaned_data[
+                    'number_users_allowed'] = received_new_organization_data_form.fields['number_users_allowed'].initial
 
-            organization_data = core_organization_models.OrganizationData(**received_new_organization_data_form.cleaned_data)
+            organization_data = core_organization_models.OrganizationData(
+                **received_new_organization_data_form.cleaned_data)
             organization_data.created_by = logged_in_user
             organization_data.save()
 
-            organization = core_organization_models.Organization.objects.create(created_by=logged_in_user, current=organization_data)
+            organization = core_organization_models.Organization.objects.create(
+                created_by=logged_in_user, current=organization_data)
             organization.save()
             organization.members.add(logged_in_user)
             organization.save()
@@ -42,7 +46,7 @@ def new_organization(request):
             return render(
                 request=request,
                 template_name="core/organization/new_organization_template.html"
-            )
+                )
 
     organization_data_form = new_organization_form.NewOrganizationDataForm()
     organizations = logged_in_user.organizationmembers_set.all()
@@ -53,5 +57,5 @@ def new_organization(request):
             'logged_in_user': logged_in_user,
             'new_organization_data_form': organization_data_form,
             'organizations': organizations
-        }
-    )
+            }
+        )

@@ -41,5 +41,5 @@ def issue(request, issue_id=None):
             'issue_severities': issue_severities,
             'issue_versions': issue_versions,
             'issue_components': issue_components,
-        }
-    )
+            }
+        )

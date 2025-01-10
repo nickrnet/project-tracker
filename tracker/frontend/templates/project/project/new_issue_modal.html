@@ -5,7 +5,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form
-            hx-post={% url 'new_project_issue' %}
+            hx-post={% url 'new_project_issue' project.current.label.current.label %}
             hx-target="#issues-tab-pane"
             hx-swap="outerHTML"
             data-bs-toggle="toast"
@@ -19,6 +19,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
             <input type="hidden" name="reporter" value="{{ logged_in_user.id }}">
+            <input type="hidden" name="project" value="{{ project.id }}">
             <input type="hidden" name="next" value="{{ next }}">
         </form>
     </div>

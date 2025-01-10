@@ -38,13 +38,13 @@
             hx-target="#issue-modal"
             data-bs-toggle="modal"
             data-bs-target="#issue-modal">
-            <th scope="row">{{ issue.current.project.current.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>
+            <th scope="row">{{ project.current.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>
             <td>{{ issue.current.summary|safe }}</th>
             <td>{{ issue.current.description|safe }}</td>
-            <td>{{ issue.built_in_type.type|safe }}</td>
-            <td>{{ issue.built_in_priority.name|safe }}</td>
-            <td>{{ issue.built_in_severity.name|safe }}</td>
-            <td>{{ issue.built_in_status.name|safe }}</td>
+            <td>{{ issue.current.built_in_type.type|safe }}</td>
+            <td>{{ issue.current.built_in_priority.name|safe }}</td>
+            <td>{{ issue.current.built_in_severity.name|safe }}</td>
+            <td>{{ issue.current.built_in_status.name|safe }}</td>
             <td>{{ issue.created_on|timezone:logged_in_user.current.timezone }}</td>
         </tr>
         {% endfor %}

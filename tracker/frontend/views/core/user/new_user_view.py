@@ -18,7 +18,8 @@ def new_user(request):
     if request.method == "POST":
         new_user_data_form = new_user_form.NewUserForm(request.POST, request.FILES)
         if new_user_data_form.is_valid():
-            new_user = core_user_models.CoreUser.objects.create_core_user_from_web(new_user_data_form.cleaned_data)
+            new_user = core_user_models.CoreUser.objects.create_core_user_from_web(
+                new_user_data_form.cleaned_data)
             messages.success(request, ('Your user was successfully added!'))
             return redirect("user", user_id=new_user.id)
         else:
@@ -42,7 +43,7 @@ def new_user(request):
             line.rstrip('\n').split('\t', 1)
             for line in f
             if not line.startswith('#')
-        )
+            )
         country_names = sorted(country_names.items(), key=lambda x: x[1])
 
     return render(
@@ -55,5 +56,5 @@ def new_user(request):
             'user_organizations': user_organizations,
             'timezone_choices': timezone_choices,
             'country_names': country_names,
-        }
-    )
+            }
+        )

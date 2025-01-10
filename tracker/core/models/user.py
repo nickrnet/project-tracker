@@ -210,10 +210,14 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
             repositories (list): All git repositories the user can see.
         """
 
+        from project.models import project as project_models
         from project.models import git_repository as git_repository_models
         # Get repositories from organizations and projects the user can see
         organization_repositoriess = self.organizationmembers_set.values_list('git_repositories', flat=True)
-        project_repositories = self.project_set.values_list('git_repositories', flat=True)
+        project_ids = set()
+        project_datas = self.projectdata_set.values_list('project', flat=True)
+        project_ids.update(project_datas)
+        project_repositories = project_models.Project.objects.filter(id__in=project_ids).values_list('current__git_repositories', flat=True)
         user_repositories = git_repository_models.GitRepository.objects.filter(created_by=self).values_list('id', flat=True)
         # Combine the repository IDs and get distinct ones
         repository_ids = set(organization_repositoriess).union(set(project_repositories)).union(set(user_repositories))
@@ -234,7 +238,7 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         personal_issues = self.issue_created_by.values_list('id', flat=True)
         issue_ids = set()
         for project in user_projects:
-            issue_ids = set(issue_ids).union(set(project.issue_set.values_list('id', flat=True)))
+            issue_ids = set(issue_ids).union(set(project.list_issues().values_list('id', flat=True)))
         issue_ids = set(issue_ids).union(set(personal_issues))
         issues = issue_models.Issue.objects.filter(id__in=issue_ids)
         return issues
@@ -247,7 +251,12 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
             organizations (list): The organizations the user is a member of, etc.
         """
 
-        organizations = self.organizationmembers_set.all()
+        from core.models import organization as core_organization_models
+
+        organization_data_ids = set()
+        organization_datas = self.organizationmembers_set.all()
+        organization_data_ids.update(organization_datas.values_list('organization', flat=True))
+        organizations = core_organization_models.Organization.objects.filter(id__in=organization_data_ids)
 
         return organizations
 

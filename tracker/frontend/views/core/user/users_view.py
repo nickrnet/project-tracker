@@ -26,7 +26,7 @@ def users(request):
             line.rstrip('\n').split('\t', 1)
             for line in f
             if not line.startswith('#')
-        )
+            )
         country_names = sorted(country_names.items(), key=lambda x: x[1])
 
     return render(
@@ -37,5 +37,5 @@ def users(request):
             'users': users,
             'country_names': country_names,
             'timezones': timezone_choices,
-        }
-    )
+            }
+        )

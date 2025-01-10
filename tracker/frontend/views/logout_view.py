@@ -15,12 +15,13 @@ def logout_of_app(request):
     core_user_models.UserLogout.objects.create(
         created_by=user,
         user=user,
-        x_forwarded_for=validate_ip_address(x_forwarded_for).split(',')[0] if x_forwarded_for else None,
+        x_forwarded_for=validate_ip_address(x_forwarded_for).split(',')[
+            0] if x_forwarded_for else None,
         remote_addr=validate_ip_address(remote_addr) if remote_addr else None,
         user_agent=request.META['HTTP_USER_AGENT'],
         logout_time=timezone.now(),
         session_key=request.session.session_key
-    )
+        )
     logout(request)
 
     messages.success(request, ('You were successfully logged out!'))

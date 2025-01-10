@@ -29,7 +29,7 @@
                                 {% if organization %}
                                 <tr>
                                     <td>In Organization:</td>
-                                    <td>{{ organization.current.name }}</td>
+                                    <td>{{ organization.name }}</td>
                                 </tr>
                                 {% else %}
                                 <tr></tr>
@@ -37,7 +37,7 @@
                                 {% if project %}
                                 <tr>
                                     <td>Used by Project:</td>
-                                    <td>{{ project.current.name }}</td>
+                                    <td>{{ project.name }}</td>
                                 </tr>
                                 {% else %}
                                 <tr><td></td><td></td></tr>
