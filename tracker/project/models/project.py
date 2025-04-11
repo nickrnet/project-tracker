@@ -66,8 +66,7 @@ class Project(core_models.CoreModel):
             # ManyToMany fields need to be handled separately
             current_project_git_repositories = current_project_data.pop('git_repositories', [])
             current_project_users = current_project_data.pop('users', [])
-            new_project_git_repositories = project_data.pop('git_repositories', [])
-            new_project_users = project_data.pop('users', [])
+            current_project_label = current_project_data.pop('label', None)
             # How much logic should be here for nested current fields? Should they be in their own classes?
             # project_data could be like:
             # {
@@ -84,11 +83,14 @@ class Project(core_models.CoreModel):
             #     },
             #  ...
             # }
+            new_project_git_repositories = project_data.pop('git_repositories', [])
+            new_project_users = project_data.pop('users', [])
+            new_label = project_data.pop('label', None)
+
             if self.current.label:
                 existing_label = ProjectLabel.objects.filter(id=self.current.label.id).first()
             else:
                 existing_label = None
-            new_label = project_data.pop('label', None)
             if new_label and new_label.get('current', None) and new_label.get('current').get('label', None):
                 new_label_data = ProjectLabelData(created_by_id=user_id, **new_label.get('current'))
                 new_label_data.save()
@@ -116,6 +118,8 @@ class Project(core_models.CoreModel):
                 new_project_data.users.add(user)
             for user in new_project_users:
                 new_project_data.users.add(user)
+
+            new_project_data.label = existing_label
 
             new_project_data.save()
             self.current = new_project_data

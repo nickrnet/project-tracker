@@ -52,6 +52,7 @@ def new_issue(request, project_id=None):
             template_name="project/project/issues_tab_pane.html",
             context={
                 'logged_in_user': logged_in_user,
+                'project': project,
                 'issues': project.list_issues() if project else [],
                 },
             )

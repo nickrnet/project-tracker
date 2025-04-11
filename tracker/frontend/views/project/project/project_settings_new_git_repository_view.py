@@ -9,9 +9,26 @@ from frontend.forms.project.git_repository import new_git_repository_form as new
 from frontend.forms.project.project import project_form
 from core.models import user as core_user_models
 from project.models import git_repository as git_repository_models
+from project.models import project as project_models
 
 
-def handle_post(request, project_id, logged_in_user):
+def get_project(logged_in_user, project_id):
+    try:
+        project_uuid = uuid.UUID(str(project_id))
+        return logged_in_user.list_projects().get(id=project_uuid)
+    except ValueError:
+        try:
+            return logged_in_user.list_projects().get(current__label__current__label=project_id)
+        except project_models.Project.DoesNotExist:
+            project_uuid = None
+
+
+def update_project_repositories(logged_in_user, project, git_repository):
+    if project:
+        project.update_project_data(logged_in_user.id, {'git_repositories': [git_repository]})
+
+
+def handle_post(request, logged_in_user, project_id):
     received_new_git_repository_form = new_git_repository_form.NewGitRepositoryForm(
         request.POST, request.FILES)
     if received_new_git_repository_form.is_valid():
@@ -29,7 +46,7 @@ def handle_post(request, project_id, logged_in_user):
             current=git_repository_data
             )
         if project:
-            update_project_repositories(project, git_repository)
+            update_project_repositories(logged_in_user, project, git_repository)
 
         messages.success(request, ('Your git repository was successfully added!'))
     else:
@@ -40,7 +57,7 @@ def handle_post(request, project_id, logged_in_user):
     if project.current.label.current.label:
         project_dict['label'] = project.current.label.current.label
     form = project_form.ProjectDataForm(project_dict)
-    repositories = project.git_repositories.all()
+    repositories = project.current.git_repositories.all()
     return render(
         request=request,
         template_name="project/project/project_settings.html",
@@ -50,27 +67,8 @@ def handle_post(request, project_id, logged_in_user):
             'project_id': project_id,
             'project_form': form,
             'git_repositories': repositories,
-            'issues': project.issue_set.all(),
             },
         )
-
-
-def get_project(logged_in_user, project_id):
-    try:
-        project_uuid = uuid.UUID(str(project_id))
-        return logged_in_user.list_projects().get(id=project_uuid)
-    except ValueError:
-        return logged_in_user.list_projects().filter(label__current__name__name=project_id).first()
-
-
-def update_project_repositories(project, git_repository):
-    if project:
-        project.git_repositories.add(git_repository)
-        project.save()
-        if project.organizationprojects_set.count():
-            organization = project.organizationprojects_set.first()
-            organization.git_repositories.add(git_repository)
-            organization.save()
 
 
 @login_required
@@ -81,7 +79,7 @@ def new_git_repository(request, project_id=None):
         return redirect("logout")
 
     if request.method == "POST":
-        return handle_post(request, project_id, logged_in_user)
+        return handle_post(request, logged_in_user, project_id)
 
     git_repository_form = new_git_repository_form.NewGitRepositoryForm()
 

@@ -99,6 +99,5 @@ def project_settings(request, project_id=None):
             'project_form': form,
             'git_repositories': repositories,
             'users': users,
-            'issues': project.issuedata_set.all(),
             }
         )

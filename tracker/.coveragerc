@@ -30,6 +30,9 @@ omit =
     project/migrations/*
     project/tests/*
     ; frontend/*.py
+exclude_also =
+    def __repr__
+    def __str__
 
 [html]
 directory = ../doc/coverage
