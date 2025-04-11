@@ -4,7 +4,7 @@ from django.contrib.auth.models import User as DjangoUser
 from django.db import models, transaction
 from phone_field import PhoneField
 
-# DO NOT IMPORT OTHER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREUSER and/or CORE.COREMODEL
+# DO NOT IMPORT OTHER TRACKER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREUSER and/or CORE.COREMODEL
 # Use the string reference to the model here or import directly in helper functions instead to lazy-load it - See CoreUser.list_projects() for an example
 from . import core as core_models
 
@@ -38,7 +38,7 @@ class CoreUserData(core_models.CoreModel):
 
 class CoreUserActiveManager(models.Manager):
     """
-    Active CoreUsers are not deleted.
+    Active CoreUsers are ones that are not deleted.
     """
 
     def get_queryset(self):
@@ -47,7 +47,7 @@ class CoreUserActiveManager(models.Manager):
 
 class CoreUserManager(core_models.CoreModelManager):
     """
-    General helper methods for a CoreUser, active or deleted.
+    General helper methods for managing CoreUsers, active or deleted.
     """
 
     def get_or_create_api_user(self):
@@ -57,6 +57,7 @@ class CoreUserManager(core_models.CoreModelManager):
         Returns:
             api_user (CoreUser): The API user.
         """
+
         try:
             api_user = CoreUser.objects.get(pk='75af4764-0f94-49f2-a6dc-3dbfe1b577f9')
         except CoreUser.DoesNotExist:
@@ -91,6 +92,7 @@ class CoreUserManager(core_models.CoreModelManager):
         Returns:
             system_user (CoreUser): The system user.
         """
+
         try:
             system_user = CoreUser.objects.get(pk='45407f07-21e9-42ba-8c39-03b57767fe76')
         except CoreUser.DoesNotExist:
@@ -168,6 +170,13 @@ class CoreUserManager(core_models.CoreModelManager):
 
 
 class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_models.CoreModelManager):
+    """
+    A user of the system. The _real_ inforamation about a user is stored in `current` as CoreUserData.
+    Every time a user is updated, a new CoreUserData object is created and the `current` field is updated to reflect the new data.
+    The `user` field is a Django User object that is used for authentication and authorization.
+    The `current` field is a OneToOneField to CoreUserData, which contains the user's demographic information.
+    """
+
     class Meta:
         ordering = ['current__last_name', 'current__email']
 
@@ -177,9 +186,9 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
     current = models.OneToOneField(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
     user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, blank=True, null=True, related_name='django_user')
 
-    def deactivate_login(self):
+    def deactivate_login(self) -> None:
         """
-        Deactivates a user's login.
+        Deactivates a user's login and disaables login to the webapp/api.
         """
 
         self.user.is_active = False
@@ -195,11 +204,12 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
 
         from project.models import project
         # Get projects from organization memberships and projects the user owns
-        organization_projects = self.organizationmembers_set.values_list('projects', flat=True)
-        user_projects = self.project_created_by.values_list('id', flat=True)
+        organization_projects = self.organizationmembers_set.values_list('projects', flat=True).exclude(projects__isnull=True)
+        user_projects = self.projectdata_set.values_list('project', flat=True)
         # Combine the project IDs and get distinct ones
         project_ids = set(organization_projects).union(set(user_projects))
         projects = project.Project.objects.filter(id__in=project_ids)
+        # breakpoint()
         return projects
 
     def list_git_repositories(self):
@@ -213,7 +223,7 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         from project.models import project as project_models
         from project.models import git_repository as git_repository_models
         # Get repositories from organizations and projects the user can see
-        organization_repositoriess = self.organizationmembers_set.values_list('git_repositories', flat=True)
+        organization_repositoriess = self.organizationmembers_set.values_list('git_repositories', flat=True).exclude(git_repositories__isnull=True)
         project_ids = set()
         project_datas = self.projectdata_set.values_list('project', flat=True)
         project_ids.update(project_datas)
@@ -271,6 +281,10 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
 
 
 class UserLogin(core_models.CoreModel):
+    """
+    A record of a user's login to the webapp or API.
+    """
+
     class Meta:
         ordering = ['-login_time']
 
@@ -283,6 +297,10 @@ class UserLogin(core_models.CoreModel):
 
 
 class UserLogout(core_models.CoreModel):
+    """
+    A record of a user's logout from the webapp or API.
+    """
+
     class Meta:
         ordering = ['-logout_time']
 

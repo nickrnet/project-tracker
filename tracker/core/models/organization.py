@@ -64,7 +64,7 @@ class Organization(core_models.CoreModel):
 
     current = models.OneToOneField(OrganizationData, on_delete=models.CASCADE)
 
-    def update_organization_data(self, user_id: uuid.UUID, organization_data: dict) -> 'Organization':
+    def update_organization_data(self, user_id: uuid.UUID, new_organization_data: dict) -> 'Organization':
         """
         Updates an organization's data. This is a helper function to illustrate the use of `current` retention since we do not delete data.
 
@@ -82,11 +82,11 @@ class Organization(core_models.CoreModel):
             organization_git_repositories = current_organization_data.pop('git_repositories', [])
             organization_members = current_organization_data.pop('members', [])
             organization_projects = current_organization_data.pop('projects', [])
-            new_organization_git_repositories = organization_data.pop('git_repositories', [])
-            new_organization_members = organization_data.pop('members', [])
-            new_organization_projects = organization_data.pop('projects', [])
+            new_organization_git_repositories = new_organization_data.pop('git_repositories', [])
+            new_organization_members = new_organization_data.pop('members', [])
+            new_organization_projects = new_organization_data.pop('projects', [])
 
-            current_organization_data.update(organization_data)
+            current_organization_data.update(new_organization_data)
             current_organization_data['created_by_id'] = user_id
 
             new_organization_data = OrganizationData.objects.create(**current_organization_data)

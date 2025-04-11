@@ -10,6 +10,9 @@ from . import severity as severity_models
 
 
 class IssueData(core_models.CoreModel):
+
+    # TODO: Make a create override function to validate the reporter and created_by are project members
+
     summary = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True, default="")
 
@@ -29,7 +32,7 @@ class IssueData(core_models.CoreModel):
 
     component = models.ForeignKey(component_models.Component, on_delete=models.CASCADE, blank=True, null=True)
     version = models.ForeignKey(version_models.Version, on_delete=models.CASCADE, blank=True, null=True)
-    # TODO: attachments, other things a bug/story/epic needs
+    # TODO: attachments, other things a bug/story/epic/test needs
 
 
 class IssueObjectManager(models.Manager):
@@ -119,6 +122,8 @@ class Issue(core_models.Sequenced):
     objects = IssueObjectManager()
 
     current = models.OneToOneField(IssueData, on_delete=models.CASCADE)
+
+    # TODO: Make a create override function to validate the reporter and created_by are project members
 
     def list_built_in_types(self):
         """
