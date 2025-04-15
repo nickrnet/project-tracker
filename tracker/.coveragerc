@@ -35,7 +35,7 @@ exclude_also =
     def __str__
 
 [html]
-directory = ../doc/coverage
+directory = ../doc/coverage/html
 
 [json]
 output = ../doc/coverage/coverage.json
