@@ -58,7 +58,10 @@ jobs:
             - name: Commit files
               if: steps.verify-changed-files.outputs.files_changed == 'true'
               run: |
-                rm ./doc/coverage/html/.gitignore
+                if [ -e ./doc/coverage/html/.gitignore ]
+                then
+                    rm ./doc/coverage/html/.gitignore
+                fi
                 git config --local user.email "${{ github.actor }}@users.noreply.github.com"
                 git config --local user.name "${{ github.actor }}"
                 git add doc/coverage
