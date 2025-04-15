@@ -62,7 +62,7 @@ jobs:
                 git config --local user.name "github-actions[bot]"
                 pwd
                 ls -alh
-                rm ./doc/coverage/.gitignore
+                rm ./doc/coverage/html/.gitignore
                 git add doc/coverage
                 git commit -m "Updated coverage.svg"
 
