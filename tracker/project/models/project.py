@@ -49,7 +49,7 @@ class Project(core_models.CoreModel):
 
     current = models.OneToOneField(ProjectData, on_delete=models.CASCADE)
 
-    def update_project_data(self, user_id: uuid.UUID, project_data: dict) -> 'Project':
+    def update_project_data(self, user_id: uuid.UUID, project_data: ProjectData) -> 'Project':
         """
         Updates a project's data. This is a helper function to illustrate the use of `current` retention since we do not delete data.
 
@@ -63,7 +63,7 @@ class Project(core_models.CoreModel):
 
         with transaction.atomic():
             current_project_data = model_to_dict(self.current)
-            # ManyToMany fields need to be handled separately
+            # ForeignKey and ManyToManyfield updates need to be handled separately - keep things assigned (though not used) for debugging!
             current_project_git_repositories = current_project_data.pop('git_repositories', [])
             current_project_users = current_project_data.pop('users', [])
             current_project_label = current_project_data.pop('label', None)
@@ -85,61 +85,66 @@ class Project(core_models.CoreModel):
             # }
             new_project_git_repositories = project_data.pop('git_repositories', [])
             new_project_users = project_data.pop('users', [])
-            new_label = project_data.pop('label', None)
+            new_project_label = project_data.pop('label', None)
 
-            if self.current.label:
-                existing_label = ProjectLabel.objects.filter(id=self.current.label.id).first()
-            else:
-                existing_label = None
-            if new_label and new_label.get('current', None) and new_label.get('current').get('label', None):
-                new_label_data = ProjectLabelData(created_by_id=user_id, **new_label.get('current'))
-                new_label_data.save()
-                if existing_label:
-                    existing_label.current = new_label_data
-                    existing_label.save()
-                else:
-                    existing_label = ProjectLabel(created_by_id=user_id, current=new_label_data)
-                    existing_label.save()
-
-            current_project_data.update(project_data)
-            current_project_data['created_by_id'] = user_id
-
-            new_project_data = ProjectData(**current_project_data)
+            new_project_data = {}
+            new_project_data['created_by_id'] = user_id
+            new_project_data['name'] = project_data.get('name', current_project_data.get('name', ''))
+            new_project_data['description'] = project_data.get('description', current_project_data.get('description', ''))
+            new_project_data['start_date'] = project_data.get('start_date', current_project_data.get('start_date', ''))
+            new_project_data['end_date'] = project_data.get('end_date', current_project_data.get('end_date', ''))
+            new_project_data['is_active'] = project_data.get('is_active', current_project_data.get('is_active', ''))
+            new_project_data['is_private'] = project_data.get('is_private', current_project_data.get('is_private', ''))
+            new_project_data = ProjectData(**new_project_data)
             new_project_data.save()
-            if new_label and new_label_data:
-                new_project_data.label = existing_label
-            # Handle ManyToMany fields
-            # TODO: Handle removing things from ManyToMany fields
-            for git_repository in current_project_git_repositories:
-                new_project_data.git_repositories.add(git_repository)
-            for git_repository in new_project_git_repositories:
-                new_project_data.git_repositories.add(git_repository)
-            for user in current_project_users:
-                new_project_data.users.add(user)
-            for user in new_project_users:
-                new_project_data.users.add(user)
 
-            new_project_data.label = existing_label
+            # Handle ManyToMany fields
+            # TODO: Handle if a new git repo or user list is empty if coming from a web request, only testing will show this
+            if new_project_git_repositories:
+                for git_repository in new_project_git_repositories:
+                    new_project_data.git_repositories.add(git_repository)
+            else:
+                for git_repository in current_project_git_repositories:
+                    new_project_data.git_repositories.add(git_repository)
+            if new_project_users:
+                for user in new_project_users:
+                    new_project_data.users.add(user)
+            else:
+                for user in current_project_users:
+                    new_project_data.users.add(user)
+
+            # Handle ForeignKeys
+            existing_project_label = self.current.label
+            if new_project_label and new_project_label.get('current', None) and new_project_label.get('current').get('label', None):
+                new_project_label_data = ProjectLabelData(created_by_id=user_id, **new_project_label.get('current'))
+                new_project_label_data.save()
+                if existing_project_label:
+                    existing_project_label.current = new_project_label_data
+                    existing_project_label.save()
+                else:
+                    existing_project_label = ProjectLabel(created_by_id=user_id, current=new_project_label_data)
+                    existing_project_label.save()
+            new_project_data.label = existing_project_label
 
             new_project_data.save()
             self.current = new_project_data
             self.save()
         return self
 
-    def list_users(self, logged_in_user: core_user_models.CoreUser):
-        # Get unique users from owned organizations and projects
-        if logged_in_user.organizationmembers_set.exists():
-            organization_users = logged_in_user.organizationmembers_set.first().members.values_list('id', flat=True)
+    def list_users(self):
+        # Get unique users from owning organization and this project
+        organization_data = self.organizationprojects_set.first()
+        if organization_data:
+            organization_users = organization_data.members.values_list('id', flat=True)
         else:
             organization_users = []
-        project_users = logged_in_user.list_projects().values_list('current__users', flat=True)
-        # Managing users of an organization is a different query
+        project_users = self.current.users.values_list('id', flat=True)
         # Combine the user IDs and get distinct users
         user_ids = set(organization_users).union(set(project_users))
         return core_user_models.CoreUser.objects.filter(id__in=user_ids)
 
     def list_issues(self):
-        # Get the issue data for the project
+        # Get the issues from the issue data for the project - there could be a lot of issue data for a single issue so we have to pare it down with a set, could try distinct here for performance when needed.
         issue_ids = set()
         issue_datas = self.issuedata_set.values_list('issue', flat=True).filter(project=self)
         issue_ids.update(issue_datas)
