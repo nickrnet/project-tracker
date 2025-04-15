@@ -58,11 +58,9 @@ jobs:
             - name: Commit files
               if: steps.verify-changed-files.outputs.files_changed == 'true'
               run: |
+                rm ./doc/coverage/html/.gitignore
                 git config --local user.email "github-actions[bot]@users.noreply.github.com"
                 git config --local user.name "github-actions[bot]"
-                pwd
-                ls -alh
-                rm ./doc/coverage/html/.gitignore
                 git add doc/coverage
                 git commit -m "Updated coverage.svg"
 
@@ -70,5 +68,5 @@ jobs:
               if: steps.verify-changed-files.outputs.files_changed == 'true'
               uses: ad-m/github-push-action@master
               with:
-                github_token: ${{ secrets.github_token }}
+                github_token: ${{ secrets.GITHUB_TOKEN }}
                 branch: ${{ github.ref }}
