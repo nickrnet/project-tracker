@@ -41,12 +41,7 @@ class IssueObjectManager(models.Manager):
             return self.filter(current__project_id=project_id).latest('sequence').sequence + 1
         except self.model.DoesNotExist:
             return 1
-
-
-class IssueActiveManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(deleted=None)
-
+        
     def list_built_in_types(self):
         """
         A helper method to get all built-in issue types, useful in views.
@@ -114,6 +109,12 @@ class IssueActiveManager(models.Manager):
         return component_models.Component.objects.filter(project_id=project_id)
 
 
+class IssueActiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(deleted=None)
+
+
+
 class Issue(core_models.Sequenced):
     class Meta:
         ordering = ['-created_on']
@@ -124,63 +125,3 @@ class Issue(core_models.Sequenced):
     current = models.OneToOneField(IssueData, on_delete=models.CASCADE)
 
     # TODO: Make a create override function to validate the reporter and created_by are project members
-
-    def list_built_in_types(self):
-        """
-        A helper method to get all built-in issue types, useful in views.
-
-        Returns:
-            list: All built-in issue types.
-        """
-
-        return issue_type_models.BuiltInIssueType.objects.all()
-
-    def list_built_in_priorities(self):
-        """
-        A helper method to get all built-in issue priorities, useful in views.
-
-        Returns:
-            list: All built-in issue priorities.
-        """
-
-        return priority_models.BuiltInIssuePriority.objects.all()
-
-    def list_built_in_statuses(self):
-        """
-        A helper method to get all built-in issue statuses, useful in views.
-
-        Returns:
-            list: All built-in issue statuses.
-        """
-
-        return status_models.BuiltInIssueStatus.objects.all()
-
-    def list_built_in_severities(self):
-        """
-        A helper method to get all built-in issue severities, useful in views.
-
-        Returns:
-            list: All built-in issue severities.
-        """
-
-        return severity_models.BuiltInIssueSeverity.objects.all()
-
-    def list_versions(self):
-        """
-        A helper method to get all versions for a project, useful in views.
-
-        Returns:
-            list: All versions for a project.
-        """
-
-        return version_models.Version.objects.filter(project_id=self.current.project.id)
-
-    def list_components(self):
-        """
-        A helper method to get all components for a project, useful in views.
-
-        Returns:
-            list: All components for a project.
-        """
-
-        return component_models.Component.objects.filter(project_id=self.current.project.id)
