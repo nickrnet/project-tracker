@@ -10,15 +10,90 @@ See the [Project Structure](project_structure.md) documentation for filesystem l
 
 ## Python Modules
 
-If additional Python modules are required, use pipenv to install them:
+Install development Python packages required by this application by running
 
 ```shell
-cd <path to checkout>
+pipenv install --dev
+```
+
+Then, you can do
+
+```shell
+pipenv shell
+```
+
+to enter the virtual environment installed with the `pipenv install` command that has access to a few more command-line goodies for development.
+
+If additional Python modules are required for either development or production, use pipenv to install them:
+
+```shell
 pipenv install <module(s)>
 ```
 
-This places the module in the Pipfile and Pipfile.lock to be included during a `pipenv install` command. These files should be committed to source control.
+or
 
-### TODO
+```shell
+pipenv install --dev <module(s)>
+```
+
+This places the module in the Pipfile and Pipfile.lock to be included during a `pipenv install` command. These files should be committed to source control. Do try to pay attention to modules required for production versus development, and use the `--dev` argument as needed, don't just install development modules for production's sake.
+
+## Migrations
+
+Until such time as someone is using this full-time for real data (production), we squash all migrations. This means breaking changes to existing databases if models are changed and squashed afterwards, so be wary.
+
+## Testing
+
+Tests are run with `pytest`, including code coverage, every merge to the `main` branch. Test your code before pushing to the `main` branch with 
+
+```shell
+cd tracker
+pytest --cov --cov-report term
+```
+
+or
+
+```shell
+cd tracker
+python manage.py test
+```
+
+or
+
+```shell
+cd tracker
+python manage.py test core.tests.test_core.CoreModelTestCase.test_delete # <substitute or change the Python path to the test to run to run more granularly>
+```
+
+We haven't had to prevent merges because of code coverage dropping yet, so try to keep unit tests up to date as much as possible.
+
+Tests use their own database, there is no setup required.
+
+## Running a Test Server
+
+This application will require a database. It uses Django, so whatever Django supports and how it is configured is what should be used. Development and testing occurs with SQLite. To create a database for using with the application for development or production, run
+
+```shell
+cd tracker
+python manage.py migrate
+```
+
+There is a Django command to install demo data that has a pre-configured set of users, organizations, and projects. Run it with 
+
+```shell
+cd tracker
+python manage.py install_demo_data
+```
+
+to populate your database with demo data. ** This probably should not be used in production environments **
+
+Running a test instance of the web server to use the API and User Interface is as simple as
+
+```shell
+cd tracker
+python manage.py runserver 0.0.0.0:8000
+```
+
+## TODO
 
 Provide an environment file containing variables for cloud storage, database connection, etc. Document as we get there.
