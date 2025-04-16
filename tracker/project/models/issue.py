@@ -29,7 +29,7 @@ class IssueData(core_models.CoreModel):
     custom_priority = models.ForeignKey(priority_models.CustomIssuePriority, on_delete=models.CASCADE, blank=True, null=True)
     custom_severity = models.ForeignKey(severity_models.CustomIssueSeverity, on_delete=models.CASCADE, blank=True, null=True)
     custom_status = models.ForeignKey(status_models.CustomIssueStatus, on_delete=models.CASCADE, blank=True, null=True)
-
+    # TODO: Should these be ManyToManyFields?
     component = models.ForeignKey(component_models.Component, on_delete=models.CASCADE, blank=True, null=True)
     version = models.ForeignKey(version_models.Version, on_delete=models.CASCADE, blank=True, null=True)
     # TODO: attachments, other things a bug/story/epic/test needs

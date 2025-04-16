@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.utils import timezone
+from rest_framework.test import APIClient
 
 from core.models.organization import Organization, OrganizationData
 from core.models.user import CoreUser
@@ -17,6 +18,7 @@ class CoreUserTestCase(TestCase):
         User3 is in organization 3.
         """
 
+        self.api_client = APIClient(enforce_csrf_checks=True)
         self.system_user = CoreUser.objects.get_or_create_system_user()
 
         self.user1 = CoreUser.objects.create_core_user_from_web(
@@ -155,6 +157,13 @@ class CoreUserTestCase(TestCase):
                 'projects': [self.project3.id],
                 }
             )
+        
+    def test_deactivate_login(self):
+        self.user1.deactivate_login()
+        self.assertEqual(self.user1.user.is_active, False)
+        self.api_client.login(username=self.user1.user.username, password='password')
+        response = self.api_client.get('/api/projects/')
+        self.assertEqual(response.status_code, 403)
 
     def test_list_projects(self):
         user1_projects = self.user1.list_projects()

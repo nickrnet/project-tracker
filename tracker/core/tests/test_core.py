@@ -13,6 +13,16 @@ class CoreModelManagerTestCase(TestCase):
         self.user_to_hard_delete.hard_delete(person_id=self.system_user.id)
         self.user_to_soft_delete.soft_delete(person_id=self.system_user.id)
 
+    def test_get_archived_items(self):
+        archived_user = core_user_models.CoreUser.objects.create_core_user_from_web({"email": "testuser1@test.com", "password": "password"})
+        archived_user.archived = True
+        archived_user.save()
+        archived_user.refresh_from_db()
+        archiveed_items = core_user_models.CoreUser.get_archived_items()
+        self.assertEqual(archiveed_items.count(), 1)
+        self.assertIn(archived_user, archiveed_items)
+        self.assertNotIn(self.user_to_not_delete, archiveed_items)
+
     def test_get_deleted_items(self):
         deleted_items = core_user_models.CoreUser.get_deleted_items()
         self.assertEqual(deleted_items.count(), 2)
@@ -37,6 +47,15 @@ class CoreModelTestCase(TestCase):
     def setUp(self):
         self.system_user = core_user_models.CoreUser.objects.get_or_create_system_user()
         self.user_to_delete = core_user_models.CoreUser.objects.create_core_user_from_web({"email": "testuser@test.com", "password": "password"})
+
+    def test_delete(self):
+        self.user_to_delete.delete(person_id=self.system_user.id)
+        soft_deleted_items = core_user_models.CoreUser.get_soft_deleted_items()
+        self.assertEqual(soft_deleted_items.count(), 1)
+        self.assertIn(self.user_to_delete, soft_deleted_items)
+        self.assertIsNotNone(self.user_to_delete.deleted)
+        self.assertTrue(self.user_to_delete.deleted.soft_deleted)
+        self.assertFalse(self.user_to_delete.deleted.hard_deleted)
 
     def test_hard_delete(self):
         self.user_to_delete.hard_delete(person_id=self.system_user.id)

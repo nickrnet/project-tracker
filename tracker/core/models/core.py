@@ -27,7 +27,7 @@ class CoreModelActiveManager(models.Manager):
 class CoreModelManager(models.Manager):
     @classmethod
     def get_archived_items(self):
-        return self.objects.filter(archived=False)
+        return self.objects.filter(archived=True)
 
     @classmethod
     def get_deleted_items(self):
