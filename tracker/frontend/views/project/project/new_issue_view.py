@@ -68,12 +68,12 @@ def new_issue(request, project_id=None):
 
     issue_form = new_issue_form.NewIssueForm()
     projects = logged_in_user.list_projects()
-    issue_types = issue_models.Issue.active_objects.list_built_in_types()
-    issue_priorities = issue_models.Issue.active_objects.list_built_in_priorities()
-    issue_statuses = issue_models.Issue.active_objects.list_built_in_statuses()
-    issue_severities = issue_models.Issue.active_objects.list_built_in_severities()
-    issue_versions = issue_models.Issue.active_objects.list_versions(project.id) if project else []
-    issue_components = issue_models.Issue.active_objects.list_components(project.id) if project else []
+    issue_types = issue_models.Issue.objects.list_built_in_types()
+    issue_priorities = issue_models.Issue.objects.list_built_in_priorities()
+    issue_statuses = issue_models.Issue.objects.list_built_in_statuses()
+    issue_severities = issue_models.Issue.objects.list_built_in_severities()
+    issue_versions = issue_models.Issue.objects.list_versions(project.id) if project else []
+    issue_components = issue_models.Issue.objects.list_components(project.id) if project else []
 
     return render(
         request=request,

@@ -109,7 +109,7 @@ def project(request, project_id=None):
         project_dict['label'] = project.current.label.current.label
     form = project_form.ProjectDataForm(project_dict)
     repositories = project.current.git_repositories.all()
-    users = project.list_users(logged_in_user)
+    users = project.list_users()
 
     return render(
         request=request,
