@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_87820ab5f1879036_core_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.0">coverage.py v7.8.0</a>,
-            created at 2025-04-15 02:38 +0000
+            created at 2025-06-06 22:17 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -110,11 +110,11 @@
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="com"># TODO: Limit this list to only the users in the organizations the user is a member of</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_queryset</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="nam">logged_in_user</span> <span class="op">=</span> <span class="nam">core_user_models</span><span class="op">.</span><span class="nam">CoreUser</span><span class="op">.</span><span class="nam">objects</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">user__username</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">request</span><span class="op">.</span><span class="nam">user</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="nam">logged_in_user</span> <span class="op">=</span> <span class="nam">core_user_models</span><span class="op">.</span><span class="nam">CoreUser</span><span class="op">.</span><span class="nam">active_objects</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">user__username</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">request</span><span class="op">.</span><span class="nam">user</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="com"># Get unique users from owned organizations and projects</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">        <span class="nam">organization_users</span> <span class="op">=</span> <span class="nam">logged_in_user</span><span class="op">.</span><span class="nam">organizationmembers_set</span><span class="op">.</span><span class="nam">values_list</span><span class="op">(</span><span class="str">'members'</span><span class="op">,</span> <span class="nam">flat</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">        <span class="com"># breakpoint()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="nam">project_users</span> <span class="op">=</span> <span class="nam">logged_in_user</span><span class="op">.</span><span class="nam">list_projects</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">values_list</span><span class="op">(</span><span class="str">'current__users'</span><span class="op">,</span> <span class="nam">flat</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="nam">project_users</span> <span class="op">=</span> <span class="nam">logged_in_user</span><span class="op">.</span><span class="nam">list_projects</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">values_list</span><span class="op">(</span><span class="str">'users'</span><span class="op">,</span> <span class="nam">flat</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="com"># Managing users of an organization is a different view</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">        <span class="com"># Combine the user IDs and get distinct users</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">        <span class="nam">user_ids</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="nam">organization_users</span><span class="op">)</span><span class="op">.</span><span class="nam">union</span><span class="op">(</span><span class="nam">set</span><span class="op">(</span><span class="nam">project_users</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -129,7 +129,7 @@
             <a class="nav" href="z_87820ab5f1879036_core_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.0">coverage.py v7.8.0</a>,
-            created at 2025-04-15 02:38 +0000
+            created at 2025-06-06 22:17 +0000
         </p>
     </div>
 </footer>
