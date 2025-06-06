@@ -5,7 +5,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form
-            hx-post={% url 'new_project_issue' project.current.label.current.label %}
+            hx-post={% url 'new_project_issue' project.label.current.label %}
             hx-target="#issues-tab-pane"
             hx-swap="outerHTML"
             data-bs-toggle="toast"

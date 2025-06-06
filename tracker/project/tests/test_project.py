@@ -40,13 +40,12 @@ class ProjectModelTest(TestCase):
             responsible_party_phone=self.user1.current.work_phone,
             )
         self.organization1_data.save()
-        self.organization1_data.members.add(self.user1)
-        self.organization1_data.save()
         self.organization1 = Organization(
             created_by_id=self.user1.id,
             current=self.organization1_data,
             )
         self.organization1.save()
+        self.organization1.members.add(self.user1)
 
         self.organization2_data = OrganizationData(
             created_by_id=self.user2.id,
@@ -62,13 +61,12 @@ class ProjectModelTest(TestCase):
             responsible_party_phone=self.user2.current.work_phone,
             )
         self.organization2_data.save()
-        self.organization2_data.members.add(self.user1, self.user2)
-        self.organization2_data.save()
         self.organization2 = Organization(
             created_by_id=self.user2.id,
             current=self.organization2_data,
             )
         self.organization2.save()
+        self.organization2.members.add(self.user1, self.user2)
 
         self.organization3_data = OrganizationData(
             created_by_id=self.user3.id,
@@ -84,13 +82,12 @@ class ProjectModelTest(TestCase):
             responsible_party_phone=self.user3.current.work_phone,
             )
         self.organization3_data.save()
-        self.organization3_data.members.add(self.user1, self.user3)
-        self.organization3_data.save()
         self.organization3 = Organization(
             created_by_id=self.user3.id,
             current=self.organization3_data,
             )
         self.organization3.save()
+        self.organization3.members.add(self.user1, self.user3)
 
         self.git_repository1_data = GitRepositoryData.objects.create(
             created_by=self.user1,
@@ -116,16 +113,17 @@ class ProjectModelTest(TestCase):
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
             name="Initial Project 1",
-            description="Initial Project 1 Description",
-            label=self.project1_data_label,
+            description="Initial Project 1 Description",\
             start_date=timezone.now(),
             is_active=True
             )
         self.project1_data.save()
-        self.project1_data.git_repositories.add(self.git_repository1)
-        self.project1_data.users.add(self.user1)
-        self.project1_data.save()
         self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data)
+        self.project1.save()
+        self.project1.git_repositories.add(self.git_repository1)
+        self.project1.users.add(self.user1)
+        self.project1.label = self.project1_data_label
+        self.project1.save()
 
         self.project2_data = ProjectData.objects.create(
             created_by=self.user2,
@@ -135,9 +133,9 @@ class ProjectModelTest(TestCase):
             is_active=True
             )
         self.project2_data.save()
-        self.project2_data.users.add(self.user1, self.user2)
-        self.project2_data.save()
         self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data)
+        self.project2.users.add(self.user1, self.user2)
+        self.project2.save()
 
         self.project3_data = ProjectData.objects.create(
             created_by=self.system_user,
@@ -148,18 +146,12 @@ class ProjectModelTest(TestCase):
             )
         self.project3_data.save()
         self.project3 = Project.objects.create(created_by=self.system_user, current=self.project3_data)
-
-        self.organization3.update_organization_data(
-            user_id=self.system_user.id,
-            new_organization_data={
-                'projects': [self.project3.id],
-                }
-            )
+        self.organization3.projects.add(self.project3.id)
         
     def test_generate_project_label_string(self):
-        project_label_str = self.project2.current.generate_label()
+        project_label_str = self.project2.generate_label()
         self.assertEqual(project_label_str, 'initial-project-2')
-        project_label_str = self.project3.current.generate_label()
+        project_label_str = self.project3.generate_label()
         self.assertEqual(project_label_str, 'initialproject3')
 
     def test_update_project_data(self):
@@ -174,42 +166,39 @@ class ProjectModelTest(TestCase):
         self.assertEqual(self.project1.current.name, 'Updated Project')
         self.assertEqual(self.project1.current.description, 'Updated Description')
         self.assertFalse(self.project1.current.is_active)
+        self.assertEqual(len(self.project1.git_repositories.all()), 1)
+        self.assertEqual(len(self.project1.users.all()), 1)
 
-    def test_update_project_data_with_label(self):
+    def test_update_project_label(self):
         new_label_data = {
-            'current': {
-                'label': 'new-project-label',
-                'description': 'New Project Label Description',
-                'color': '#123456'
-                }
+            'label': 'new-project-label',
+            'description': 'New Project Label Description',
+            'color': '#123456'
             }
-        new_data = {
-            'name': 'Updated Project with Label',
-            'label': new_label_data
+        new_label = {
+            'current': new_label_data
             }
         # Update a project that already has a label
-        self.project1.update_project_data(user_id=self.user1.id, project_data=new_data.copy())
+        self.project1.update_project_label(user_id=self.user1.id, new_project_label=new_label.copy())
         self.project1.refresh_from_db()
 
-        self.assertEqual(self.project1.current.name, 'Updated Project with Label')
-        self.assertEqual(self.project1.current.label.current.label, 'new-project-label')
-        self.assertEqual(self.project1.current.label.current.description,
+        self.assertEqual(self.project1.current.name, 'Initial Project 1')
+        self.assertEqual(self.project1.label.current.label, 'new-project-label')
+        self.assertEqual(self.project1.label.current.description,
                          'New Project Label Description')
-        self.assertEqual(self.project1.current.label.current.color, '#123456')
+        self.assertEqual(self.project1.label.current.color, '#123456')
         
         # Update a project that does not have a label
-        self.project2.update_project_data(user_id=self.user2.id, project_data=new_data.copy())
+        self.project2.update_project_label(user_id=self.user2.id, new_project_label=new_label.copy())
         self.project2.refresh_from_db()
 
-        self.assertEqual(self.project2.current.name, 'Updated Project with Label')
-        self.assertEqual(self.project2.current.label.current.label, 'new-project-label')
-        self.assertEqual(self.project2.current.label.current.description,
+        self.assertEqual(self.project2.current.name, 'Initial Project 2')
+        self.assertEqual(self.project2.label.current.label, 'new-project-label')
+        self.assertEqual(self.project2.label.current.description,
                          'New Project Label Description')
-        self.assertEqual(self.project2.current.label.current.color, '#123456')
+        self.assertEqual(self.project2.label.current.color, '#123456')
 
-    def test_update_project_data_with_git_repositories_and_users(self):
-        new_user = CoreUser.objects.create_core_user_from_web(
-            {'email': 'newuser@project-tracker.dev', 'password': 'password'})
+    def test_update_git_repositories(self):
         new_repo_data = GitRepositoryData.objects.create(
             created_by=self.user1,
             name="New Repo",
@@ -217,31 +206,44 @@ class ProjectModelTest(TestCase):
             url="https://github.com/example/newrepo"
             )
         new_repo = GitRepository.objects.create(created_by=self.user1, current=new_repo_data)
-        new_data = {
-            'name': 'Updated Project with Git Repositories and Users',
-            'git_repositories': [self.git_repository1.id, new_repo.id],
-            'users': [self.user1.id, new_user.id]
-            }
-        self.project1.update_project_data(user_id=self.user1.id, project_data=new_data)
+        new_git_repositories = [self.git_repository1.id, new_repo.id]
+        self.project1.update_git_repositories(new_git_repositories)
         self.project1.refresh_from_db()
 
-        self.assertEqual(self.project1.current.name, 'Updated Project with Git Repositories and Users')
-        self.assertIn(new_repo, self.project1.current.git_repositories.all())
-        self.assertIn(new_user, self.project1.current.users.all())
+        self.assertEqual(self.project1.current.name, 'Initial Project 1')
+        self.assertIn(new_repo, self.project1.git_repositories.all())
         
         # Test removing things
-        new_data = {
-            'git_repositories': [self.git_repository1.id],
-            'users': [self.user1.id]
-            }
-        self.project1.update_project_data(user_id=self.user1.id, project_data=new_data)
+        new_git_repositories = [self.git_repository1.id]
+        self.project1.update_git_repositories(new_git_repositories)
         self.project1.refresh_from_db()
 
-        self.assertEqual(self.project1.current.name, 'Updated Project with Git Repositories and Users')
-        self.assertIn(self.git_repository1, self.project1.current.git_repositories.all())
-        self.assertNotIn(new_repo, self.project1.current.git_repositories.all())
-        self.assertIn(self.user1, self.project1.current.users.all())
-        self.assertNotIn(new_user, self.project1.current.users.all())
+        self.assertEqual(self.project1.current.name, 'Initial Project 1')
+        self.assertIn(self.git_repository1, self.project1.git_repositories.all())
+        self.assertNotIn(new_repo, self.project2.git_repositories.all())
+        self.assertIn(self.user1, self.project1.users.all())
+
+    def test_update_users(self):
+        new_user = CoreUser.objects.create_core_user_from_web(
+            {'email': 'newuser@project-tracker.dev', 'password': 'password'})
+        new_users = [self.user1.id, new_user.id]
+        self.project1.update_users(new_users)
+        self.project1.refresh_from_db()
+
+        self.assertEqual(self.project1.current.name, 'Initial Project 1')
+        self.assertIn(self.user1, self.project1.users.all())
+        self.assertIn(new_user, self.project1.users.all())
+
+        # Test removing things
+        new_users = [self.user1.id]
+        self.project1.update_users(new_users)
+        self.project1.refresh_from_db()
+
+        self.assertEqual(self.project1.current.name, 'Initial Project 1')
+        self.assertIn(self.user1, self.project1.users.all())
+        self.assertNotIn(new_user, self.project1.users.all())
+
+
 
     def test_list_project_users(self):
         project1_user_ids = self.project1.list_users().values_list('id', flat=True)

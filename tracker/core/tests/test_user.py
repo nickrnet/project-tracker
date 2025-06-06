@@ -42,13 +42,13 @@ class CoreUserTestCase(TestCase):
             responsible_party_phone=self.user1.current.work_phone,
             )
         self.organization1_data.save()
-        self.organization1_data.members.add(self.user1)
         self.organization1_data.save()
         self.organization1 = Organization(
             created_by_id=self.user1.id,
             current=self.organization1_data,
             )
         self.organization1.save()
+        self.organization1.members.add(self.user1)
 
         self.organization2_data = OrganizationData(
             created_by_id=self.user2.id,
@@ -64,13 +64,13 @@ class CoreUserTestCase(TestCase):
             responsible_party_phone=self.user2.current.work_phone,
             )
         self.organization2_data.save()
-        self.organization2_data.members.add(self.user1, self.user2)
         self.organization2_data.save()
         self.organization2 = Organization(
             created_by_id=self.user2.id,
             current=self.organization2_data,
             )
         self.organization2.save()
+        self.organization2.members.add(self.user1, self.user2)
 
         self.organization3_data = OrganizationData(
             created_by_id=self.user3.id,
@@ -86,13 +86,13 @@ class CoreUserTestCase(TestCase):
             responsible_party_phone=self.user3.current.work_phone,
             )
         self.organization3_data.save()
-        self.organization3_data.members.add(self.user1, self.user3)
         self.organization3_data.save()
         self.organization3 = Organization(
             created_by_id=self.user3.id,
             current=self.organization3_data,
             )
         self.organization3.save()
+        self.organization3.members.add(self.user1, self.user3)
 
         self.git_repository1_data = GitRepositoryData.objects.create(
             created_by=self.user1,
@@ -119,15 +119,14 @@ class CoreUserTestCase(TestCase):
             created_by=self.user1,
             name="Initial Project 1",
             description="Initial Project 1 Description",
-            label=self.project1_data_label,
             start_date=timezone.now(),
             is_active=True
             )
         self.project1_data.save()
-        self.project1_data.git_repositories.add(self.git_repository1)
-        self.project1_data.users.add(self.user1)
-        self.project1_data.save()
         self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data)
+        self.project1.label = self.project1_data_label
+        self.project1.git_repositories.add(self.git_repository1)
+        self.project1.users.add(self.user1)
 
         self.project2_data = ProjectData.objects.create(
             created_by=self.user2,
@@ -137,9 +136,8 @@ class CoreUserTestCase(TestCase):
             is_active=True
             )
         self.project2_data.save()
-        self.project2_data.users.add(self.user1, self.user2)
-        self.project2_data.save()
         self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data)
+        self.project2.users.add(self.user1, self.user2)
 
         self.project3_data = ProjectData.objects.create(
             created_by=self.system_user,
@@ -150,13 +148,7 @@ class CoreUserTestCase(TestCase):
             )
         self.project3_data.save()
         self.project3 = Project.objects.create(created_by=self.system_user, current=self.project3_data)
-
-        self.organization3.update_organization_data(
-            user_id=self.system_user.id,
-            new_organization_data={
-                'projects': [self.project3.id],
-                }
-            )
+        self.organization3.projects.add(self.project3.id)
         
     def test_deactivate_login(self):
         self.user1.deactivate_login()
@@ -262,3 +254,21 @@ class CoreUserTestCase(TestCase):
         self.assertIn(self.organization3, user1_organizations)
         self.assertIn(self.organization2, user2_organizations)
         self.assertIn(self.organization3, user3_organizations)
+
+    def test_list_users(self):
+        user1_users = self.user1.list_users()
+        user2_users = self.user2.list_users()
+        user3_users = self.user3.list_users()
+
+        self.assertEqual(len(user1_users), 3)
+        self.assertIn(self.user1, user1_users)
+        self.assertIn(self.user2, user1_users)
+        self.assertIn(self.user3, user1_users)
+        self.assertEqual(len(user2_users), 2)
+        self.assertIn(self.user1, user2_users)
+        self.assertIn(self.user2, user2_users)
+        self.assertNotIn(self.user3, user2_users)
+        self.assertEqual(len(user3_users), 2)
+        self.assertIn(self.user1, user3_users)
+        self.assertNotIn(self.user2, user3_users)
+        self.assertIn(self.user3, user3_users)

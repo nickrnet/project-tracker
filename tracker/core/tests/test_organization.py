@@ -66,18 +66,15 @@ class UpdateOrganizationDataTest(TestCase):
             current=self.project_data2,
             )
 
-        self.organization.current.git_repositories.add(self.git_repo1)
-        self.organization.current.members.add(self.member1)
-        self.organization.current.projects.add(self.project1)
-        self.organization.current.save()
+        self.organization.git_repositories.add(self.git_repo1)
+        self.organization.members.add(self.member1)
+        self.organization.projects.add(self.project1)
+        self.organization.save()
 
     def test_update_organization_data(self):
         new_organization_data = {
             'name': 'Updated Organization Name',
             'description': 'Updated Description',
-            'git_repositories': [self.git_repo1.id, self.git_repo2.id],
-            'members': [self.member1.id, self.member2.id],
-            'projects': [self.project1.id, self.project2.id]
             }
 
         self.organization.update_organization_data(self.member1.id, new_organization_data)
@@ -85,12 +82,3 @@ class UpdateOrganizationDataTest(TestCase):
 
         self.assertEqual(self.organization.current.name, 'Updated Organization Name')
         self.assertEqual(self.organization.current.description, 'Updated Description')
-        self.assertEqual(self.organization.current.git_repositories.count(), 2)
-        self.assertEqual(self.organization.current.members.count(), 2)
-        self.assertEqual(self.organization.current.projects.count(), 2)
-        self.assertIn(self.git_repo1, self.organization.current.git_repositories.all())
-        self.assertIn(self.member1, self.organization.current.members.all())
-        self.assertIn(self.project1, self.organization.current.projects.all())
-        self.assertIn(self.git_repo2, self.organization.current.git_repositories.all())
-        self.assertIn(self.member2, self.organization.current.members.all())
-        self.assertIn(self.project2, self.organization.current.projects.all())

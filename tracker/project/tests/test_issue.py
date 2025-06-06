@@ -45,13 +45,12 @@ class IssueActiveManagerTests(TestCase):
             responsible_party_phone=self.user1.current.work_phone,
             )
         self.organization1_data.save()
-        self.organization1_data.members.add(self.user1)
-        self.organization1_data.save()
         self.organization1 = Organization(
             created_by_id=self.user1.id,
             current=self.organization1_data,
             )
         self.organization1.save()
+        self.organization1.members.add(self.user1)
 
         self.organization2_data = OrganizationData(
             created_by_id=self.user2.id,
@@ -67,13 +66,12 @@ class IssueActiveManagerTests(TestCase):
             responsible_party_phone=self.user2.current.work_phone,
             )
         self.organization2_data.save()
-        self.organization2_data.members.add(self.user1, self.user2)
-        self.organization2_data.save()
         self.organization2 = Organization(
             created_by_id=self.user2.id,
             current=self.organization2_data,
             )
         self.organization2.save()
+        self.organization2.members.add(self.user1, self.user2)
 
         self.organization3_data = OrganizationData(
             created_by_id=self.user3.id,
@@ -89,13 +87,12 @@ class IssueActiveManagerTests(TestCase):
             responsible_party_phone=self.user3.current.work_phone,
             )
         self.organization3_data.save()
-        self.organization3_data.members.add(self.user1, self.user3)
-        self.organization3_data.save()
         self.organization3 = Organization(
             created_by_id=self.user3.id,
             current=self.organization3_data,
             )
         self.organization3.save()
+        self.organization3.members.add(self.user1, self.user3)
 
         self.git_repository1_data = GitRepositoryData.objects.create(
             created_by=self.user1,
@@ -122,15 +119,13 @@ class IssueActiveManagerTests(TestCase):
             created_by=self.user1,
             name="Initial Project 1",
             description="Initial Project 1 Description",
-            label=self.project1_data_label,
             start_date=timezone.now(),
             is_active=True
             )
         self.project1_data.save()
-        self.project1_data.git_repositories.add(self.git_repository1)
-        self.project1_data.users.add(self.user1)
-        self.project1_data.save()
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data)
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_data_label)
+        self.project1.git_repositories.add(self.git_repository1)
+        self.project1.users.add(self.user1)
 
         self.project2_data = ProjectData.objects.create(
             created_by=self.user2,
@@ -140,9 +135,8 @@ class IssueActiveManagerTests(TestCase):
             is_active=True
             )
         self.project2_data.save()
-        self.project2_data.users.add(self.user1, self.user2)
-        self.project2_data.save()
         self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data)
+        self.project2.users.add(self.user1, self.user2)
 
         self.project3_data = ProjectData.objects.create(
             created_by=self.system_user,
@@ -153,13 +147,7 @@ class IssueActiveManagerTests(TestCase):
             )
         self.project3_data.save()
         self.project3 = Project.objects.create(created_by=self.system_user, current=self.project3_data)
-
-        self.organization3.update_organization_data(
-            user_id=self.system_user.id,
-            new_organization_data={
-                'projects': [self.project3.id],
-                }
-            )
+        self.organization3.projects.add(self.project3.id)
         
         BuiltInIssueType.objects.initialize_built_in_types()
         BuiltInIssuePriority.objects.initialize_built_in_priorities()
@@ -169,23 +157,35 @@ class IssueActiveManagerTests(TestCase):
     def test_list_built_in_types(self):
         built_in_types = Issue.objects.list_built_in_types()
         self.assertGreater(len(built_in_types), 1)
+        built_in_types = Issue.active_objects.list_built_in_types()
+        self.assertGreater(len(built_in_types), 1)
 
     def test_list_built_in_priorities(self):
         built_in_priorities = Issue.objects.list_built_in_priorities()
+        self.assertGreater(len(built_in_priorities), 1)
+        built_in_priorities = Issue.active_objects.list_built_in_priorities()
         self.assertGreater(len(built_in_priorities), 1)
 
     def test_list_built_in_statuses(self):
         built_in_statuses = Issue.objects.list_built_in_statuses()
         self.assertGreater(len(built_in_statuses), 1)
+        built_in_statuses = Issue.active_objects.list_built_in_statuses()
+        self.assertGreater(len(built_in_statuses), 1)
 
     def test_list_built_in_severities(self):
         built_in_severities = Issue.objects.list_built_in_severities()
+        self.assertGreater(len(built_in_severities), 1)
+        built_in_severities = Issue.active_objects.list_built_in_severities()
         self.assertGreater(len(built_in_severities), 1)
 
     def test_list_versions(self):
         versions = Issue.objects.list_versions(self.project1.id)
         self.assertEqual(len(versions), 0)
+        versions = Issue.active_objects.list_versions(self.project1.id)
+        self.assertEqual(len(versions), 0)
 
     def test_list_components(self):
         components = Issue.objects.list_components(self.project1.id)
+        self.assertEqual(len(components), 0)
+        components = Issue.active_objects.list_components(self.project1.id)
         self.assertEqual(len(components), 0)

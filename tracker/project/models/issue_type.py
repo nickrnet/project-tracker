@@ -80,4 +80,4 @@ class CustomIssueType(core_models.CoreModel):
 
     active_objects = CustomIssueTypeActiveManager()
 
-    current = models.OneToOneField(CustomIssueTypeData, on_delete=models.CASCADE)
+    current = models.ForeignKey(CustomIssueTypeData, on_delete=models.CASCADE)

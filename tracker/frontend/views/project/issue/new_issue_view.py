@@ -13,7 +13,7 @@ from project.models import project as project_models
 @login_required
 def new_issue(request, project_id=None):
     try:
-        logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
@@ -40,7 +40,7 @@ def new_issue(request, project_id=None):
                 built_in_severity_id=received_new_issue_form.cleaned_data.get("built_in_severity"),
                 version=received_new_issue_form.cleaned_data.get("version"),
                 component=received_new_issue_form.cleaned_data.get("component"),
-                sequence=issue_models.Issue.objects.get_next_sequence_number(project.id)
+                sequence=issue_models.Issue.active_objects.get_next_sequence_number(project.id)
                 )
 
             messages.success(request, ('Your issue was successfully added!'))
@@ -74,10 +74,8 @@ def new_issue(request, project_id=None):
     issue_priorities = issue_models.Issue.active_objects.list_built_in_priorities()
     issue_statuses = issue_models.Issue.active_objects.list_built_in_statuses()
     issue_severities = issue_models.Issue.active_objects.list_built_in_severities()
-    issue_versions = issue_models.Issue.active_objects.list_versions(
-        issue.current.project.id) if project else []
-    issue_components = issue_models.Issue.active_objects.list_components(
-        issue.current.project.id) if project else []
+    issue_versions = issue_models.Issue.active_objects.list_versions(issue.current.project.id) if project else []
+    issue_components = issue_models.Issue.active_objects.list_components(issue.current.project.id) if project else []
 
     return render(
         request=request,

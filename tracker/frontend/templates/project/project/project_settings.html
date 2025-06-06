@@ -25,129 +25,127 @@
                 {% endwith %}
             </div>
             <div class="row">
-                <div class="container overflow-hidden">
-                    <div class="accordion" id="project-settings-accordion">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#project-settings-table-content" aria-expanded="true" aria-controls="project-settings-table-content">
-                                    Project Details
-                                </button>
-                            </h2>
-                            <div id="project-settings-table-content" class="accordion-collapse collapse show" data-bs-parent="#project-settings-accordion">
-                                <div class="accordion-body">
-                                    <form
-                                        id="project-settings-form"
-                                        hx-post="{% url 'project' project_id %}"
-                                        hx-target="#project-pane"
-                                        hx-trigger="submit">
-                                        {% csrf_token %}
-                                        <div class="row align-items-center">
-                                            <div class="col-1">
-                                                <label for="id_name" class="form-label align-items-bottom">Name:</label>
-                                            </div>
-                                            <div class="col">
-                                                <input type="text" name="name" value="{{ project.current.name }}" class="form-control" id="id_name" required>
-                                            </div>
+                <div class="accordion" id="project-settings-accordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#project-settings-table-content" aria-expanded="true" aria-controls="project-settings-table-content">
+                                Project Details
+                            </button>
+                        </h2>
+                        <div id="project-settings-table-content" class="accordion-collapse collapse show" data-bs-parent="#project-settings-accordion">
+                            <div class="accordion-body">
+                                <form
+                                    id="project-settings-form"
+                                    hx-post="{% url 'project' project_id %}"
+                                    hx-target="#project-pane"
+                                    hx-trigger="submit">
+                                    {% csrf_token %}
+                                    <div class="row align-items-center">
+                                        <div class="col-1">
+                                            <label for="id_name" class="form-label align-items-bottom">Name:</label>
                                         </div>
-                                        <div class="row align-items-top">
-                                            <div class="col-1">
-                                                <label for="id_description" class="form-label">Description:</label>
-                                            </div>
-                                            <div class="col">
-                                                <textarea name="description" class="form-control" id="id_description">{{ project.current.description }}</textarea>
-                                            </div>
+                                        <div class="col">
+                                            <input type="text" name="name" value="{{ project.current.name }}" class="form-control" id="id_name" required>
                                         </div>
-                                        <div class="row align-items-center">
-                                            <div class="col-1">
-                                                <label for="id_label" class="form-label">Label:</label>
-                                            </div>
-                                            <div class="col">
-                                                <input type="text" name="label" value="{{ project.current.label.current.label }}" class="form-control" id="id_label" required>
-                                            </div>
-                                            <div class="col-2">
-                                                <label for="id_is_active" class="form-label">Is active?</label>
-                                            </div>
-                                            <div class="col-1 p-0 m-0">
-                                                <input type="checkbox" name="is_active" class="form-check-input" id="id_is_active" {% if project.current.is_active %}checked{% endif %}>
-                                            </div>
-                                            <div class="col-2">
-                                                <label for="id_is_private" class="form-label">Is private?</label>
-                                            </div>
-                                            <div class="col-1 p-0 m-0">
-                                                <input type="checkbox" name="is_private" class="form-check-input" id="id_is_private" {% if project.current.is_private %}checked{% endif %}>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <p>&nbsp;</p>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                {% include "today_date_selector.html" %}
-                                            </div>
-                                            <div class="col-md-6">
-                                                {% include "unset_date_selector.html" %}
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button
-                                                type="submit"
-                                                class="btn btn-primary"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#project-modal"
-                                                form="project-settings-form">
-                                                Submit
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#project-settings-git-repository-content" aria-expanded="false" aria-controls="project-settings-git-repository-content">
-                                Git Repositories
-                                </button>
-                            </h2>
-                            <div id="project-settings-git-repository-content" class="accordion-collapse collapse" data-bs-parent="#project-settings-accordion">
-                                <div class="accordion-body">
-                                    {% include "project/project/project_settings_git_repositories_table.html" %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#project-settings-users-content" aria-expanded="false" aria-controls="project-settings-users-content">
-                                    Users
-                                </button>
-                            </h2>
-                            <div id="project-settings-users-content" class="accordion-collapse collapse" data-bs-parent="#project-settings-accordion">
-                                <div class="accordion-body">
-                                    <div class="row">
-                                        <table class="table table-striped table-hover" id="project-settings-users-table">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">Last Name</th>
-                                                    <th scope="col">First Name</th>
-                                                    <th scope="col">Email</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for user in users %}
-                                            <tr>
-                                                <td>{{ user.current.last_name }}</th>
-                                                <td>{{ user.current.first_name }}</td>
-                                                <td>{{ user.current.email }}</td>
-                                            </tr>
-                                            {% empty %}
-                                            <tr>
-                                                <td colspan="7" class="text-muted">No users associated with this project.</td>  {% comment %} TODO: Link to a new one for this project {% endcomment %}
-                                            </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
                                     </div>
+                                    <div class="row align-items-top">
+                                        <div class="col-1">
+                                            <label for="id_description" class="form-label">Description:</label>
+                                        </div>
+                                        <div class="col">
+                                            <textarea name="description" class="form-control" id="id_description">{{ project.current.description }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-1">
+                                            <label for="id_label" class="form-label">Label:</label>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" name="label" value="{{ project.label.current.label }}" class="form-control" id="id_label" required>
+                                        </div>
+                                        <div class="col-2">
+                                            <label for="id_is_active" class="form-label">Is active?</label>
+                                        </div>
+                                        <div class="col-1 p-0 m-0">
+                                            <input type="checkbox" name="is_active" class="form-check-input" id="id_is_active" {% if project.current.is_active %}checked{% endif %}>
+                                        </div>
+                                        <div class="col-2">
+                                            <label for="id_is_private" class="form-label">Is private?</label>
+                                        </div>
+                                        <div class="col-1 p-0 m-0">
+                                            <input type="checkbox" name="is_private" class="form-check-input" id="id_is_private" {% if project.current.is_private %}checked{% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <p>&nbsp;</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {% include "today_date_selector.html" %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            {% include "unset_date_selector.html" %}
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#project-modal"
+                                            form="project-settings-form">
+                                            Submit
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#project-settings-git-repository-content" aria-expanded="false" aria-controls="project-settings-git-repository-content">
+                            Git Repositories
+                            </button>
+                        </h2>
+                        <div id="project-settings-git-repository-content" class="accordion-collapse collapse" data-bs-parent="#project-settings-accordion">
+                            <div class="accordion-body">
+                                {% include "project/project/project_settings_git_repositories_table.html" %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#project-settings-users-content" aria-expanded="false" aria-controls="project-settings-users-content">
+                                Users
+                            </button>
+                        </h2>
+                        <div id="project-settings-users-content" class="accordion-collapse collapse" data-bs-parent="#project-settings-accordion">
+                            <div class="accordion-body">
+                                <div class="row">
+                                    <table class="table table-striped table-hover" id="project-settings-users-table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Last Name</th>
+                                                <th scope="col">First Name</th>
+                                                <th scope="col">Email</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for user in users %}
+                                        <tr>
+                                            <td>{{ user.current.last_name }}</th>
+                                            <td>{{ user.current.first_name }}</td>
+                                            <td>{{ user.current.email }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-muted">No users associated with this project.</td>  {% comment %} TODO: Link to a new one for this project {% endcomment %}
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>

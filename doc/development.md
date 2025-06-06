@@ -4,7 +4,7 @@ We have a concept of not deleting information or updating it in-place.
 
 The `core/models/user.py` classes demonstrate this by referencing `CoreModel` as the base class for all models, which contains a foreign key to a `Deleted` object.
 
-To comply with not deleting data, each model should have a corresponding `Data` class with a `current` on the object, in order to prevent live updates or deletes. This means instead of performing `record.objects.update(**data)`, we create a new `Data`, and link it to the related record. See `frontend/views/core/user/user_view.py` where a POST is handled for an example. All `current` fields should be a "OneToOneField", not a "ForeignKey".
+To comply with not deleting data, each model should have a corresponding `Data` class with a `current` on the object, in order to prevent live updates or deletes. This means instead of performing `record.objects.update(**data)`, we create a new `Data`, and link it to the related record. See `frontend/views/core/user/user_view.py` where a POST is handled for an example. All `current` fields should be a "ForeignKey" so things are tracked properly.
 
 See the [Project Structure](project_structure.md) documentation for filesystem layout.
 
@@ -13,6 +13,7 @@ See the [Project Structure](project_structure.md) documentation for filesystem l
 Install development Python packages required by this application by running
 
 ```shell
+cd <path to checkout>
 pipenv install --dev
 ```
 
@@ -44,14 +45,14 @@ Until such time as someone is using this full-time for real data (production), w
 
 ## Testing
 
-Tests are run with `pytest`, including code coverage, every merge to the `main` branch. Test your code before pushing to the `main` branch with 
+Tests are run via Github Actions with `pytest` at merge to the main branch, including code coverage, every merge to the `main` branch. Test your code before pushing to the `main` branch with 
 
 ```shell
 cd tracker
 pytest --cov --cov-report term
 ```
 
-or
+The Django way is with
 
 ```shell
 cd tracker
@@ -62,12 +63,12 @@ or
 
 ```shell
 cd tracker
-python manage.py test core.tests.test_core.CoreModelTestCase.test_delete # <substitute or change the Python path to the test to run to run more granularly>
+python manage.py test core.tests.test_core.CoreModelTestCase.test_delete  # <substitute or change the Python path to the test to run to run more granularly>
 ```
 
-We haven't had to prevent merges because of code coverage dropping yet, so try to keep unit tests up to date as much as possible.
+Tests use their own database, there is no setup required. In theory, both the Django and pytest sets run the same tests, but do be careful as there are ways they can diverge.
 
-Tests use their own database, there is no setup required.
+We haven't had to prevent merges because of code coverage dropping yet, so try to keep unit tests up to date as much as possible.
 
 ## Running a Test Server
 
@@ -93,6 +94,15 @@ Running a test instance of the web server to use the API and User Interface is a
 cd tracker
 python manage.py runserver 0.0.0.0:8000
 ```
+
+You can also get to a Django prompt with 
+
+```shell
+cd tracker
+python manage.py shell_plus
+```
+
+and work with the live demo data that way, just like the Django code, but live in a terminal session.
 
 ## TODO
 

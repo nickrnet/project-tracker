@@ -13,7 +13,7 @@ from project.models import project as project_models
 @login_required
 def new_project(request):
     try:
-        logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
@@ -60,13 +60,13 @@ def new_project(request):
                 project_label = None
 
             if project_label:
-                project.current.label = project_label
+                project.label = project_label
 
             if git_repositories:
                 for repository in git_repositories:
-                    project.current.git_repositories.add(repository)
+                    project.git_repositories.add(repository)
 
-            project.current.users.add(logged_in_user)
+            project.users.add(logged_in_user)
             project.current.save()
             project.save()
             messages.success(request, ('Your project was successfully added!'))
@@ -87,6 +87,7 @@ def new_project(request):
     project_form = new_project_form.NewProjectForm()
     git_repositories = logged_in_user.list_git_repositories()
     organizations = logged_in_user.list_organizations()
+    users = logged_in_user.list_users()
 
     return render(
         request=request,
@@ -97,5 +98,6 @@ def new_project(request):
             'repositories': git_repositories,
             'organizations': organizations,
             'project': project,
+            'users': users,
             }
         )

@@ -303,14 +303,10 @@ class ProjectDataSerializer(serializers.HyperlinkedModelSerializer):
             'end_date',
             'is_active',
             'is_private',
-            'git_repositories',
-            'users',
             ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
-    git_repositories = GitRepositorySerializer(many=True)
-    users = CoreUserSerializer(many=True)
 
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
@@ -322,11 +318,15 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'created_on',
             'deleted',
             'current',
+            'git_repositories',
+            'users',
             ]
 
     created_by = CoreUserSerializer()
     deleted = DeletedModelDataSerializer()
     current = ProjectDataSerializer()
+    git_repositories = GitRepositorySerializer(many=True)
+    users = CoreUserSerializer(many=True)
 
 
 class VersionDataSerializer(serializers.HyperlinkedModelSerializer):

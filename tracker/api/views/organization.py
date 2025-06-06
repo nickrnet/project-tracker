@@ -16,8 +16,8 @@ class OrganizationDataViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        logged_in_user = core_user_models.CoreUser.objects.get(user__username=self.request.user)
-        return logged_in_user.list_organizations()
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=self.request.user)
+        return OrganizationData.active_objects.filter(id__in=logged_in_user.list_organizations().values('current'))
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
@@ -30,7 +30,6 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        orgs_to_return = []
-        logged_in_user = core_user_models.CoreUser.objects.get(user__username=self.request.user)
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=self.request.user)
 
         return logged_in_user.list_organizations()

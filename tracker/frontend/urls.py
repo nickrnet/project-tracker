@@ -10,6 +10,7 @@ from frontend.views.project.git_repository import new_git_repository_view
 from frontend.views.core.organization import organization_view
 from frontend.views.core.organization import organizations_view
 from frontend.views.core.organization import new_organization_view
+from frontend.views.core.organization import organization_settings_view
 from frontend.views.project.project import project_view
 from frontend.views.project.project import check_project_label_availability_view
 from frontend.views.project.project import project_settings_view
@@ -65,7 +66,7 @@ urlpatterns = [
          new_project_git_repository_view.new_git_repository, name='new_project_git_repository'),
     path('project/new_project_new_git_repository/',
          new_project_new_git_repository_view.new_git_repository, name='new_project_new_git_repository'),
-    path('project/new_issue/', new_project_issue_view.new_issue, name='new_project_issue'),
+#     path('project/new_issue/', new_project_issue_view.new_issue, name='new_project_issue'),
     path('project/new_issue/<uuid_or_label:project_id>/',
          new_project_issue_view.new_issue, name='new_project_issue'),
 
@@ -93,6 +94,7 @@ urlpatterns = [
     path('new_organization', new_organization_view.new_organization, name='new_organization'),
     path('organizations', organizations_view.organizations, name='organizations'),
     path('organization/<uuid:organization_id>/', organization_view.organization, name='organization'),
+    path('organization-settings/<uuid:organization_id>/', organization_settings_view.organization_settings, name='organization_settings'),
 
     path('new_user', new_user_view.new_user, name='new_user'),
     path('users', users_view.users, name='users'),

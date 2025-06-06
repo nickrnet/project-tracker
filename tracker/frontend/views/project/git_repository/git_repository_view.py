@@ -22,7 +22,7 @@ def validate_url(thing_to_validate: str) -> bool:
 @login_required
 def git_repository(request, git_repository_id=None):
     try:
-        logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
@@ -64,7 +64,7 @@ def git_repository(request, git_repository_id=None):
             'logged_in_user': logged_in_user,
             'git_repository_form': form,
             'git_repository': git_repository,
-            'project': git_repository.projectdata_set.first(),
+            'project': git_repository.project_set.first(),
             'organization': git_repository.organizationgitrepositories_set.first(),
             'valid_url': valid_url,
             }

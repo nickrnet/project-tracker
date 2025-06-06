@@ -14,7 +14,7 @@ class Component(core_models.CoreModel):
     class Meta:
         ordering = ['current__name']
 
-    current = models.OneToOneField(ComponentData, on_delete=models.CASCADE)
+    current = models.ForeignKey(ComponentData, on_delete=models.CASCADE)
     project = models.ForeignKey('project.Project', on_delete=models.CASCADE)
 
     def __str__(self):

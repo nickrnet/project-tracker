@@ -41,19 +41,19 @@
         </thead>
         <tbody>
             {% for project in projects %}
-            <tr onclick="window.location='{% url 'project' project.current.label.current.label %}'">
-                {% with label=project.current.label.current.label %}
+            <tr onclick="window.location='{% url 'project' project.label.current.label %}'">
+                {% with label=project.label.current.label %}
                 {% if label %}
-                <th scope="row">{{ project.current.label.current.label|safe|upper }}</th>
+                <th scope="row">{{ project.label.current.label|safe|upper }}</th>
                 {% else %}
                 <th scope="row"></th>
                 {% endif %}
                 {% endwith %}
                 <th>{{ project.current.name|safe|upper }}</th>
                 <td>{{ project.current.description|safe }}</th>
-                {% with project_org_data=project.organizationprojects_set.first %}
-                {% if project_org_data %}
-                <td><a href="{% url 'organization' project_org_data.organization.id %}">{{ project_org_data.name }}</a></td>
+                {% with project_org=project.organizationprojects_set.first %}
+                {% if project_org %}
+                <td><a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></td>
                 {% else %}
                 <td></td>
                 {% endif %}

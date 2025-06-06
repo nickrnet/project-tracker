@@ -8,7 +8,7 @@ from project.models import project as project_models
 @login_required
 def check_project_label_availability(request, label_text=''):
     try:
-        logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
@@ -22,6 +22,7 @@ def check_project_label_availability(request, label_text=''):
                     request=request,
                     template_name="project/project/project_check_project_label_availability.html",
                     context={
+                        'logged_in_user': logged_in_user,
                         'available': False,
                         }
                     )
@@ -30,6 +31,7 @@ def check_project_label_availability(request, label_text=''):
                     request=request,
                     template_name="project/project/project_check_project_label_availability.html",
                     context={
+                        'logged_in_user': logged_in_user,
                         'available': True,
                         }
                     )

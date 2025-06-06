@@ -1,22 +1,29 @@
 {% extends 'base.html' %}
 {% load tz %}
 {% block content %}
-<div class="container-fluid pe-5">
-    <h2 class="my-4">Organizations</h2>
-    <p><a href="{% url 'new_organization' %}">Make one!</a></p>
-    <div class="row">
-    {% for organization in organizations %}
-        <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-            <div class="card h-100 p-4">
-                <h4><a href="{% url 'organization' organization.id %}">{{ organization.current.name }}</a></h4>
-                <p class="text-muted">Description: {{ organization.current.description }}</p>
-                <p class="text-muted">Created: {{ organization.created_on|timezone:logged_in_user.current.timezone }} by <a href="{% url 'user' organization.created_by.id %}">{{ organization.created_by.current.last_name }}, {{ organization.created_by.current.first_name }}</a></p>
-                <p class="text-muted">Responsible Party: {{ organization.current.responsible_party_email }}</p>
-            </div>
+<div class="container-fluid">
+    <div id="new-organization-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="new-organization-modal"
+        aria-inert="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
         </div>
-    {% empty %}
-        <p>You're not a member of any organizations yet.</p>
-    {% endfor %}
     </div>
+    <div class="row">
+        <h2 class="my-4">
+            Organizations
+            <button
+                hx-get="{% url 'new_organization' %}"
+                hx-target="#new-organization-modal"
+                data-bs-toggle="modal"
+                data-bs-target="#new-organization-modal"
+                class="btn primary"><i class="bi bi-plus-circle"></i>
+            </button>
+        </h2>
+    </div>
+    {% include "core/organization/organizations_table.html" %}
 </div>
 {% endblock %}

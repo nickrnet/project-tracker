@@ -12,11 +12,11 @@ from frontend.forms.core.user import core_user_form
 @login_required
 def user(request, user_id=None):
     try:
-        logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
-    user = core_user_models.CoreUser.objects.get(pk=user_id)
+    user = core_user_models.CoreUser.active_objects.get(pk=user_id)
     if request.method == "POST":
         user_data_form = core_user_form.UserDataForm(request.POST, request.FILES)
         if user_data_form.is_valid():

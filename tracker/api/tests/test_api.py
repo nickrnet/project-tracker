@@ -62,11 +62,12 @@ class APITestCase(TestCase):
             )
         self.test_project.save()
 
-        self.test_project.current.users.add(self.api_test_user.id)
+        self.test_project.users.add(self.api_test_user.id)
         self.test_project.save()
-        self.test_organization.current.members.add(self.api_test_user)
-        self.test_organization.current.projects.add(self.test_project)
-        self.test_organization.current.git_repositories.add(self.test_git_respository)
+        self.test_organization.members.add(self.api_test_user)
+        self.test_organization.projects.add(self.test_project)
+        self.test_organization.git_repositories.add(self.test_git_respository)
+        self.test_organization.save()
         self.test_organization.current.save()
         self.api_test_user.save()
 
@@ -88,6 +89,14 @@ class APITestCase(TestCase):
         self.assertIsNot(response.status_code, 200)
         self.api_client.login(username=self.api_test_user.user.username, password='password')
         response = self.api_client.get('/api/organizations/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 1)
+
+    def test_api_get_organization_datas(self):
+        response = self.api_client.get('/api/organization_data/')
+        self.assertIsNot(response.status_code, 200)
+        self.api_client.login(username=self.api_test_user.user.username, password='password')
+        response = self.api_client.get('/api/organization_data/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 1)
 

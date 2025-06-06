@@ -4,8 +4,8 @@ from django.contrib.auth.models import User as DjangoUser
 from django.db import models, transaction
 from phone_field import PhoneField
 
-# DO NOT IMPORT OTHER TRACKER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL MODELS IMPORT CORE.COREUSER and/or CORE.COREMODEL
-# Use the string reference to the model here or import directly in helper functions instead to lazy-load it - See CoreUser.list_projects() for an example
+# DO NOT IMPORT OTHER TRACKER APP MODELS HERE, IT WILL CAUSE A CIRCULAR IMPORT SINCE ALL/MOST MODELS IMPORT CORE.COREUSER and/or CORE.COREMODEL
+# Import directly in helper functions instead to lazy-load it - See CoreUser.list_projects() for an example
 from . import core as core_models
 
 
@@ -125,7 +125,7 @@ class CoreUserManager(core_models.CoreModelManager):
         Takes a flat dictionary and creates a CoreUser and CoreUserData object.
 
         Args:
-            request_data (dict): Probaby a JSON payload from a POST request.
+            request_data (dict): Probably a JSON payload from a POST request.
 
         Returns:
             new_user (CoreUser): The new user that was created.
@@ -174,16 +174,16 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
     A user of the system. The _real_ inforamation about a user is stored in `current` as CoreUserData.
     Every time a user is updated, a new CoreUserData object is created and the `current` field is updated to reflect the new data.
     The `user` field is a Django User object that is used for authentication and authorization.
-    The `current` field is a OneToOneField to CoreUserData, which contains the user's demographic information.
+    The `current` field is a ForeignKey to CoreUserData, which contains the user's demographic information.
     """
 
     class Meta:
-        ordering = ['current__last_name', 'current__email']
+        ordering = ['current__last_name', 'current__first_name', 'current__email']
 
     active_objects = CoreUserActiveManager()
     objects = CoreUserManager()
 
-    current = models.OneToOneField(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
+    current = models.ForeignKey(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
     user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, blank=True, null=True, related_name='django_user')
 
     def deactivate_login(self) -> None:
@@ -202,14 +202,15 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
             projects (list): The projects the user is a member of or owns.
         """
 
-        from project.models import project
-        # Get projects from organization memberships and projects the user owns
-        organization_projects = self.organizationmembers_set.values_list('projects', flat=True).exclude(projects__isnull=True)
-        user_projects = self.projectdata_set.values_list('project', flat=True)
-        # Combine the project IDs and get distinct ones
-        project_ids = set(organization_projects).union(set(user_projects))
-        projects = project.Project.objects.filter(id__in=project_ids)
-        # breakpoint()
+        from project.models.project import Project
+
+        # Get projects from organization memberships
+        project_ids = set(self.organizationmembers_set.values_list('projects', flat=True).exclude(projects__isnull=True))
+        # Get projects the user owns
+        project_ids.update(self.project_set.values_list('id', flat=True))
+        # Always query active_objects to exclude deleted items
+        projects = Project.active_objects.filter(id__in=project_ids)
+
         return projects
 
     def list_git_repositories(self):
@@ -220,18 +221,19 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
             repositories (list): All git repositories the user can see.
         """
 
-        from project.models import project as project_models
-        from project.models import git_repository as git_repository_models
-        # Get repositories from organizations and projects the user can see
-        organization_repositoriess = self.organizationmembers_set.values_list('git_repositories', flat=True).exclude(git_repositories__isnull=True)
-        project_ids = set()
-        project_datas = self.projectdata_set.values_list('project', flat=True)
-        project_ids.update(project_datas)
-        project_repositories = project_models.Project.objects.filter(id__in=project_ids).values_list('current__git_repositories', flat=True)
-        user_repositories = git_repository_models.GitRepository.objects.filter(created_by=self).values_list('id', flat=True)
-        # Combine the repository IDs and get distinct ones
-        repository_ids = set(organization_repositoriess).union(set(project_repositories)).union(set(user_repositories))
-        repositories = git_repository_models.GitRepository.objects.filter(id__in=repository_ids)
+        from project.models.project import Project
+        from project.models.git_repository import GitRepository
+
+        # Get repositories from organizations
+        repository_ids = set(self.organizationmembers_set.values_list('git_repositories', flat=True).exclude(git_repositories__isnull=True))
+        # Get repositories from personal projects
+        projects = self.project_set.values_list('id', flat=True)
+        # Always query active_objects to exclude deleted items
+        repository_ids.update(Project.active_objects.filter(id__in=projects).values_list('git_repositories', flat=True))
+        # Get any personal repositories not attached to projects or organizations
+        repository_ids.update(GitRepository.active_objects.filter(created_by=self).values_list('id', flat=True))
+        repositories = GitRepository.active_objects.filter(id__in=repository_ids)
+
         return repositories
 
     def list_issues(self):
@@ -242,15 +244,15 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
             issues (list): The issues the user is watching, assigned to, etc.
         """
 
-        from project.models import issue as issue_models
+        from project.models.issue import Issue
+
         # TODO: Add issues watching, assigned to, etc.
+        issue_ids = set(self.issue_created_by.values_list('id', flat=True))
         user_projects = self.list_projects()
-        personal_issues = self.issue_created_by.values_list('id', flat=True)
-        issue_ids = set()
         for project in user_projects:
-            issue_ids = set(issue_ids).union(set(project.list_issues().values_list('id', flat=True)))
-        issue_ids = set(issue_ids).union(set(personal_issues))
-        issues = issue_models.Issue.objects.filter(id__in=issue_ids)
+            issue_ids.update(project.list_issues().values_list('id', flat=True))
+        # Always query active_objects to exclude deleted items
+        issues = Issue.active_objects.filter(id__in=issue_ids)
         return issues
 
     def list_organizations(self):
@@ -261,14 +263,27 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
             organizations (list): The organizations the user is a member of, etc.
         """
 
-        from core.models import organization as core_organization_models
+        return self.organizationmembers_set.all()
+    
+    def list_users(self):
+        """
+        Lists the users a user can see in the system, whether from other projects or organizations.
 
-        organization_data_ids = set()
-        organization_datas = self.organizationmembers_set.all()
-        organization_data_ids.update(organization_datas.values_list('organization', flat=True))
-        organizations = core_organization_models.Organization.objects.filter(id__in=organization_data_ids)
+        Returns:
+            users (list): The users the user can see to add to projects.
+        """
 
-        return organizations
+        users_ids_set = set()
+
+        for project in self.list_projects():
+            users_ids_set.update(project.users.all().values_list('id', flat=True))
+
+        for organization in self.list_organizations():
+            users_ids_set.update(organization.members.all().values_list('id', flat=True))
+
+        # Always query active_objects to exclude deleted items
+        return CoreUser.active_objects.filter(id__in=users_ids_set)
+
 
     def __str__(self):
         potential_names = []

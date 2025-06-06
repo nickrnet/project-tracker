@@ -31,7 +31,7 @@ def update_project_repositories(project, git_repository):
 @login_required
 def new_git_repository(request, project_id=None):
     try:
-        logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
@@ -60,14 +60,6 @@ def new_git_repository(request, project_id=None):
         else:
             messages.error(request, 'Invalid data received. Please try again.')
 
-        # return render(
-        #     request=request,
-        #     template_name="project/project/new_project_modal.html",
-        #     context={
-        #         'logged_in_user': logged_in_user,
-        #         'git_repositories': logged_in_user.list_git_repositories(),
-        #     },
-        # )
         return redirect("new_project")
 
     try:

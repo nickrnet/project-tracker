@@ -18,7 +18,7 @@ def login_to_app(request):
             if user is not None:
                 login(request, user)
                 try:
-                    core_user = core_user_models.CoreUser.objects.get(user=user)
+                    core_user = core_user_models.CoreUser.active_objects.get(user=user)
                     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
                     remote_addr = request.META.get('REMOTE_ADDR')
                     core_user_models.UserLogin.objects.create(

@@ -21,7 +21,7 @@ class GitRepository(core_models.CoreModel):
         ordering = ['current__name', 'current__url']
 
     active_objects = GitRepositoryActiveManager()
-    current = models.OneToOneField(GitRepositoryData, on_delete=models.CASCADE)
+    current = models.ForeignKey(GitRepositoryData, on_delete=models.CASCADE)
 
     def __str__(self):
         potential_names = []

@@ -13,7 +13,7 @@ from project.models import project as project_models
 @login_required
 def new_issue(request, project_id=None):
     try:
-        logged_in_user = core_user_models.CoreUser.objects.get(user__username=request.user)
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     except core_user_models.CoreUser.DoesNotExist:
         return redirect("logout")
 
@@ -62,7 +62,7 @@ def new_issue(request, project_id=None):
         project = logged_in_user.list_projects().get(id=project_uuid)
     except ValueError:
         try:
-            project = logged_in_user.list_projects().get(current__label__current__label=project_id)
+            project = logged_in_user.list_projects().get(label__current__label=project_id)
         except project_models.Project.DoesNotExist:
             project = None
 

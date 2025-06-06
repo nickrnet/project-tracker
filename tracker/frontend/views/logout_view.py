@@ -9,7 +9,7 @@ from core.models import user as core_user_models
 
 
 def logout_of_app(request):
-    user = core_user_models.CoreUser.objects.get(user__username=request.user)
+    user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     remote_addr = request.META.get('REMOTE_ADDR')
     core_user_models.UserLogout.objects.create(

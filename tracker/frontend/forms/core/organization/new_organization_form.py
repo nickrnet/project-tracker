@@ -17,8 +17,4 @@ class NewOrganizationDataForm(forms.Form):
 
     is_paid = forms.BooleanField(required=False)
     renewal_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
-    number_users_allowed = forms.IntegerField(required=False, initial=5)  # This initial has to match the model default
-
-    # members = forms.MultipleChoiceField(required=False)
-    # repositories = forms.MultipleChoiceField(required=False)
-    # projects = forms.MultipleChoiceField(required=False)
+    number_users_allowed = forms.IntegerField(required=False, initial=5)  # This initial value has to match the model default
