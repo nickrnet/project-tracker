@@ -243,8 +243,6 @@ class ProjectModelTest(TestCase):
         self.assertIn(self.user1, self.project1.users.all())
         self.assertNotIn(new_user, self.project1.users.all())
 
-
-
     def test_list_project_users(self):
         project1_user_ids = self.project1.list_users().values_list('id', flat=True)
         project2_user_ids = self.project2.list_users().values_list('id', flat=True)
@@ -276,7 +274,8 @@ class ProjectModelTest(TestCase):
         issue1 = Issue.objects.create(
             created_by=self.user1,
             sequence=1,
-            current=issue_data1
+            current=issue_data1,
+            project=self.project1
             )
         issue_data2 = IssueData.objects.create(
             created_by=self.user1,
@@ -288,7 +287,8 @@ class ProjectModelTest(TestCase):
         issue2 = Issue.objects.create(
             created_by=self.user1,
             sequence=2,
-            current=issue_data2
+            current=issue_data2,
+            project=self.project1
             )
 
         issues = self.project1.list_issues()
@@ -309,7 +309,8 @@ class ProjectModelTest(TestCase):
         issue1 = Issue.objects.create(
             created_by=self.user1,
             sequence=1,
-            current=issue_data1
+            current=issue_data1,
+            project=self.project1
             )
         issue_data2 = IssueData.objects.create(
             created_by=self.user2,
@@ -321,7 +322,8 @@ class ProjectModelTest(TestCase):
         issue2 = Issue.objects.create(
             created_by=self.user1,
             sequence=2,
-            current=issue_data2
+            current=issue_data2,
+            project=self.project2
             )
 
         project1_issues = self.project1.list_issues()

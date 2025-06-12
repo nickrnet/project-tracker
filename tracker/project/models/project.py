@@ -70,7 +70,6 @@ class Project(core_models.CoreModel):
             new_project_data['is_active'] = project_data.get('is_active', current_project_data.get('is_active', ''))
             new_project_data['is_private'] = project_data.get('is_private', current_project_data.get('is_private', ''))
             new_project_data = ProjectData(**new_project_data)
-            new_project_data.save()
 
             new_project_data.save()
             self.current = new_project_data

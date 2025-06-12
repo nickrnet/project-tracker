@@ -15,7 +15,7 @@ def get_project(logged_in_user, project_id):
         project_uuid = uuid.UUID(str(project_id))
         return logged_in_user.list_projects().get(id=project_uuid)
     except ValueError:
-        return logged_in_user.list_projects().filter(label__current__name__name=project_id).first()
+        return logged_in_user.list_projects().filter(label__current__label=project_id).first()
 
 
 def update_project_repositories(project, git_repository):
@@ -74,7 +74,7 @@ def new_git_repository(request, project_id=None):
         project = logged_in_user.list_projects().get(id=project_uuid)
     except ValueError:
         try:
-            project = logged_in_user.list_projects().filter(label__current__name__name=project_id).first()
+            project = logged_in_user.list_projects().filter(label__current__label=project_id).first()
         except project_models.Project.DoesNotExist:
             project = None
 

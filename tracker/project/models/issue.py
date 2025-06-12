@@ -7,6 +7,7 @@ from . import status as status_models
 from . import component as component_models
 from . import version as version_models
 from . import severity as severity_models
+from . import project as project_models
 
 
 class IssueData(core_models.CoreModel):
@@ -189,5 +190,6 @@ class Issue(core_models.Sequenced):
     objects = IssueObjectManager()
 
     current = models.ForeignKey(IssueData, on_delete=models.CASCADE)
+    project = models.ForeignKey(project_models.Project, on_delete=models.CASCADE)
 
     # TODO: Make a create override function to validate the reporter and created_by are project members

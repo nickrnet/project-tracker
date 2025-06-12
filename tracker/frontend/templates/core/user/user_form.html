@@ -1,6 +1,6 @@
 <div class="row g-3">
     <div class="col-md-6">
-        <label for="id_email" class="form-label">{% if "new_user" not in requestget_full_path %}* {% endif %}Email address:</label>
+        <label for="id_email" class="form-label">{% if "new_user" not in requestget_full_path %}* {% endif %}* Email address:</label>
         <input type="text" name="email" class="form-control" id="id_email" required {% if user %}value="{{ user.current.email }}"{% endif %}>
     </div>
     {% if "new_user" in request.get_full_path %}
@@ -13,19 +13,19 @@
 <div class="row g-3">
     <div class="col-md-2">
         <label for="id_name_prefix" class="form-label">Name prefix:</label>
-        <input type="text" name="name-prefix" class="form-control" id="id_name_prefix" {% if user %}value="{{ user.current.name_prefix }}"{% endif %}>
+        <input type="text" name="name_prefix" class="form-control" id="id_name_prefix" {% if user %}value="{{ user.current.name_prefix }}"{% endif %}>
     </div>
     <div class="col-md-4">
         <label for="id_first_name" class="form-label">First name:</label>
-        <input type="text" name="first-name" class="form-control" id="id_first_name" {% if user %}value="{{ user.current.first_name }}"{% endif %}>
+        <input type="text" name="first_name" class="form-control" id="id_first_name" {% if user %}value="{{ user.current.first_name }}"{% endif %}>
     </div>
     <div class="col-md-4">
         <label for="id_last_name" class="form-label">Last name:</label>
-        <input type="text" name="last-name" class="form-control" id="id_last_name" {% if user %}value="{{ user.current.last_name }}"{% endif %}>
+        <input type="text" name="last_name" class="form-control" id="id_last_name" {% if user %}value="{{ user.current.last_name }}"{% endif %}>
     </div>
     <div class="col-md-2">
         <label for="id_name_suffix" class="form-label">Name suffix:</label>
-        <input type="text" name="name-suffix" class="form-control" id="id_name_suffix" {% if user %}value="{{ user.current.name_suffix }}"{% endif %}>
+        <input type="text" name="name_suffix" class="form-control" id="id_name_suffix" {% if user %}value="{{ user.current.name_suffix }}"{% endif %}>
     </div>
 </div>
 <div class="row g-3">
@@ -37,27 +37,27 @@
 <div class="row g-3">
     <div class="col-md-4">
         <label for="id_home_phone" class="form-label">Home phone:</label>
-        <input type="text" name="home_phone" class="form-control" id="id_home_phone" {% if user %}value="{{ user.current.home_phone }}"{% endif %}>
+        <input type="text" name="home_phone" class="form-control" id="id_home_phone" {% if user.current.home_phone %}value="{{ user.current.home_phone }}"{% endif %}>
     </div>
     <div class="col-md-4">
         <label for="id_mobile_phone" class="form-label">Mobile phone:</label>
-        <input type="text" name="mobile_phone" class="form-control" id="id_mobile_phone" {% if user %}value="{{ user.current.mobile_phone }}"{% endif %}>
+        <input type="text" name="mobile_phone" class="form-control" id="id_mobile_phone" {% if user.current.mobile_phone %}value="{{ user.current.mobile_phone }}"{% endif %}>
     </div>
     <div class="col-md-4">
         <label for="id_work_phone" class="form-label">Work phone:</label>
-        <input type="text" name="work_phone" class="form-control" id="id_work_phone" {% if user %}value="{{ user.current.work_phone }}"{% endif %}>
+        <input type="text" name="work_phone" class="form-control" id="id_work_phone" {% if user.current.work_phone %}value="{{ user.current.work_phone }}"{% endif %}>
     </div>
 </div>
 <div class="row g-3">
     <div class="col-md-6">
         <label for="id_address_line_1" class="form-label">Address line 1:</label>
-        <input type="text" name="address-line-1" class="form-control" id="id_address_line_1" {% if user %}value="{{ user.current.address_line_1 }}"{% endif %}>
+        <input type="text" name="address_line_1" class="form-control" id="id_address_line_1" {% if user %}value="{{ user.current.address_line_1 }}"{% endif %}>
     </div>
 </div>
 <div class="row g-3">
     <div class="col-md-6">
         <label for="id_address_line_2" class="form-label">Address line 2:</label>
-        <input type="text" name="address-line-2" class="form-control" id="id_address_line_2" {% if user %}value="{{ user.current.address_line_2 }}"{% endif %}>
+        <input type="text" name="address_line_2" class="form-control" id="id_address_line_2" {% if user %}value="{{ user.current.address_line_2 }}"{% endif %}>
     </div>
 </div>
 <div class="row g-3">
@@ -75,7 +75,7 @@
 <div class="row g-3">
     <div class="col-md-6">
         <label for="id_postal_code" class="form-label">Postal code:</label>
-        <input type="text" name="postal-code" class="form-control" id="id_postal_code" {% if user %}value="{{ user.current.postal_code }}"{% endif %}>
+        <input type="text" name="postal_code" class="form-control" id="id_postal_code" {% if user %}value="{{ user.current.postal_code }}"{% endif %}>
     </div>
 </div>
 <div class="row g-3">

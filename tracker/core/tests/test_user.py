@@ -197,7 +197,8 @@ class CoreUserTestCase(TestCase):
         issue1 = Issue(
             created_by=self.user1,
             current=issue1_data,
-            sequence=Issue.objects.get_next_sequence_number(self.project1.id)
+            sequence=Issue.objects.get_next_sequence_number(self.project1.id),
+            project=self.project1
         )
         issue1.save()
         issue2_data = IssueData(
@@ -210,7 +211,8 @@ class CoreUserTestCase(TestCase):
         issue2 = Issue(
             created_by=self.user2,
             current=issue2_data,
-            sequence=Issue.objects.get_next_sequence_number(self.project2.id)
+            sequence=Issue.objects.get_next_sequence_number(self.project2.id),
+            project=self.project1
         )
         issue2.save()
         issue3_data = IssueData(
@@ -223,7 +225,8 @@ class CoreUserTestCase(TestCase):
         issue3 = Issue(
             created_by=self.user3,
             current=issue3_data,
-            sequence=Issue.objects.get_next_sequence_number(self.project3.id)
+            sequence=Issue.objects.get_next_sequence_number(self.project3.id),
+            project=self.project1
         )
         issue3.save()
 

@@ -10,21 +10,17 @@ from core.models import user as core_user_models
 
 
 def handle_post(request, logged_in_user):
-    received_new_organization_data_form = new_organization_form.NewOrganizationDataForm(
-        request.POST, request.FILES)
+    received_new_organization_data_form = new_organization_form.NewOrganizationDataForm(request.POST, request.FILES)
     if received_new_organization_data_form.is_valid():
         # TODO: Normal users cannot set this, but leave for now
         if received_new_organization_data_form.cleaned_data['number_users_allowed'] is None:
-            received_new_organization_data_form.cleaned_data[
-                'number_users_allowed'] = received_new_organization_data_form.fields['number_users_allowed'].initial
+            received_new_organization_data_form.cleaned_data['number_users_allowed'] = received_new_organization_data_form.fields['number_users_allowed'].initial
 
-        organization_data = core_organization_models.OrganizationData(
-            **received_new_organization_data_form.cleaned_data)
+        organization_data = core_organization_models.OrganizationData(**received_new_organization_data_form.cleaned_data)
         organization_data.created_by = logged_in_user
         organization_data.save()
 
-        organization = core_organization_models.Organization.objects.create(
-            created_by=logged_in_user, current=organization_data)
+        organization = core_organization_models.Organization.objects.create(created_by=logged_in_user, current=organization_data)
         organization.save()
         organization.members.add(logged_in_user)
         organization.save()
@@ -44,7 +40,7 @@ def new_organization(request):
         return redirect("logout")
 
     if request.method == "POST":
-        handle_post(request, logged_in_user)
+        return handle_post(request, logged_in_user)
 
     organization_data_form = new_organization_form.NewOrganizationDataForm()
     organizations = logged_in_user.list_organizations()

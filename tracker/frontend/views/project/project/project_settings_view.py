@@ -59,7 +59,7 @@ def project_settings(request, project_id=None):
         return redirect("logout")
 
     if request.method == "POST":
-        handle_post(request, project_id, logged_in_user)
+        return handle_post(request, project_id, logged_in_user)
 
     try:
         project_uuid = uuid.UUID(str(project_id))

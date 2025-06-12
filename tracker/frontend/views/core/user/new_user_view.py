@@ -8,6 +8,18 @@ from core.models import user as core_user_models
 from frontend.forms.core.user import new_user_form
 
 
+def handle_post(request):
+    new_user_data_form = new_user_form.NewUserForm(request.POST, request.FILES)
+    if new_user_data_form.is_valid():
+        new_user = core_user_models.CoreUser.objects.create_core_user_from_web(
+            new_user_data_form.cleaned_data)
+        messages.success(request, ('Your user was successfully added!'))
+        return redirect("user", user_id=new_user.id)
+    else:
+        messages.error(request, 'Error saving user.')
+        return redirect("users")
+
+
 @login_required
 def new_user(request):
     try:
@@ -16,15 +28,7 @@ def new_user(request):
         return redirect("logout")
 
     if request.method == "POST":
-        new_user_data_form = new_user_form.NewUserForm(request.POST, request.FILES)
-        if new_user_data_form.is_valid():
-            new_user = core_user_models.CoreUser.objects.create_core_user_from_web(
-                new_user_data_form.cleaned_data)
-            messages.success(request, ('Your user was successfully added!'))
-            return redirect("user", user_id=new_user.id)
-        else:
-            messages.error(request, 'Error saving user.')
-            return redirect("new_user")
+        return handle_post(request)
 
     new_user_data_form = new_user_form.NewUserForm()
     users = logged_in_user.list_users()
@@ -40,7 +44,7 @@ def new_user(request):
 
     return render(
         request=request,
-        template_name="core/user/new_user_template.html",
+        template_name="core/user/new_user_modal.html",
         context={
             'logged_in_user': logged_in_user,
             'new_user_form': new_user_data_form,

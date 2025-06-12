@@ -1,5 +1,6 @@
 import uuid
 
+from django.http import HttpResponse
 from django.urls import path, register_converter
 
 from frontend.views import login_view
@@ -30,6 +31,10 @@ from frontend.views.core.user import new_user_view
 from frontend.views import signup_view
 
 
+def squash_google_chrome_dev_tools(request):
+    return HttpResponse(status=204)
+
+
 class UUIDOrLabelConverter:
     regex = '[0-9a-fA-F-]{36}|[a-zA-Z0-9_-]+'
 
@@ -46,6 +51,8 @@ class UUIDOrLabelConverter:
 register_converter(UUIDOrLabelConverter, 'uuid_or_label')
 
 urlpatterns = [
+    # Stupid Chrome
+    path('.well-known/appspecific/com.chrome.devtools.json', squash_google_chrome_dev_tools),
     # TODO: Audit these to make sure they're all still hit
     path('', login_view.login_to_app, name='index'),
 
@@ -96,7 +103,7 @@ urlpatterns = [
     path('organization/<uuid:organization_id>/', organization_view.organization, name='organization'),
     path('organization-settings/<uuid:organization_id>/', organization_settings_view.organization_settings, name='organization_settings'),
 
-    path('new_user', new_user_view.new_user, name='new_user'),
     path('users', users_view.users, name='users'),
+    path('new_user', new_user_view.new_user, name='new_user'),
     path('user/<uuid:user_id>/', user_view.user, name='user'),
     ]

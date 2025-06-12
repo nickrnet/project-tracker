@@ -1,21 +1,29 @@
 {% extends 'base.html' %}
 {% load tz %}
 {% block content %}
-  <div class="container-fluid pe-5">
-    <h2 class="my-4">Users</h2>
-    <p><a href="{% url 'new_user' %}">Make one!</a></p>
-    {% for user in users %}
-    <div class="row">
-        <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-            <div class="card h-100 p-4">
-                <a href="{% url 'user' user.id %}"><h4>{{ user.current.last_name }}, {{ user.current.first_name }}</h4></a>
-                <p class="text-muted">{{ user.current.email }}</p>
-                <p class="text-muted">Created {{ user.created_on|timezone:logged_in_user.current.timezone }} by {{ user.created_by.current.last_name }}, {{ user.created_by.current.first_name }}</p>
-            </div>
+<div class="container-fluid">
+    <div id="new-user-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="new-user-modal"
+        aria-inert="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
         </div>
     </div>
-    {% empty %}
-    <p>Once you've created an organization, you'll be able to see its users.</p>
-    {% endfor %}
-  </div>
+    <div class="row">
+        <h2 class="my-4">
+            Users
+            <button
+                hx-get="{% url 'new_user' %}"
+                hx-target="#new-user-modal"
+                data-bs-toggle="modal"
+                data-bs-target="#new-user-modal"
+                class="btn primary"><i class="bi bi-plus-circle"></i>
+            </button>
+        </h2>
+    </div>
+    {% include "core/user/users_table.html" %}
+</div>
 {% endblock %}

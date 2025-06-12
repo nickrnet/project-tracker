@@ -2,7 +2,8 @@
 {% load tz %}
 {% block content %}
 <div class="container-fluid pe-5">
-    <h2 class="my-4">{{ logged_in_user.current.email }}</h2>
+    <h2 class="my-4">{{ user.current.first_name }} {{ user.current.last_name }} - {{ user.current.email }}</h2>
+    {% comment %} TODO: Not sure what to show here... show the user form for now {% endcomment %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% include "core/user/user_form.html" %}

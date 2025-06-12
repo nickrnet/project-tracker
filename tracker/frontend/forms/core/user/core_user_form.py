@@ -21,13 +21,3 @@ class UserDataForm(forms.Form):
     state = forms.CharField(required=False)
     country = forms.CharField(required=False)
     timezone = forms.CharField(required=False)
-
-
-class UserForm(forms.ModelForm):
-    current = UserDataForm()
-
-    class Meta:
-        model = core_user_models.CoreUser
-        fields = [
-            'current',
-            ]

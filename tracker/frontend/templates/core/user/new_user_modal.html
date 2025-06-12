@@ -4,16 +4,16 @@
 <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 class="modal-title">New Organization</h3>
+            <h3 class="modal-title">New User</h3>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <form
-                id="new-organization-form"
-                action="{% url 'new_organization' %}"
+                id="new-user-form"
+                action="{% url 'new_user' %}"
                 method="post">
                 {% csrf_token %}
-                {% include "core/organization/organization_form.html" %}
+                {% include "core/user/user_form.html" %}
                 <button class="btn btn-primary my-4" type="submit">Submit</button>
             </form>
         </div>

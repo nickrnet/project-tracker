@@ -39,6 +39,7 @@ def new_issue(request, project_id=None):
             issue_models.Issue.objects.create(
                 created_by=logged_in_user,
                 current=issue_data,
+                project=project,
                 sequence=issue_models.Issue.objects.get_next_sequence_number(project.id)
                 )
 

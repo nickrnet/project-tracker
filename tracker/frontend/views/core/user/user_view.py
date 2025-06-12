@@ -9,6 +9,38 @@ from core.models import user as core_user_models
 from frontend.forms.core.user import core_user_form
 
 
+def handle_post(request, logged_in_user, user_id):
+    user_data_form = core_user_form.UserDataForm(request.POST, request.FILES)
+    if user_data_form.is_valid():
+        user = core_user_models.CoreUser.active_objects.get(pk=user_id)
+        user_data = core_user_models.CoreUserData(
+            created_by=logged_in_user,
+            first_name=user_data_form.cleaned_data.get('first_name', ''),
+            last_name=user_data_form.cleaned_data.get('last_name', ''),
+            email=user_data_form.cleaned_data.get('email'),
+            secondary_email=user_data_form.cleaned_data.get('secondary_email', ''),
+            home_phone=user_data_form.cleaned_data.get('home_phone', ''),
+            mobile_phone=user_data_form.cleaned_data.get('mobile_phone', ''),
+            work_phone=user_data_form.cleaned_data.get('work_phone', ''),
+            address_line_1=user_data_form.cleaned_data.get('address_line_1', ''),
+            address_line_2=user_data_form.cleaned_data.get('address_line_2', ''),
+            postal_code=user_data_form.cleaned_data.get('postal_code', ''),
+            city=user_data_form.cleaned_data.get('city', ''),
+            state=user_data_form.cleaned_data.get('state', ''),
+            country=user_data_form.cleaned_data.get('country', ''),
+            timezone=user_data_form.cleaned_data.get('timezone', ''),
+            )
+        user_data.save()
+        user.current.hard_delete(logged_in_user.id)
+        user.current = user_data
+        user.save()
+        messages.success(request, ("Your user was successfully updated!"))
+    else:
+        messages.error(request, "Error saving user.")
+
+    return redirect("user", user_id=user_id)
+
+
 @login_required
 def user(request, user_id=None):
     try:
@@ -18,34 +50,7 @@ def user(request, user_id=None):
 
     user = core_user_models.CoreUser.active_objects.get(pk=user_id)
     if request.method == "POST":
-        user_data_form = core_user_form.UserDataForm(request.POST, request.FILES)
-        if user_data_form.is_valid():
-            user.current.hard_delete(user_id)
-            user_data = core_user_models.CoreUserData(
-                created_by_id=user_id,
-                first_name=user_data_form.cleaned_data.get('first_name', ''),
-                last_name=user_data_form.cleaned_data.get('last_name', ''),
-                email=user_data_form.cleaned_data.get('email'),
-                secondary_email=user_data_form.cleaned_data.get('secondary_email', ''),
-                home_phone=user_data_form.cleaned_data.get('home_phone', ''),
-                mobile_phone=user_data_form.cleaned_data.get('mobile_phone', ''),
-                work_phone=user_data_form.cleaned_data.get('work_phone', ''),
-                address_line_1=user_data_form.cleaned_data.get('address_line_1', ''),
-                address_line_2=user_data_form.cleaned_data.get('address_line_2', ''),
-                postal_code=user_data_form.cleaned_data.get('postal_code', ''),
-                city=user_data_form.cleaned_data.get('city', ''),
-                state=user_data_form.cleaned_data.get('state', ''),
-                country=user_data_form.cleaned_data.get('country', ''),
-                timezone=user_data_form.cleaned_data.get('timezone', ''),
-                )
-            user_data.save()
-            user.current = user_data
-            user.save()
-            messages.success(request, ("Your user was successfully updated!"))
-        else:
-            messages.error(request, "Error saving user.")
-
-        return redirect("user", user_id=user_id)
+        return handle_post(request, logged_in_user, user_id)
 
     user_data_form = core_user_form.UserDataForm(model_to_dict(user.current))
     timezone_choices = core_user_models.TIMEZONE_CHOICES

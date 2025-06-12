@@ -49,4 +49,4 @@ def organization(request, organization_id=None):
             )
     except core_organization_models.Organization.DoesNotExist:
         messages.error(request, 'The specified Organization does not exist. Create it and try again.')
-        return redirect("new_organization")
+        return redirect("organizations")

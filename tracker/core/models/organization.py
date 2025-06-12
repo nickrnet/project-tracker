@@ -12,6 +12,9 @@ from project.models import git_repository as git_repository_models
 from project.models import project as project_models
 
 
+# TODO: Roles like Administrator, etc.
+
+
 class OrganizationData(core_models.CoreModel):
     """
     Information about an Organization, both past and present.

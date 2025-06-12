@@ -62,7 +62,7 @@ def new_issue(request, project_id=None):
             project = logged_in_user.list_projects().get(id=project_uuid)
         except ValueError:
             try:
-                project = logged_in_user.list_projects().get(label__current__name__name=project_id)
+                project = logged_in_user.list_projects().get(label__current__label=project_id)
             except project_models.Project.DoesNotExist:
                 project = None
     else:
