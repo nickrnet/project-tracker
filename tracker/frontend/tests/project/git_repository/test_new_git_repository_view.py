@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.http import urlencode
 
 from core.models.user import CoreUser
-from project.models.git_repository import GitRepository, GitRepositoryData
+from project.models.git_repository import GitRepository
 
 from frontend.forms.project.git_repository.new_git_repository_form import NewGitRepositoryForm
 

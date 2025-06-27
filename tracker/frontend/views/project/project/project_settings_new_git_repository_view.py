@@ -22,15 +22,9 @@ def get_project(logged_in_user, project_id):
         except project_models.Project.DoesNotExist:
             return None
 
-
-def update_project_repositories(logged_in_user, project, git_repository):
-    if project:
-        project.update_project_data(logged_in_user.id, {'git_repositories': [git_repository]})
-
-
 def handle_post(request, logged_in_user, project_id):
-    received_new_git_repository_form = new_git_repository_form.NewGitRepositoryForm(
-        request.POST, request.FILES)
+    received_new_git_repository_form = new_git_repository_form.NewGitRepositoryForm(request.POST, request.FILES)
+
     if received_new_git_repository_form.is_valid():
         project_id = received_new_git_repository_form.cleaned_data.get('project_id')
         project = get_project(logged_in_user, project_id)
@@ -45,16 +39,19 @@ def handle_post(request, logged_in_user, project_id):
             created_by=logged_in_user,
             current=git_repository_data
             )
-        if project:
-            update_project_repositories(logged_in_user, project, git_repository)
+        
+        project.git_repositories.add(git_repository)
 
         messages.success(request, ('Your git repository was successfully added!'))
     else:
         project = get_project(logged_in_user, project_id)
-        messages.error(request, 'Invalid data received. Please try again.')
+        messages.error(request, 'Error saving git repository.')
 
+    if not project:
+        return redirect('projects')
+    
     project_dict = model_to_dict(project.current)
-    if project.label.current.label:
+    if project.label:
         project_dict['label'] = project.label.current.label
     form = project_form.ProjectDataForm(project_dict)
     repositories = project.git_repositories.all()
@@ -70,13 +67,9 @@ def handle_post(request, logged_in_user, project_id):
             },
         )
 
-
 @login_required
-def new_git_repository(request, project_id=None):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+def new_git_repository(request, project_id):
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     if request.method == "POST":
         return handle_post(request, logged_in_user, project_id)

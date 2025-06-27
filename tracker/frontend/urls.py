@@ -22,8 +22,6 @@ from frontend.views.project.project import project_settings_version_view
 from frontend.views.project.project import project_settings_new_version_view
 from frontend.views.project.project import project_settings_new_git_repository_view
 from frontend.views.project.project import projects_view
-from frontend.views.project.project import new_git_repository_view as new_project_git_repository_view
-from frontend.views.project.project import new_project_new_git_repository_view as new_project_new_git_repository_view
 from frontend.views.project.project import new_issue_view as new_project_issue_view
 from frontend.views.project.project import new_project_view
 from frontend.views.project.issue import issue_view
@@ -65,32 +63,18 @@ urlpatterns = [
     path('logout', logout_view.logout_of_app, name='logout'),
 
     path('new_project', new_project_view.new_project, name='new_project'),
-    path('check_project_label_availability/', check_project_label_availability_view.check_project_label_availability,
-         name='check_project_label_availability'),
-    path('check_project_label_availability/<slug:label_text>/',
-         check_project_label_availability_view.check_project_label_availability, name='check_project_label_availability'),
+    path('check_project_label_availability/', check_project_label_availability_view.check_project_label_availability, name='check_project_label_availability'),
+    path('check_project_label_availability/<slug:label_text>/', check_project_label_availability_view.check_project_label_availability, name='check_project_label_availability'),
     path('projects', projects_view.projects, name='projects'),
     path('project/<uuid_or_label:project_id>/', project_view.project, name='project'),
-    path('project/new_git_repository/', new_project_git_repository_view.new_git_repository,
-         name='new_project_git_repository'),
-    path('project/new_git_repository/<uuid_or_label:project_id>/',
-         new_project_git_repository_view.new_git_repository, name='new_project_git_repository'),
-    path('project/new_project_new_git_repository/',
-         new_project_new_git_repository_view.new_git_repository, name='new_project_new_git_repository'),
-#     path('project/new_issue/', new_project_issue_view.new_issue, name='new_project_issue'),
-    path('project/new_issue/<uuid_or_label:project_id>/',
-         new_project_issue_view.new_issue, name='new_project_issue'),
+    path('project/new_issue/', new_project_issue_view.new_issue, name='new_project_issue'),
+    path('project/new_issue/<uuid_or_label:project_id>/', new_project_issue_view.new_issue, name='new_project_issue'),
 
-    path('project-settings/<uuid_or_label:project_id>/',
-         project_settings_view.project_settings, name='project_settings'),
-    path('project-settings/git-repository/', project_settings_git_repository_view.git_repository,
-         name='project_settings_git_repository'),
-    path('project-settings/git-repository/<uuid:git_repository_id>/',
-         project_settings_git_repository_view.git_repository, name='project_settings_git_repository'),
-    path('project-settings/new-git-repository/', project_settings_new_git_repository_view.new_git_repository,
-         name='project_settings_new_git_repository'),
-    path('project-settings/new-git-repository/<uuid_or_label:project_id>/',
-         project_settings_new_git_repository_view.new_git_repository, name='project_settings_new_git_repository'),
+    path('project-settings/<uuid_or_label:project_id>/', project_settings_view.project_settings, name='project_settings'),
+    path('project-settings/git-repository/', project_settings_git_repository_view.git_repository, name='project_settings_git_repository'),
+    path('project-settings/git-repository/<uuid:git_repository_id>/', project_settings_git_repository_view.git_repository, name='project_settings_git_repository'),
+    path('project-settings/new-git-repository/', project_settings_new_git_repository_view.new_git_repository, name='project_settings_new_git_repository'),
+    path('project-settings/new-git-repository/<uuid_or_label:project_id>/', project_settings_new_git_repository_view.new_git_repository, name='project_settings_new_git_repository'),
     path('project-settings/component/', project_settings_component_view.component, name='project_settings_component'),
     path('project-settings/component/<uuid_or_label:component_id>/', project_settings_component_view.component, name='project_settings_component'),
     path('project-settings/new-component/', project_settings_new_component_view.new_component, name='project_settings_new_component'),
@@ -102,8 +86,7 @@ urlpatterns = [
 
     path('new_git_repository', new_git_repository_view.new_git_repository, name='new_git_repository'),
     path('git_repositories', git_repositories_view.git_repositories, name='git_repositories'),
-    path('git_repository/<uuid:git_repository_id>/',
-         git_repository_view.git_repository, name='git_repository'),
+    path('git_repository/<uuid:git_repository_id>/', git_repository_view.git_repository, name='git_repository'),
 
     path('new_issue/', new_issue_view.new_issue, name='new_issue'),
     path('new_issue/<uuid_or_label:project_id>/', new_issue_view.new_issue, name='new_issue'),

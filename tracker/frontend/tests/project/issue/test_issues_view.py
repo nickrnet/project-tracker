@@ -52,6 +52,7 @@ class TestIssuesView(TestCase):
         self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label = self.project1_label)
         self.project1.users.add(self.user1)
         self.project1.save()
+        
         self.issue_data1 = IssueData.objects.create(
             created_by=self.user1,
             reporter=self.user1,

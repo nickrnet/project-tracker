@@ -4,12 +4,21 @@
             <h5 class="modal-title">New Issue</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        {% if project %}
         <form
             hx-post={% url 'new_project_issue' project.label.current.label %}
             hx-target="#issues-tab-pane"
             hx-swap="outerHTML"
             data-bs-toggle="toast"
             data-bs-target="#toast">
+        {% else %}
+        <form
+            hx-post={% url 'new_project_issue' %}
+            hx-target="#issues-tab-pane"
+            hx-swap="outerHTML"
+            data-bs-toggle="toast"
+            data-bs-target="#toast">
+        {% endif %}
             <div class="modal-body">
                 {% csrf_token %}
                 {% include "project/issue/issue_form.html" %}

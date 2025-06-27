@@ -17,7 +17,7 @@ class ProjectLabelData(core_models.CoreModel):
 
 
 class ProjectLabel(core_models.CoreModel):
-    current = models.ForeignKey('ProjectLabelData', on_delete=models.CASCADE)
+    current = models.ForeignKey(ProjectLabelData, on_delete=models.CASCADE)
 
 
 class ProjectData(core_models.CoreModel):

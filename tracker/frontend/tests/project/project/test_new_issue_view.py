@@ -81,33 +81,28 @@ class TestNewIssueView(TestCase):
         self.http_client = Client()
 
     def test_new_issue_view_redirects_when_not_logged_in(self):
-        response = self.http_client.get(reverse('new_issue'))
+        response = self.http_client.get(reverse('new_project_issue', kwargs={'project_id': str(self.project1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/new_issue/')
+        self.assertRedirects(response, '/login?next=/project/new_issue/' + str(self.project1.id) + '/')
 
     def test_new_issue_view_get(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('new_issue', kwargs={'project_id': str(self.project1.id)}))
+        response = self.http_client.get(reverse('new_project_issue', kwargs={'project_id': str(self.project1.id)}))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/new_issue_modal.html')
+        self.assertTemplateUsed(response, 'project/project/new_issue_modal.html')
 
     def test_new_issue_view_get_with_project_label(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('new_issue', kwargs={'project_id': self.project1.label.current.label}))
+        response = self.http_client.get(reverse('new_project_issue', kwargs={'project_id': self.project1.label.current.label}))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/new_issue_modal.html')
+        self.assertTemplateUsed(response, 'project/project/new_issue_modal.html')
 
     def test_new_issue_view_get_with_project_label_that_does_not_exist(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('new_issue', kwargs={'project_id': 'this_project_does_not_exist'}))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/new_issue_modal.html')
-
-    def test_new_issue_view_get_without_project_id(self):
-        self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('new_issue'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/new_issue_modal.html')
+        response = self.http_client.get(reverse('new_project_issue', kwargs={'project_id': 'this_project_does_not_exist'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, reverse('projects'))
+        self.assertIn('Choose a project.', str(messages))
 
     def test_new_issue_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -129,11 +124,11 @@ class TestNewIssueView(TestCase):
         new_issue_form.is_valid()
         form_data = urlencode(new_issue_form.data)
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('new_issue'), form_data, url_encoding)
+        response = self.http_client.post(reverse('new_project_issue', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
         issue = Issue.objects.first()
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertTemplateUsed(response, 'project/project/issues_table.html')
         # Make sure the whole form came through to the database
         self.assertEqual(issue.current.summary, 'Issue Summary 1')
         self.assertEqual(issue.current.description, 'Issue Description 1')
@@ -152,10 +147,10 @@ class TestNewIssueView(TestCase):
         url_encoding = 'application/x-www-form-urlencoded'
         form_data = 'a=1'
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('new_issue'), form_data, url_encoding)
+        response = self.http_client.post(reverse('new_project_issue', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertTemplateUsed(response, 'project/project/issues_table.html')
         self.assertIn('Error saving issue.', str(messages))
         # Make sure the form did not save to the database
         self.assertEqual(Issue.objects.count(), 0)
