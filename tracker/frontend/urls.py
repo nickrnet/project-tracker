@@ -16,6 +16,10 @@ from frontend.views.project.project import project_view
 from frontend.views.project.project import check_project_label_availability_view
 from frontend.views.project.project import project_settings_view
 from frontend.views.project.project import project_settings_git_repository_view as project_settings_git_repository_view
+from frontend.views.project.project import project_settings_component_view
+from frontend.views.project.project import project_settings_new_component_view
+from frontend.views.project.project import project_settings_version_view
+from frontend.views.project.project import project_settings_new_version_view
 from frontend.views.project.project import project_settings_new_git_repository_view
 from frontend.views.project.project import projects_view
 from frontend.views.project.project import new_git_repository_view as new_project_git_repository_view
@@ -87,6 +91,14 @@ urlpatterns = [
          name='project_settings_new_git_repository'),
     path('project-settings/new-git-repository/<uuid_or_label:project_id>/',
          project_settings_new_git_repository_view.new_git_repository, name='project_settings_new_git_repository'),
+    path('project-settings/component/', project_settings_component_view.component, name='project_settings_component'),
+    path('project-settings/component/<uuid_or_label:component_id>/', project_settings_component_view.component, name='project_settings_component'),
+    path('project-settings/new-component/', project_settings_new_component_view.new_component, name='project_settings_new_component'),
+    path('project-settings/new-component/<uuid_or_label:project_id>/', project_settings_new_component_view.new_component, name='project_settings_new_component'),
+    path('project-settings/version/', project_settings_version_view.version, name='project_settings_version'),
+    path('project-settings/version/<uuid_or_label:version_id>/', project_settings_version_view.version, name='project_settings_version'),
+    path('project-settings/new-version/', project_settings_new_version_view.new_version, name='project_settings_new_version'),
+    path('project-settings/new-version/<uuid_or_label:project_id>/', project_settings_new_version_view.new_version, name='project_settings_new_version'),
 
     path('new_git_repository', new_git_repository_view.new_git_repository, name='new_git_repository'),
     path('git_repositories', git_repositories_view.git_repositories, name='git_repositories'),

@@ -20,6 +20,10 @@
         <input type="text" name="first_name" class="form-control" id="id_first_name" {% if user %}value="{{ user.current.first_name }}"{% endif %}>
     </div>
     <div class="col-md-4">
+        <label for="id_middle_name" class="form-label">Middle name:</label>
+        <input type="text" name="middle_name" class="form-control" id="id_middle_name" {% if user %}value="{{ user.current.middle_name }}"{% endif %}>
+    </div>
+    <div class="col-md-4">
         <label for="id_last_name" class="form-label">Last name:</label>
         <input type="text" name="last_name" class="form-control" id="id_last_name" {% if user %}value="{{ user.current.last_name }}"{% endif %}>
     </div>

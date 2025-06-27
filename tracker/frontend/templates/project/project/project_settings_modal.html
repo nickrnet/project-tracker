@@ -37,7 +37,7 @@
                                 <form
                                     id="project-settings-form"
                                     hx-post="{% url 'project' project_id %}"
-                                    hx-target="#project-pane"
+                                    hx-target="#project-settings-modal"
                                     hx-trigger="submit">
                                     {% csrf_token %}
                                     <div class="row align-items-center">
@@ -94,12 +94,36 @@
                                             type="submit"
                                             class="btn btn-primary"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#project-modal"
+                                            data-bs-target="#project-settings-modal"
                                             form="project-settings-form">
                                             Submit
                                         </button>
                                     </div>
                                 </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#project-settings-component-content" aria-expanded="false" aria-controls="project-settings-component-content">
+                            Components
+                            </button>
+                        </h2>
+                        <div id="project-settings-component-content" class="accordion-collapse collapse" data-bs-parent="#project-settings-accordion">
+                            <div class="accordion-body">
+                                {% include "project/project/project_settings_components_table.html" %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#project-settings-version-content" aria-expanded="false" aria-controls="project-settings-version-content">
+                            Versions
+                            </button>
+                        </h2>
+                        <div id="project-settings-version-content" class="accordion-collapse collapse" data-bs-parent="#project-settings-accordion">
+                            <div class="accordion-body">
+                                {% include "project/project/project_settings_versions_table.html" %}
                             </div>
                         </div>
                     </div>
@@ -154,7 +178,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#project-settings-modal">Close</button>
         </div>
     </div>
     <script>

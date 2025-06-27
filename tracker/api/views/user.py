@@ -34,5 +34,5 @@ class CoreUserViewSet(viewsets.ModelViewSet):
         # Managing users of an organization is a different view
         # Combine the user IDs and get distinct users
         user_ids = set(organization_users).union(set(project_users))
-        users = core_user_models.CoreUser.objects.filter(id__in=user_ids)
+        users = core_user_models.CoreUser.active_objects.filter(id__in=user_ids)
         return users.all()

@@ -33,11 +33,8 @@ def handle_post(request, logged_in_user, organization_id=None):
 
 @login_required
 def organization_settings(request, organization_id=None):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
-
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
+    
     if request.method == "POST":
         return handle_post(request, logged_in_user, organization_id)
 

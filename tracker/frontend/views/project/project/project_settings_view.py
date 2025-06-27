@@ -80,17 +80,21 @@ def project_settings(request, project_id=None):
     if project.label:
         project_dict['label'] = project.label.current.label
     form = project_form.ProjectDataForm(project_dict)
+    components = project.component_set.all()
+    versions = project.version_set.all()
     repositories = project.git_repositories.all()
     users = project.list_users()
 
     return render(
         request=request,
-        template_name="project/project/project_settings.html",
+        template_name="project/project/project_settings_modal.html",
         context={
             'logged_in_user': logged_in_user,
             'project': project,
             'project_id': project_id,
             'project_form': form,
+            'components': components,
+            'versions': versions,
             'git_repositories': repositories,
             'users': users,
             }

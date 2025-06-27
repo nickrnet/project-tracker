@@ -1,0 +1,64 @@
+{% load tz %}
+<script>
+    function loadTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    };
+</script>
+<div id="project-settings-components-table">
+    {% include "project/project/component_toast.html" %}
+    <div class="row">
+        <div class="col-2">
+        <button
+            hx-get="{% url 'project_settings_new_component' project_id %}"
+            hx-target="#project-settings-component-modal"
+            hx-swap="innerHTML"
+            data-bs-toggle="modal"
+            data-bs-target="#project-settings-component-modal"
+            class="btn primary"><i class="bi bi-plus-circle"></i></button>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-hover" id="project-components-table-data">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Label</th>
+                    <th scope="col">Active?</th>
+                    <th scope="col">Date Created</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for component in components %}
+            <tr
+                hx-get="{% url 'project_settings_component' component.id %}"
+                hx-target="#project-settings-component-modal"
+                hx-swap="innerHTML"
+                data-bs-toggle="modal"
+                data-bs-target="#project-settings-component-modal"
+                >
+                <th scope="row" class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ component.current.name|safe|upper }}">{{ component.current.name|safe|upper }}</th>
+                <td class="text-truncate" style="max-width: 155px;" {% if component.current.description %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.description|safe }}"{% endif %}>{% if component.current.description %}{{ component.current.description|safe }}{% endif %}</th>
+                <td class="text-truncate" style="max-width: 155px;" {% if component.current.label %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.label|safe }}"{% endif %}>{% if component.current.label %}{{ component.current.label|safe }}{% endif %}</td>
+                <td class="text-truncate" style="max-width: 155px;" {% if component.current.is_active %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.is_active|safe }}"{% endif %}>{% if component.current.is_active %}{{ component.current.is_active|safe }}{% endif %}</td>  {% comment %} TODO: Checkbox for this {% endcomment %}
+                <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ component.created_on|timezone:logged_in_user.current.timezone }}">{{ component.created_on|timezone:logged_in_user.current.timezone }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        new DataTable('#project-components-table-data', {
+            order: [[3, 'desc']],
+            language: {
+                emptyTable: 'No components available.',
+            },
+            drawCallback: function (settings) {
+                loadTooltips();
+            },
+        });
+    </script>
+</div>

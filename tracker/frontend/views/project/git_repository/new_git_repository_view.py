@@ -7,34 +7,34 @@ from core.models import user as core_user_models
 from project.models import git_repository as git_repository_models
 
 
+def handle_post(request, logged_in_user):
+    received_new_git_repository_data_form = new_git_repository_form.NewGitRepositoryForm(request.POST, request.FILES)
+
+    if received_new_git_repository_data_form.is_valid():
+        git_repository_data = git_repository_models.GitRepositoryData.objects.create(
+            created_by=logged_in_user,
+            name=received_new_git_repository_data_form.cleaned_data.get('name'),
+            description=received_new_git_repository_data_form.cleaned_data.get('description'),
+            url=received_new_git_repository_data_form.cleaned_data.get('url'),
+            )
+        git_repository = git_repository_models.GitRepository.objects.create(
+            created_by=logged_in_user,
+            current=git_repository_data
+            )
+        messages.success(request, ('Your git repository was successfully added!'))
+
+        return redirect("git_repository", git_repository_id=git_repository.id)
+    else:
+        messages.error(request, 'Error saving git repository.')
+
+        return redirect("new_git_repository")
+
 @login_required
 def new_git_repository(request):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     if request.method == "POST":
-        received_new_git_repository_data_form = new_git_repository_form.NewGitRepositoryForm(
-            request.POST, request.FILES)
-        if received_new_git_repository_data_form.is_valid():
-            git_repository_data = git_repository_models.GitRepositoryData(
-                created_by=logged_in_user,
-                name=received_new_git_repository_data_form.cleaned_data.get('name'),
-                description=received_new_git_repository_data_form.cleaned_data.get('description'),
-                url=received_new_git_repository_data_form.cleaned_data.get('url'),
-                )
-            git_repository_data.save()
-            git_repository = git_repository_models.GitRepository.objects.create(
-                created_by=logged_in_user,
-                current=git_repository_data
-                )
-            git_repository.save()
-            messages.success(request, ('Your git repository was successfully added!'))
-            return redirect("git_repository", git_repository_id=git_repository.id)
-        else:
-            messages.error(request, 'Invalid data received.')
-            return redirect("new_git_repository", new_git_repository_form=received_new_git_repository_data_form)
+        return handle_post(request, logged_in_user)
 
     git_repository_form = new_git_repository_form.NewGitRepositoryForm()
     repositories = logged_in_user.list_git_repositories()

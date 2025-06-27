@@ -142,8 +142,11 @@ class CoreUserManager(core_models.CoreModelManager):
 
             core_user_data = CoreUserData(
                 created_by_id=api_user.id,
+                name_prefix=request_data.get('name_prefix', ''),
                 first_name=request_data.get('first_name', ''),
+                middle_name=request_data.get('middle_name', ''),
                 last_name=request_data.get('last_name', ''),
+                name_suffix=request_data.get('name_suffix', ''),
                 email=request_data.get('email'),
                 secondary_email=request_data.get('secondary_email', ''),
                 home_phone=request_data.get('home_phone', ''),

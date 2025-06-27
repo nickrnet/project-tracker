@@ -48,18 +48,7 @@ def handle_post(request, project_id, logged_in_user):
         project.save()
 
         messages.success(request, ('Your project was successfully updated!'))
-
-        return render(
-            request=request,
-            template_name="project/project/project_pane.html",
-            context={
-                'logged_in_user': logged_in_user,
-                'project': project,
-                'project_id': project_id,
-                'git_repositories': project.git_repositories.all(),
-                'issues': project.issue_set.all(),
-                }
-            )
+        return redirect('project', project_id=project_id)
     else:
         messages.error(request, 'Error saving project.')
         return render(

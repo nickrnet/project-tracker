@@ -11,8 +11,7 @@ from frontend.forms.core.user import new_user_form
 def handle_post(request):
     new_user_data_form = new_user_form.NewUserForm(request.POST, request.FILES)
     if new_user_data_form.is_valid():
-        new_user = core_user_models.CoreUser.objects.create_core_user_from_web(
-            new_user_data_form.cleaned_data)
+        new_user = core_user_models.CoreUser.objects.create_core_user_from_web(new_user_data_form.cleaned_data.copy())
         messages.success(request, ('Your user was successfully added!'))
         return redirect("user", user_id=new_user.id)
     else:
@@ -22,11 +21,8 @@ def handle_post(request):
 
 @login_required
 def new_user(request):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
-
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
+    
     if request.method == "POST":
         return handle_post(request)
 

@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.forms.models import model_to_dict
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from core.models import user as core_user_models
 from project.models import issue as issue_models
@@ -9,10 +9,7 @@ from frontend.forms.project.issue import issue_form
 
 @login_required
 def issue(request, issue_id=None):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     issue = logged_in_user.list_issues().get(pk=issue_id)
     issue_copy = model_to_dict(issue)

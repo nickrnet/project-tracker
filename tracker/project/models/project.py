@@ -155,7 +155,7 @@ class Project(core_models.CoreModel):
         project_users = self.users.values_list('id', flat=True)
         # Combine the user IDs and get distinct users
         user_ids = set(organization_users).union(set(project_users))
-        return core_user_models.CoreUser.objects.filter(id__in=user_ids)
+        return core_user_models.CoreUser.active_objects.filter(id__in=user_ids)
 
     def list_issues(self):
         """
@@ -169,7 +169,7 @@ class Project(core_models.CoreModel):
         issue_ids = set()
         issue_datas = self.issuedata_set.values_list('issue', flat=True).filter(project=self)
         issue_ids.update(issue_datas)
-        return issue_models.Issue.objects.filter(id__in=issue_ids)
+        return issue_models.Issue.active_objects.filter(id__in=issue_ids)
 
     def __str__(self):
         potential_names = []

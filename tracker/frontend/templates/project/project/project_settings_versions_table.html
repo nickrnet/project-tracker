@@ -1,0 +1,66 @@
+{% load tz %}
+<script>
+    function loadTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    };
+</script>
+<div id="project-settings-versions-table">
+    {% include "project/project/version_toast.html" %}
+    <div class="row">
+        <div class="col-2">
+        <button
+            hx-get="{% url 'project_settings_new_version' project_id %}"
+            hx-target="#project-settings-version-modal"
+            hx-swap="innerHTML"
+            data-bs-toggle="modal"
+            data-bs-target="#project-settings-version-modal"
+            class="btn primary"><i class="bi bi-plus-circle"></i></button>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-hover" id="project-versions-table-data">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Label</th>
+                    <th scope="col">Release Date</th>
+                    <th scope="col">Active?</th>
+                    <th scope="col">Date Created</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for version in versions %}
+            <tr
+                hx-get="{% url 'project_settings_version' version.id %}"
+                hx-target="#project-settings-version-modal"
+                hx-swap="innerHTML"
+                data-bs-toggle="modal"
+                data-bs-target="#project-settings-version-modal"
+                >
+                <th scope="row" class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ version.current.name|safe|upper }}">{{ version.current.name|safe|upper }}</th>
+                <td class="text-truncate" style="max-width: 155px;" {% if version.current.description %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.description|safe }}"{% endif %}>{% if version.current.description %}{{ version.current.description|safe }}{% endif %}</th>
+                <td class="text-truncate" style="max-width: 155px;" {% if version.current.label %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.label|safe }}"{% endif %}>{% if version.current.label %}{{ version.current.label|safe }}{% endif %}</td>
+                <td class="text-truncate" style="max-width: 155px;" {% if version.current.release_date %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.release_date|safe }}"{% endif %}>{% if version.current.release_date %}{{ version.current.release_date|safe }}{% endif %}</td>
+                <td class="text-truncate" style="max-width: 155px;" {% if version.current.is_active %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.is_active|safe }}"{% endif %}>{% if version.current.is_active %}{{ version.current.is_active|safe }}{% endif %}</td>  {% comment %} TODO: Checkbox for this {% endcomment %}
+                <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ version.created_on|timezone:logged_in_user.current.timezone }}">{{ version.created_on|timezone:logged_in_user.current.timezone }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        new DataTable('#project-versions-table-data', {
+            order: [[3, 'desc']],
+            language: {
+                emptyTable: 'No versions available.',
+            },
+            drawCallback: function (settings) {
+                loadTooltips();
+            },
+        });
+    </script>
+</div>

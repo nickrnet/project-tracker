@@ -53,7 +53,7 @@ def git_repository(request, git_repository_id=None):
         form = project_form.ProjectDataForm(project_dict)
         return render(
             request=request,
-            template_name="project/project/project_settings.html",
+            template_name="project/project/project_settings_modal.html",
             context={
                 'logged_in_user': logged_in_user,
                 'project': project,

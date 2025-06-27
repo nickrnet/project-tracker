@@ -51,7 +51,7 @@ class IssueObjectManager(models.Manager):
             list: All built-in issue types.
         """
 
-        return issue_type_models.BuiltInIssueType.objects.all()
+        return issue_type_models.BuiltInIssueType.objects.all().order_by('-created_on')
 
     def list_built_in_priorities(self):
         """
@@ -61,7 +61,7 @@ class IssueObjectManager(models.Manager):
             list: All built-in issue priorities.
         """
 
-        return priority_models.BuiltInIssuePriority.objects.all()
+        return priority_models.BuiltInIssuePriority.objects.all().order_by('-created_on')
 
     def list_built_in_statuses(self):
         """
@@ -71,7 +71,7 @@ class IssueObjectManager(models.Manager):
             list: All built-in issue statuses.
         """
 
-        return status_models.BuiltInIssueStatus.objects.all()
+        return status_models.BuiltInIssueStatus.objects.all().order_by('-created_on')
 
     def list_built_in_severities(self):
         """
@@ -81,7 +81,7 @@ class IssueObjectManager(models.Manager):
             list: All built-in issue severities.
         """
 
-        return severity_models.BuiltInIssueSeverity.objects.all()
+        return severity_models.BuiltInIssueSeverity.objects.all().order_by('-created_on')
 
     def list_versions(self, project_id):
         """
@@ -94,7 +94,7 @@ class IssueObjectManager(models.Manager):
             list: All versions for a project.
         """
 
-        return version_models.Version.objects.filter(project_id=project_id)
+        return version_models.Version.objects.filter(project_id=project_id).order_by('-created_on')
 
     def list_components(self, project_id):
         """
@@ -107,12 +107,12 @@ class IssueObjectManager(models.Manager):
             list: All components for a project.
         """
 
-        return component_models.Component.objects.filter(project_id=project_id)
+        return component_models.Component.objects.filter(project_id=project_id).order_by('-created_on')
 
 
 class IssueActiveManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(deleted=None)
+        return super().get_queryset().filter(deleted=None).order_by('-created_on')
         
     def list_built_in_types(self):
         """
@@ -122,7 +122,7 @@ class IssueActiveManager(models.Manager):
             list: All built-in issue types.
         """
 
-        return issue_type_models.BuiltInIssueType.active_objects.all()
+        return issue_type_models.BuiltInIssueType.active_objects.all().order_by('-created_on')
 
     def list_built_in_priorities(self):
         """
@@ -132,7 +132,7 @@ class IssueActiveManager(models.Manager):
             list: All built-in issue priorities.
         """
 
-        return priority_models.BuiltInIssuePriority.active_objects.all()
+        return priority_models.BuiltInIssuePriority.active_objects.all().order_by('-created_on')
 
     def list_built_in_statuses(self):
         """
@@ -142,7 +142,7 @@ class IssueActiveManager(models.Manager):
             list: All built-in issue statuses.
         """
 
-        return status_models.BuiltInIssueStatus.active_objects.all()
+        return status_models.BuiltInIssueStatus.active_objects.all().order_by('-created_on')
 
     def list_built_in_severities(self):
         """
@@ -152,7 +152,7 @@ class IssueActiveManager(models.Manager):
             list: All built-in issue severities.
         """
 
-        return severity_models.BuiltInIssueSeverity.active_objects.all()
+        return severity_models.BuiltInIssueSeverity.active_objects.all().order_by('-created_on')
 
     def list_versions(self, project_id):
         """
@@ -165,7 +165,7 @@ class IssueActiveManager(models.Manager):
             list: All versions for a project.
         """
 
-        return version_models.Version.active_objects.filter(project_id=project_id)
+        return version_models.Version.active_objects.filter(project_id=project_id).order_by('-created_on')
 
     def list_components(self, project_id):
         """
@@ -178,7 +178,7 @@ class IssueActiveManager(models.Manager):
             list: All components for a project.
         """
 
-        return component_models.Component.active_objects.filter(project_id=project_id)
+        return component_models.Component.active_objects.filter(project_id=project_id).order_by('-created_on')
 
 
 
@@ -192,4 +192,5 @@ class Issue(core_models.Sequenced):
     current = models.ForeignKey(IssueData, on_delete=models.CASCADE)
     project = models.ForeignKey(project_models.Project, on_delete=models.CASCADE)
 
+    # TODO: Links to other issues
     # TODO: Make a create override function to validate the reporter and created_by are project members

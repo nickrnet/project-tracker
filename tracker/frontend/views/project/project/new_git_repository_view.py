@@ -30,10 +30,7 @@ def update_project_repositories(project, git_repository):
 
 @login_required
 def new_git_repository(request, project_id=None):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     if request.method == "POST":
         received_new_git_repository_form = new_git_repository_form.NewGitRepositoryForm(

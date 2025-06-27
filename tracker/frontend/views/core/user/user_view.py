@@ -15,8 +15,11 @@ def handle_post(request, logged_in_user, user_id):
         user = core_user_models.CoreUser.active_objects.get(pk=user_id)
         user_data = core_user_models.CoreUserData(
             created_by=logged_in_user,
+            name_prefix=user_data_form.cleaned_data.get('name_prefix', ''),
             first_name=user_data_form.cleaned_data.get('first_name', ''),
+            middle_name=user_data_form.cleaned_data.get('middle_name', ''),
             last_name=user_data_form.cleaned_data.get('last_name', ''),
+            name_suffix=user_data_form.cleaned_data.get('name_suffix', ''),
             email=user_data_form.cleaned_data.get('email'),
             secondary_email=user_data_form.cleaned_data.get('secondary_email', ''),
             home_phone=user_data_form.cleaned_data.get('home_phone', ''),
@@ -31,7 +34,6 @@ def handle_post(request, logged_in_user, user_id):
             timezone=user_data_form.cleaned_data.get('timezone', ''),
             )
         user_data.save()
-        user.current.hard_delete(logged_in_user.id)
         user.current = user_data
         user.save()
         messages.success(request, ("Your user was successfully updated!"))
@@ -43,12 +45,9 @@ def handle_post(request, logged_in_user, user_id):
 
 @login_required
 def user(request, user_id=None):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
-
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     user = core_user_models.CoreUser.active_objects.get(pk=user_id)
+
     if request.method == "POST":
         return handle_post(request, logged_in_user, user_id)
 
@@ -61,6 +60,7 @@ def user(request, user_id=None):
             if not line.startswith('#')
             )
         country_names = sorted(country_names.items(), key=lambda x: x[1])
+        
     return render(
         request=request,
         template_name="core/user/core_user_template.html",

@@ -20,7 +20,7 @@ def get_project(logged_in_user, project_id):
         try:
             return logged_in_user.list_projects().get(label__current__label=project_id)
         except project_models.Project.DoesNotExist:
-            project_uuid = None
+            return None
 
 
 def update_project_repositories(logged_in_user, project, git_repository):
@@ -60,7 +60,7 @@ def handle_post(request, logged_in_user, project_id):
     repositories = project.git_repositories.all()
     return render(
         request=request,
-        template_name="project/project/project_settings.html",
+        template_name="project/project/project_settings_modal.html",
         context={
             'logged_in_user': logged_in_user,
             'project': project,

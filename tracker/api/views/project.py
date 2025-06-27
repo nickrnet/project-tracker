@@ -171,7 +171,7 @@ class GitRepositoryViewSet(viewsets.ModelViewSet):
         project_repositories = logged_in_user.list_projects().values_list('git_repositories', flat=True)
         # Combine the repository IDs and get distinct repositories
         repository_ids = set(organization_repositories).union(set(project_repositories))
-        repositories = GitRepository.objects.filter(id__in=repository_ids)
+        repositories = GitRepository.active_objects.filter(id__in=repository_ids)
         return repositories.all()
 
 

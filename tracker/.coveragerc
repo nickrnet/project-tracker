@@ -4,7 +4,7 @@ source =
     api/views
     core/models
     project/models
-    ; frontend/views
+    frontend/views
 branch = true
 
 [report]
@@ -16,7 +16,7 @@ include =
     api/views/*
     core/models/*
     project/models/*
-    ; frontend/views/*
+    frontend/views/*
 omit =
     */__init__.py
     api/*.py
