@@ -11,9 +11,9 @@ from project.models.project import Project, ProjectData, ProjectLabel, ProjectLa
 
 from frontend.forms.project.git_repository.new_git_repository_form import NewGitRepositoryForm
 
-# Testing
-import pytest
-pytestmark = pytest.mark.rw
+# # Testing
+# import pytest
+# pytestmark = pytest.mark.rw
 
 
 class TestProjectSettingsNewGitRepositoryView(TestCase):
@@ -48,3 +48,10 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
         response = self.http_client.get(reverse('project_settings_component'))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/login?next=/project-settings/component/')
+
+    #TODO - current failure; find out where active components are and get id(s) to pass in as kwargs
+    def test_project_settings_component_view_get(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('project_settings_component'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/project/project_settings_component_modal.html')
