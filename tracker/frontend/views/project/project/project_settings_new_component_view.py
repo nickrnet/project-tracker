@@ -25,9 +25,10 @@ def get_project(logged_in_user, project_id):
 
 def handle_post(request, logged_in_user, project_id):
     received_new_component_form = new_component_form.NewComponentDataForm(request.POST, request.FILES)
-    project = get_project(logged_in_user, project_id)
 
-    if project:  # ALWAYS MAKE SURE USER CAN SEE THE PROJECT FIRST
+    # Check if user can access project
+    try:
+        project = get_project(logged_in_user, project_id)
         if received_new_component_form.is_valid():
             component_data = component_models.ComponentData.objects.create(
                 created_by=logged_in_user,
@@ -44,19 +45,22 @@ def handle_post(request, logged_in_user, project_id):
 
             messages.success(request, ('Your component was successfully added!'))
         else:
-            project = get_project(logged_in_user, project_id)
             messages.error(request, 'Invalid data received. Please try again.')
-    else:
-        messages.error(request, 'Permission denied.')
 
-    project_dict = model_to_dict(project.current)
-    if project.label.current.label:
-        project_dict['label'] = project.label.current.label
-    form = project_form.ProjectDataForm(project_dict)
-    repositories = project.git_repositories.all()
-    components = project.component_set.all()
-    versions = project.version_set.all()
-    
+    except project_models.Project.DoesNotExist:
+        messages.error(request, 'Permission denied.')
+        return redirect("projects")
+
+    # Get current project settings to display
+    if project:
+        repositories = project.git_repositories.all()
+        components = project.component_set.all()
+        versions = project.version_set.all()
+    else:
+        repositories = []
+        components = []
+        versions = []
+        
     return render(
         request=request,
         template_name="project/project/project_settings_modal.html",
@@ -64,7 +68,6 @@ def handle_post(request, logged_in_user, project_id):
             'logged_in_user': logged_in_user,
             'project': project,
             'project_id': project_id,
-            'project_form': form,
             'git_repositories': repositories,
             'components': components,
             'versions': versions,
@@ -74,10 +77,7 @@ def handle_post(request, logged_in_user, project_id):
 
 @login_required
 def new_component(request, project_id=None):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     if request.method == "POST":
         return handle_post(request, logged_in_user, project_id)
