@@ -267,7 +267,7 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         """
 
         return self.organizationmembers_set.all()
-    
+
     def list_users(self):
         """
         Lists the users a user can see in the system, whether from other projects or organizations.
@@ -286,7 +286,6 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
 
         # Always query active_objects to exclude deleted items
         return CoreUser.active_objects.filter(id__in=users_ids_set)
-
 
     def __str__(self):
         potential_names = []

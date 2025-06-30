@@ -22,6 +22,7 @@ def get_project(logged_in_user, project_id):
         except project_models.Project.DoesNotExist:
             return None
 
+
 def handle_post(request, logged_in_user, project_id):
     received_new_git_repository_form = new_git_repository_form.NewGitRepositoryForm(request.POST, request.FILES)
 
@@ -39,7 +40,7 @@ def handle_post(request, logged_in_user, project_id):
             created_by=logged_in_user,
             current=git_repository_data
             )
-        
+
         project.git_repositories.add(git_repository)
 
         messages.success(request, ('Your git repository was successfully added!'))
@@ -49,7 +50,7 @@ def handle_post(request, logged_in_user, project_id):
 
     if not project:
         return redirect('projects')
-    
+
     project_dict = model_to_dict(project.current)
     if project.label:
         project_dict['label'] = project.label.current.label
@@ -66,6 +67,7 @@ def handle_post(request, logged_in_user, project_id):
             'git_repositories': repositories,
             },
         )
+
 
 @login_required
 def new_git_repository(request, project_id):

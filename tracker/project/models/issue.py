@@ -42,7 +42,7 @@ class IssueObjectManager(models.Manager):
             return self.filter(current__project_id=project_id).latest('sequence').sequence + 1
         except self.model.DoesNotExist:
             return 1
-        
+
     def list_built_in_types(self):
         """
         A helper method to get all built-in issue types, useful in views.
@@ -113,7 +113,7 @@ class IssueObjectManager(models.Manager):
 class IssueActiveManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(deleted=None).order_by('-created_on')
-        
+
     def list_built_in_types(self):
         """
         A helper method to get all built-in issue types, useful in views.
@@ -179,7 +179,6 @@ class IssueActiveManager(models.Manager):
         """
 
         return component_models.Component.active_objects.filter(project_id=project_id).order_by('-created_on')
-
 
 
 class Issue(core_models.Sequenced):

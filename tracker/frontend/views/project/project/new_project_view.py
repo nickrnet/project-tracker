@@ -1,6 +1,5 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db import transaction
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -11,7 +10,7 @@ from project.models import project as project_models
 
 def handle_post(request, logged_in_user):
     received_new_project_form = new_project_form.NewProjectForm(request.POST, request.FILES)
-    
+
     if received_new_project_form.is_valid():
         new_project_data = received_new_project_form.cleaned_data.copy()
 
@@ -75,7 +74,7 @@ def handle_post(request, logged_in_user):
             }
         )
 
-@transaction.atomic
+
 @login_required
 def new_project(request):
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)

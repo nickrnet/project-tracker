@@ -20,7 +20,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
 
         self.system_user = CoreUser.objects.get_or_create_system_user()
         self.user1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
-        
+
         self.git_repository1_data = GitRepositoryData.objects.create(
             created_by=self.user1,
             name="Initial Repo 1",
@@ -34,7 +34,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
             created_by=self.user1,
             label='project01',
             description='Project 01 Label'
-        )
+            )
         self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data)
 
         self.project1_data = ProjectData.objects.create(
@@ -44,7 +44,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label = self.project1_label)
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_label)
         self.project1.users.add(self.user1)
         self.project1.git_repositories.add(self.git_repository1)
         self.project1.save()
@@ -68,7 +68,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
             'name': 'Git Repository 1 Modified',
             'description': 'Initial Repo 1 Description Modified',
             'url': 'https://github.com/nickrnet/project-tracker'
-        }
+            }
         git_repository_form = GitRepositoryDataForm(git_repository_form_data)
         git_repository_form.is_valid()
         form_data = urlencode(git_repository_form.data)
@@ -92,7 +92,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
             'name': 'Git Repository 1 Modified',
             'description': 'Initial Repo 1 Description Modified',
             'url': 'https://github.com/nickrnet/project-tracker'
-        }
+            }
         git_repository_form = GitRepositoryDataForm(git_repository_form_data)
         git_repository_form.is_valid()
         form_data = urlencode(git_repository_form.data)

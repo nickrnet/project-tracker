@@ -80,7 +80,7 @@ class TestNewProjectView(TestCase):
             'end_date': end_date,
             'git_repository': str(self.git_repository1.id),
             # 'organization': str(self.organization1.id),  # TODO: BUG: This is not handled in the view
-        }
+            }
         new_project_form = NewProjectForm(new_project_form_data)
         new_project_form.is_valid()
         form_data = urlencode(new_project_form.data)
@@ -115,7 +115,7 @@ class TestNewProjectView(TestCase):
             # 'start_date': start_date,
             # 'end_date': end_date,
             # 'organization': str(self.organization1.id),  # TODO: BUG: This is not handled in the view
-        }
+            }
         new_project_form = NewProjectForm(new_project_form_data)
         new_project_form.is_valid()
         form_data = urlencode(new_project_form.data)
@@ -130,8 +130,8 @@ class TestNewProjectView(TestCase):
         self.assertEqual(project.current.description, 'Test Project Description 1')
         self.assertEqual(project.current.is_active, True)
         self.assertEqual(project.current.is_private, False)
-        # self.assertEqual(project.current.start_date, start_date)
-        # self.assertEqual(project.current.end_date, end_date)
+        self.assertEqual(project.current.start_date, datetime.strptime(start_date, '%m/%d/%Y').date())
+        self.assertEqual(project.current.end_date, datetime.strptime(end_date, '%m/%d/%Y').date())
         self.assertEqual(project.label.current.label, 'test-project-1')
         self.assertNotIn(self.git_repository1, project.git_repositories.all())
         self.assertIn(self.user1, project.users.all())
@@ -149,7 +149,7 @@ class TestNewProjectView(TestCase):
             # 'start_date': start_date,
             # 'end_date': end_date,
             # 'organization': str(self.organization1.id),  # TODO: BUG: This is not handled in the view
-        }
+            }
         new_project_form = NewProjectForm(new_project_form_data)
         new_project_form.is_valid()
         form_data = urlencode(new_project_form.data)
@@ -164,8 +164,8 @@ class TestNewProjectView(TestCase):
         self.assertEqual(project.current.description, 'Test Project Description 1')
         self.assertEqual(project.current.is_active, True)
         self.assertEqual(project.current.is_private, False)
-        # self.assertEqual(project.current.start_date, start_date)
-        # self.assertEqual(project.current.end_date, end_date)
+        self.assertEqual(project.current.start_date, datetime.strptime(start_date, '%m/%d/%Y').date())
+        self.assertEqual(project.current.end_date, datetime.strptime(end_date, '%m/%d/%Y').date())
         self.assertIsNone(project.label)
         self.assertNotIn(self.git_repository1, project.git_repositories.all())
         self.assertIn(self.user1, project.users.all())

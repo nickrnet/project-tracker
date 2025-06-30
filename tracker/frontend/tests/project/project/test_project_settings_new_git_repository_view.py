@@ -24,7 +24,7 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
             created_by=self.user1,
             label='project01',
             description='Project 01 Label'
-        )
+            )
         self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data)
 
         self.project1_data = ProjectData.objects.create(
@@ -34,7 +34,7 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label = self.project1_label)
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_label)
         self.project1.users.add(self.user1)
         self.project1.save()
 
@@ -58,7 +58,7 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
             'description': 'Initial Repo 1 Description',
             'url': 'https://github.com/nickrnet/project-tracker',
             'project_id': str(self.project1.id)
-        }
+            }
         git_repository_form = NewGitRepositoryForm(git_repository_form_data)
         git_repository_form.is_valid()
         form_data = urlencode(git_repository_form.data)
@@ -84,7 +84,7 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
             'description': 'Initial Repo 1 Description Modified',
             'url': 'https://github.com/nickrnet/project-tracker',
             'project_id': str(self.project1.id)
-        }
+            }
         git_repository_form = NewGitRepositoryForm(git_repository_form_data)
         git_repository_form.is_valid()
         form_data = urlencode(git_repository_form.data)

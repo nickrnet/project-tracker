@@ -55,7 +55,7 @@ class TestNewOrganizationView(TestCase):
         # Get the organization we just created for checking
         organization = Organization.objects.get(current__responsible_party_email='organization1@project-tracker.dev')
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/organization/'+str(organization.id)+'/')
+        self.assertRedirects(response, '/organization/' + str(organization.id) + '/')
         # Make sure the whole form came through to the database
         self.assertEqual(organization.current.name, 'Organization 1')
         self.assertEqual(organization.current.description, 'Organization 1 Description')
@@ -95,7 +95,7 @@ class TestNewOrganizationView(TestCase):
         # Get the organization we just created for checking
         organization = Organization.objects.get(current__responsible_party_email='organization1@project-tracker.dev')
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/organization/'+str(organization.id)+'/')
+        self.assertRedirects(response, '/organization/' + str(organization.id) + '/')
         # Make sure the whole form came through to the database
         self.assertEqual(organization.current.name, 'Organization 1')
         self.assertEqual(organization.current.description, 'Organization 1 Description')

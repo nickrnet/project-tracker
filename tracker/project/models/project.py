@@ -75,7 +75,7 @@ class Project(core_models.CoreModel):
             self.current = new_project_data
             self.save()
         return self
-    
+
     def update_git_repositories(self, git_repositories: list) -> 'Project':
         """
         A helper method to update the git repositories that may use this project.
@@ -90,7 +90,7 @@ class Project(core_models.CoreModel):
         self.save()
 
         return self
-    
+
     def update_users(self, users: list) -> 'Project':
         """
         A helper method to update the users that have access to this project.
@@ -116,7 +116,7 @@ class Project(core_models.CoreModel):
         """
 
         return "-".join(self.current.name.split()).lower()
-    
+
     def update_project_label(self, user_id: uuid.UUID, new_project_label: ProjectLabel):
         """
         A helper method to update a project label.
@@ -128,7 +128,7 @@ class Project(core_models.CoreModel):
         Returns:
             project (Project): The updated project.
         """
-        
+
         new_project_label_data = ProjectLabelData(created_by_id=user_id, **new_project_label.get('current'))
         new_project_label_data.save()
         new_label = ProjectLabel(created_by_id=user_id, current=new_project_label_data)
@@ -175,6 +175,6 @@ class Project(core_models.CoreModel):
         potential_names = []
         if self.current.name:
             potential_names.append(self.current.name)
-        if self.current.label:
-            potential_names.append(f"- ({self.current.label})")
+        if self.label:
+            potential_names.append(f"- ({self.label})")
         return self.current.name
