@@ -26,10 +26,10 @@ def get_project(logged_in_user, project_id):
 def handle_post(request, logged_in_user, component_id):
     received_component_form = component_form.ComponentDataForm(request.POST, request.FILES)
     component = component_models.Component.objects.get(pk=component_id)
-    project = component.project
-    project = get_project(logged_in_user, project.id)
-
-    if project:  # ALWAYS MAKE SURE USER CAN SEE THE PROJECT FIRST
+    
+    # Check if user can access project
+    try:
+        project = get_project(logged_in_user, component.project.id)
         if received_component_form.is_valid():
             component_data = component_models.ComponentData.objects.create(
                 created_by=logged_in_user,
@@ -40,20 +40,23 @@ def handle_post(request, logged_in_user, component_id):
                 )
             component.current = component_data
             component.save()
-
+            
             messages.success(request, ('Your component was successfully updated!'))
         else:
             messages.error(request, 'Invalid data received. Please try again.')
-    else:
-        messages.error(request, 'Permission denied.')
 
+    except project_models.Project.DoesNotExist:
+        messages.error(request, 'Permission denied.')
+        return redirect("projects")
+
+    # Get current project settings to display
     project_dict = model_to_dict(project.current)
-    if project.label.current.label:
-        project_dict['label'] = project.label.current.label
+    project_dict['label'] = project.label.current.label
     form = project_form.ProjectDataForm(project_dict)
     repositories = project.git_repositories.all()
     components = project.component_set.all()
     versions = project.version_set.all()
+    
     return render(
         request=request,
         template_name="project/project/project_settings_modal.html",

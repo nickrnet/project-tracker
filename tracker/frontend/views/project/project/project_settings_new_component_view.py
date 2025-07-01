@@ -19,7 +19,7 @@ def get_project(logged_in_user, project_id):
     except ValueError:
         try:
             return logged_in_user.list_projects().get(label__current__label=project_id)
-        except project_models.Project.DoesNotExist:
+        except:
             return None
 
 
@@ -52,14 +52,9 @@ def handle_post(request, logged_in_user, project_id):
         return redirect("projects")
 
     # Get current project settings to display
-    if project:
-        repositories = project.git_repositories.all()
-        components = project.component_set.all()
-        versions = project.version_set.all()
-    else:
-        repositories = []
-        components = []
-        versions = []
+    repositories = project.git_repositories.all()
+    components = project.component_set.all()
+    versions = project.version_set.all()
         
     return render(
         request=request,
