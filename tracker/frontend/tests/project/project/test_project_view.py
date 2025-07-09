@@ -1,16 +1,11 @@
-from datetime import datetime
-
 from django.contrib.messages import get_messages
 from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.http import urlencode
 
 from core.models.user import CoreUser
 from project.models.project import Project, ProjectData, ProjectLabel, ProjectLabelData
-
-from frontend.forms.project.project.project_form import ProjectDataForm
 
 
 class TestProjectView(TestCase):
@@ -55,11 +50,9 @@ class TestProjectView(TestCase):
 
     def test_project_view_get_with_bad_project_label(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('project', kwargs={'project_id': 'wakarusa'}))
+        response = self.http_client.get(reverse('project', kwargs={'project_id': 'awesome-project'}))
         self.assertRedirects(response, reverse('projects'))
         messages = list(get_messages(response.wsgi_request))
-        # Make sure the form did not update the database
-        self.assertEqual(ProjectData.objects.count(), 1)
         self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
 
     def test_project_view_get_with_bad_project_id(self):

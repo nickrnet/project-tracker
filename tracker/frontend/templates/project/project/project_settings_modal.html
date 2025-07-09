@@ -36,7 +36,7 @@
                             <div class="accordion-body">
                                 <form
                                     id="project-settings-form"
-                                    hx-post="{% url 'project' project_id %}"
+                                    hx-post="{% url 'project_settings' project_id %}"
                                     hx-target="#project-settings-modal"
                                     hx-trigger="submit">
                                     {% csrf_token %}
