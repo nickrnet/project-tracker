@@ -1,14 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from core.models import user as core_user_models
 
 
 @login_required
 def projects(request):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     projects = logged_in_user.list_projects()
 

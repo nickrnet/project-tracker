@@ -1,54 +1,41 @@
-import uuid
-
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 
+from frontend.util import project as project_utils
 from frontend.forms.project.version import new_version_form as new_version_form
 from frontend.forms.project.project import project_form
 from core.models import user as core_user_models
 from project.models import version as version_models
-from project.models import project as project_models
-
-
-def get_project(logged_in_user, project_id):
-    try:
-        project_uuid = uuid.UUID(str(project_id))
-        return logged_in_user.list_projects().get(id=project_uuid)
-    except ValueError:
-        try:
-            return logged_in_user.list_projects().get(label__current__label=project_id)
-        except:
-            raise project_models.Project.DoesNotExist
 
 
 def handle_post(request, logged_in_user, project_id):
     received_new_version_form = new_version_form.NewVersionDataForm(request.POST, request.FILES)
+    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
 
-    try:  # ALWAYS MAKE SURE USER CAN SEE THE PROJECT FIRST
-        project = get_project(logged_in_user, project_id)
-    except project_models.Project.DoesNotExist:
-        messages.error(request, 'Permission denied.')
+    # Check if user can access project
+    if project is None:
+        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
         return redirect("projects")
+
+    if received_new_version_form.is_valid():
+        version_data = version_models.VersionData.objects.create(
+            created_by=logged_in_user,
+            name=received_new_version_form.cleaned_data.get('name', ''),
+            description=received_new_version_form.cleaned_data.get('description', ''),
+            label=received_new_version_form.cleaned_data.get('label', ''),
+            release_date=received_new_version_form.cleaned_data.get('release_date', ''),
+            is_active=received_new_version_form.cleaned_data.get('is_active', True)
+            )
+        version_models.Version.objects.create(
+            created_by=logged_in_user,
+            current=version_data,
+            project=project
+            )
+        messages.success(request, ('Your version was successfully added!'))
     else:
-        if received_new_version_form.is_valid():
-            version_data = version_models.VersionData.objects.create(
-                created_by=logged_in_user,
-                name=received_new_version_form.cleaned_data.get('name', ''),
-                description=received_new_version_form.cleaned_data.get('description', ''),
-                label=received_new_version_form.cleaned_data.get('label', ''),
-                release_date=received_new_version_form.cleaned_data.get('release_date', ''),
-                is_active=received_new_version_form.cleaned_data.get('is_active', True)
-                )
-            version_models.Version.objects.create(
-                created_by=logged_in_user,
-                current=version_data,
-                project=project
-                )
-            messages.success(request, ('Your version was successfully added!'))
-        else:
-            messages.error(request, 'Invalid data received. Please try again.')
+        messages.error(request, 'Invalid data received. Please try again.')
 
     project_dict = model_to_dict(project.current)
     form = project_form.ProjectDataForm(project_dict)

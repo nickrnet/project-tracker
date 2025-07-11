@@ -1,33 +1,20 @@
-import uuid
-
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 
+from frontend.util import project as project_utils
 from frontend.forms.project.version import version_form
 from frontend.forms.project.project import project_form
 from core.models import user as core_user_models
 from project.models import version as version_models
-from project.models import project as project_models
-
-
-def get_project(logged_in_user, project_id):
-    try:
-        project_uuid = uuid.UUID(str(project_id))
-        return logged_in_user.list_projects().get(id=project_uuid)
-    except ValueError:
-        try:
-            return logged_in_user.list_projects().get(label__current__label=project_id)
-        except project_models.Project.DoesNotExist:
-            return None
 
 
 def handle_post(request, logged_in_user, version_id):
     received_version_form = version_form.VersionDataForm(request.POST, request.FILES)
     version = version_models.Version.objects.get(pk=version_id)
     project = version.project
-    project = get_project(logged_in_user, project.id)
+    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project.id)
 
     if received_version_form.is_valid():
         if project:
@@ -78,7 +65,7 @@ def version(request, version_id=None):
 
     if request.method == "POST":
         return handle_post(request, logged_in_user, version_id)
-    
+
     version = version_models.Version.objects.get(pk=version_id)
     version_data_dict = model_to_dict(version.current)
     version_form_data = version_form.VersionDataForm(version_data_dict)

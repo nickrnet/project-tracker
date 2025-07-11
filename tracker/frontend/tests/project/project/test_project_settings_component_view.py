@@ -12,6 +12,7 @@ from project.models.component import Component, ComponentData
 
 from frontend.forms.project.component.component_form import ComponentDataForm
 
+
 class TestProjectSettingsComponentView(TestCase):
     def setUp(self):
         """
@@ -26,7 +27,7 @@ class TestProjectSettingsComponentView(TestCase):
             created_by=self.user1,
             label='project01',
             description='Project 01 Label'
-        )
+            )
         self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data)
 
         self.project1_data = ProjectData.objects.create(
@@ -36,7 +37,7 @@ class TestProjectSettingsComponentView(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label = self.project1_label)
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_label)
         self.project1.users.add(self.user1)
         self.project1.save()
 
@@ -47,12 +48,12 @@ class TestProjectSettingsComponentView(TestCase):
             description="Description of Component 1",
             label="Component 1 Label",
             is_active=True
-        )
+            )
         self.component1 = Component.objects.create(
             created_by=self.user1,
-            current=self.component1_data, 
+            current=self.component1_data,
             project=self.project1
-        )
+            )
 
         # TODO - Delete project2 if reworking get_project() method, this is only used in test_project_settings_component_view_post_project_id_is_label()
         # Also if deleted, adjust assertions to 1 component in component_models.Component.objects
@@ -62,7 +63,7 @@ class TestProjectSettingsComponentView(TestCase):
             created_by=self.user2,
             label='project02',
             description='Project 02 Label'
-        )
+            )
         self.project2_label = ProjectLabel.objects.create(created_by=self.user2, current=self.project2_label_data)
 
         self.project2_data = ProjectData.objects.create(
@@ -72,7 +73,7 @@ class TestProjectSettingsComponentView(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data, label = self.project2_label)
+        self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data, label=self.project2_label)
         self.project2.users.add(self.user2)
         self.project2.save()
 
@@ -83,12 +84,12 @@ class TestProjectSettingsComponentView(TestCase):
             description="Description of Component 2",
             label="Component 2 Label",
             is_active=True
-        )
+            )
         self.component2 = Component.objects.create(
             created_by=self.user2,
-            current=self.component2_data, 
+            current=self.component2_data,
             project=self.project2
-        )
+            )
 
         # Create Client
         self.http_client = Client()
@@ -100,26 +101,26 @@ class TestProjectSettingsComponentView(TestCase):
 
     def test_project_settings_component_view_get(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('project_settings_component', kwargs={'component_id':self.component1.id}))
+        response = self.http_client.get(reverse('project_settings_component', kwargs={'component_id': self.component1.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_component_modal.html')
-    
+
     # TODO - This test doesn't dive into lines 20-23 of the view as intended... look into UUID corruption or rework get_project() method
     def test_project_settings_component_view_post_project_id_is_label(self):
         # Make Project with improper UUID
         self.project2.id = "1234-asdf"
         url_encoding = 'application/x-www-form-urlencoded'
         component_form_data = {
-            'name' : 'Component 2',
-            'description' : 'Description of Component 2',
-            'label' : 'Component 2 Label',
-            'is_active' : True
-        }
+            'name': 'Component 2',
+            'description': 'Description of Component 2',
+            'label': 'Component 2 Label',
+            'is_active': True
+            }
         component_form = ComponentDataForm(component_form_data)
         component_form.is_valid()
         form_data = urlencode(component_form.data)
         self.http_client.force_login(user=self.user2.user)
-        response = self.http_client.post(reverse('project_settings_component', kwargs={'component_id':self.component2.id}), form_data, url_encoding)
+        response = self.http_client.post(reverse('project_settings_component', kwargs={'component_id': self.component2.id}), form_data, url_encoding)
         component = component_models.Component.objects.last()
         messages = list(get_messages(response.wsgi_request))
         # Make sure the whole form came through to the database
@@ -132,16 +133,16 @@ class TestProjectSettingsComponentView(TestCase):
     def test_project_settings_component_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
         component_form_data = {
-            'name' : 'Component 1',
-            'description' : 'Description of Component 1',
-            'label' : 'Component 1 Label',
-            'is_active' : True
-        }
+            'name': 'Component 1',
+            'description': 'Description of Component 1',
+            'label': 'Component 1 Label',
+            'is_active': True
+            }
         component_form = ComponentDataForm(component_form_data)
         component_form.is_valid()
         form_data = urlencode(component_form.data)
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('project_settings_component', kwargs={'component_id':self.component1.id}), form_data, url_encoding)
+        response = self.http_client.post(reverse('project_settings_component', kwargs={'component_id': self.component1.id}), form_data, url_encoding)
         component = component_models.Component.objects.first()
         messages = list(get_messages(response.wsgi_request))
         # Make sure the whole form came through to the database
@@ -155,7 +156,7 @@ class TestProjectSettingsComponentView(TestCase):
         url_encoding = 'application/x-www-form-urlencoded'
         form_data = 'foo=1'
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('project_settings_component', kwargs={'component_id':self.component1.id}), form_data, url_encoding)
+        response = self.http_client.post(reverse('project_settings_component', kwargs={'component_id': self.component1.id}), form_data, url_encoding)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "project/project/project_settings_modal.html")
         messages = list(get_messages(response.wsgi_request))
@@ -166,18 +167,18 @@ class TestProjectSettingsComponentView(TestCase):
     def test_project_settings_component_view_post_user_no_permission(self):
         url_encoding = 'application/x-www-form-urlencoded'
         component_form_data = {
-            'name' : 'Component 1',
-            'description' : 'Description of Component 1',
-            'label' : 'Component 1 Label',
-            'is_active' : True
-        }
+            'name': 'Component 1',
+            'description': 'Description of Component 1',
+            'label': 'Component 1 Label',
+            'is_active': True
+            }
         component_form = ComponentDataForm(component_form_data)
         component_form.is_valid()
         form_data = urlencode(component_form.data)
         self.http_client.force_login(user=self.user2.user)
-        response = self.http_client.post(reverse('project_settings_component', kwargs={'component_id':self.component1.id}), form_data, url_encoding)
+        response = self.http_client.post(reverse('project_settings_component', kwargs={'component_id': self.component1.id}), form_data, url_encoding)
         messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, '/projects')
         # Make sure the form did not update the database
         self.assertEqual(component_models.Component.objects.count(), 2)
-        self.assertIn('Permission denied.', str(messages))
+        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))

@@ -14,6 +14,7 @@ def handle_post(request, logged_in_user):
     if received_new_project_form.is_valid():
         new_project_data = received_new_project_form.cleaned_data.copy()
 
+        # TODO: This git repo stuff feels sus, check later
         new_project_git_repository = new_project_data.pop("git_repository", None)
         if new_project_git_repository:
             git_repositories = logged_in_user.list_git_repositories().filter(id__in=new_project_git_repository)

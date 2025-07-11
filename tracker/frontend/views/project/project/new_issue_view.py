@@ -1,14 +1,11 @@
-import uuid
-
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.urls import reverse
 
+from frontend.util import project as project_utils
 from frontend.forms.project.issue import new_issue_form
 from core.models import user as core_user_models
 from project.models import issue as issue_models
-from project.models import project as project_models
 
 
 def handle_post(request, logged_in_user, project):
@@ -50,19 +47,15 @@ def handle_post(request, logged_in_user, project):
             },
         )
 
+
 @login_required
 def new_issue(request, project_id=None):
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
-    try:
-        project_uuid = uuid.UUID(str(project_id))
-        project = logged_in_user.list_projects().get(id=project_uuid)
-    except ValueError:
-        try:
-            project = logged_in_user.list_projects().get(label__current__label=project_id)
-        except project_models.Project.DoesNotExist:
-            messages.error(request, 'Choose a project.')
-            return redirect(reverse('projects'))
+    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
+    if project is None:
+        messages.error(request, 'Choose a project.')
+        return redirect("projects")
 
     if request.method == "POST":
         return handle_post(request, logged_in_user, project)

@@ -1,26 +1,13 @@
-import uuid
-
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 
+from frontend.util import project as project_utils
 from frontend.forms.project.git_repository import new_git_repository_form as new_git_repository_form
 from frontend.forms.project.project import project_form
 from core.models import user as core_user_models
 from project.models import git_repository as git_repository_models
-from project.models import project as project_models
-
-
-def get_project(logged_in_user, project_id):
-    try:
-        project_uuid = uuid.UUID(str(project_id))
-        return logged_in_user.list_projects().get(id=project_uuid)
-    except ValueError:
-        try:
-            return logged_in_user.list_projects().get(label__current__label=project_id)
-        except project_models.Project.DoesNotExist:
-            return None
 
 
 def handle_post(request, logged_in_user, project_id):
@@ -28,7 +15,7 @@ def handle_post(request, logged_in_user, project_id):
 
     if received_new_git_repository_form.is_valid():
         project_id = received_new_git_repository_form.cleaned_data.get('project_id')
-        project = get_project(logged_in_user, project_id)
+        project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
 
         git_repository_data = git_repository_models.GitRepositoryData.objects.create(
             created_by=logged_in_user,
@@ -45,7 +32,7 @@ def handle_post(request, logged_in_user, project_id):
 
         messages.success(request, ('Your git repository was successfully added!'))
     else:
-        project = get_project(logged_in_user, project_id)
+        project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         messages.error(request, 'Error saving git repository.')
 
     if not project:

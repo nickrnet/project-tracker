@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.forms.models import model_to_dict
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from core.models import user as core_user_models
 from frontend.forms.project.git_repository import git_repository_form as git_repository_form
@@ -18,6 +18,7 @@ def validate_url(thing_to_validate: str) -> bool:
         return True
     except ValidationError:
         return False
+
 
 def handle_post(request, logged_in_user, git_repository):
     received_git_repository_form = git_repository_form.GitRepositoryDataForm(request.POST, request.FILES)
@@ -54,6 +55,7 @@ def handle_post(request, logged_in_user, git_repository):
             'issues': project.issue_set.all(),
             }
         )
+
 
 @login_required
 def git_repository(request, git_repository_id):
