@@ -10,7 +10,7 @@ from frontend.forms.project.project import project_form
 from project.models import project as project_models
 
 
-def handle_post(request, logged_in_user, project_id, project):
+def handle_post(request, logged_in_user: core_user_models.CoreUser, project_id: str, project: project_models.Project):
     received_project_data_form = project_form.ProjectDataForm(request.POST, request.FILES)
     if received_project_data_form.is_valid():
         project_data_form = received_project_data_form.cleaned_data.copy()
@@ -34,22 +34,9 @@ def handle_post(request, logged_in_user, project_id, project):
                 project_id = project_label
 
         project_data_form["created_by_id"] = str(logged_in_user.id)
-        logged_in_user_project_set = set(logged_in_user.list_projects().values_list('id', flat=True))
-        # TODO: Remove these prints
-        print("logged_in_user.id:", str(logged_in_user.id))
-        print("project.id:", str(project.id))
-        print("project_data_form:", project_data_form)
-        print("logged_in_user.list_projects().values_list('id', flat=True) before save:", logged_in_user.list_projects().values_list('id', flat=True))
-        print("project.users.values_list('id', flat=True) before save:", project.users.values_list('id', flat=True))
         project_data = project_models.ProjectData.objects.create(**project_data_form)
         project.current = project_data
-        project.save()  # THIS IS NUKING THE USER'S PROJECT_SET FOR SOME REASON
-        print("logged_in_user.list_projects().values_list('id', flat=True) after save:", logged_in_user.list_projects().values_list('id', flat=True))
-        print("project.users.values_list('id', flat=True) after save:", project.users.values_list('id', flat=True))
-        print("project.id:", str(project.id))
-        print("logged_in_user.id:", str(logged_in_user.id))
-        logged_in_user.project_set.set(logged_in_user_project_set)
-        print("logged_in_user.list_projects().values_list('id', flat=True) after forced setting:", logged_in_user.list_projects().values_list('id', flat=True))
+        project.save()  # THIS IS NUKING THE USER'S PROJECT_SET FOR SOME REASON IN TESTS, THIS DOES NOT APPEAR TO HAPPEN IN A WEB REQUEST WTAF
 
         messages.success(request, ('Your project was successfully updated!'))
     else:

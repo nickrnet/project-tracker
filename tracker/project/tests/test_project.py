@@ -103,17 +103,17 @@ class ProjectModelTest(TestCase):
             created_by=self.user1,
             label='project01',
             description='Project 01 Label'
-        )
+            )
         self.project1_data_label_data.save()
         self.project1_data_label = ProjectLabel(
             created_by=self.user1,
             current=self.project1_data_label_data
-        )
+            )
         self.project1_data_label.save()
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
             name="Initial Project 1",
-            description="Initial Project 1 Description",\
+            description="Initial Project 1 Description",
             start_date=timezone.now(),
             is_active=True
             )
@@ -147,7 +147,7 @@ class ProjectModelTest(TestCase):
         self.project3_data.save()
         self.project3 = Project.objects.create(created_by=self.system_user, current=self.project3_data)
         self.organization3.projects.add(self.project3.id)
-        
+
     def test_generate_project_label_string(self):
         project_label_str = self.project2.generate_label()
         self.assertEqual(project_label_str, 'initial-project-2')
@@ -187,7 +187,7 @@ class ProjectModelTest(TestCase):
         self.assertEqual(self.project1.label.current.description,
                          'New Project Label Description')
         self.assertEqual(self.project1.label.current.color, '#123456')
-        
+
         # Update a project that does not have a label
         self.project2.update_project_label(user_id=self.user2.id, new_project_label=new_label.copy())
         self.project2.refresh_from_db()
@@ -212,7 +212,7 @@ class ProjectModelTest(TestCase):
 
         self.assertEqual(self.project1.current.name, 'Initial Project 1')
         self.assertIn(new_repo, self.project1.git_repositories.all())
-        
+
         # Test removing things
         new_git_repositories = [self.git_repository1.id]
         self.project1.update_git_repositories(new_git_repositories)
@@ -247,7 +247,7 @@ class ProjectModelTest(TestCase):
         project1_user_ids = self.project1.list_users().values_list('id', flat=True)
         project2_user_ids = self.project2.list_users().values_list('id', flat=True)
         project3_user_ids = self.project3.list_users().values_list('id', flat=True)
-        
+
         self.assertEqual(project1_user_ids.count(), 1)
         self.assertIn(self.user1.id, project1_user_ids)
         self.assertNotIn(self.user2.id, project1_user_ids)

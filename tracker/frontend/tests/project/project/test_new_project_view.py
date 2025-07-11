@@ -104,8 +104,8 @@ class TestNewProjectView(TestCase):
 
     def test_new_project_post_without_git_repository(self):
         url_encoding = 'application/x-www-form-urlencoded'
-        start_date = timezone.now()  # TODO: Need to format these to MM/DD/YY
-        end_date = timezone.now()
+        start_date = timezone.now().strftime("%m/%d/%Y")
+        end_date = timezone.now().strftime("%m/%d/%Y")
         new_project_form_data = {
             'name': 'Test Project 1',
             'description': 'Test Project Description 1',
@@ -131,7 +131,7 @@ class TestNewProjectView(TestCase):
         self.assertEqual(project.current.is_active, True)
         self.assertEqual(project.current.is_private, False)
         self.assertEqual(project.current.start_date, datetime.strptime(start_date, '%m/%d/%Y').date())
-        self.assertEqual(project.current.end_date, datetime.strptime(end_date, '%m/%d/%Y').date())
+        self.assertIsNone(project.current.end_date)
         self.assertEqual(project.label.current.label, 'test-project-1')
         self.assertNotIn(self.git_repository1, project.git_repositories.all())
         self.assertIn(self.user1, project.users.all())
@@ -139,8 +139,8 @@ class TestNewProjectView(TestCase):
 
     def test_new_project_post_without_project_label(self):
         url_encoding = 'application/x-www-form-urlencoded'
-        start_date = timezone.now()  # TODO: Need to format these to MM/DD/YYYY
-        end_date = timezone.now()
+        start_date = timezone.now().strftime("%m/%d/%Y")
+        end_date = timezone.now().strftime("%m/%d/%Y")
         new_project_form_data = {
             'name': 'Test Project 1',
             'description': 'Test Project Description 1',
@@ -165,7 +165,7 @@ class TestNewProjectView(TestCase):
         self.assertEqual(project.current.is_active, True)
         self.assertEqual(project.current.is_private, False)
         self.assertEqual(project.current.start_date, datetime.strptime(start_date, '%m/%d/%Y').date())
-        self.assertEqual(project.current.end_date, datetime.strptime(end_date, '%m/%d/%Y').date())
+        self.assertIsNone(project.current.end_date)
         self.assertIsNone(project.label)
         self.assertNotIn(self.git_repository1, project.git_repositories.all())
         self.assertIn(self.user1, project.users.all())

@@ -49,7 +49,7 @@ def new_organization(request):
             if not line.startswith('#')
             )
         country_names = sorted(country_names.items(), key=lambda x: x[1])
-    
+
     return render(
         request=request,
         template_name="core/organization/new_organization_modal.html",
