@@ -41,25 +41,25 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="id_name" class="form-label">Name:</label>
-                        <input hx-validate="true" type="text" name="name" class="form-control" id="id_name" value="{{ version.current.name }}" required>
+                        <input hx-validate="true" type="text" name="name" class="form-control" id="id_name" required>
                     </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="id_description" class="form-label">Description:</label>
-                        <textarea hx-validate="true" name="description" class="form-control" id="id_description" value="{{ version.current.description }}"></textarea>
+                        <textarea hx-validate="true" name="description" class="form-control" id="id_description"></textarea>
                     </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="id_label" class="form-label">Label:</label>
-                        <input hx-validate="true" type="text" name="label" class="form-control" id="id_label" value="{{ version.current.label }}">
+                        <input hx-validate="true" type="text" name="label" class="form-control" id="id_label" required>
                     </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-sm-2">
                         <label for="id_is_active" class="form-label">Is Active?</label>
-                        <input type="checkbox" name="is_active" class="form-check-input" id="id_is_active" {% if version.current.is_active %}checked{% endif %}>
+                        <input type="checkbox" name="is_active" class="form-check-input" id="id_is_active">
                     </div>
                 </div>
             </div>

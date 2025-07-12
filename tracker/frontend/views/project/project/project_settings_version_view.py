@@ -13,29 +13,26 @@ from project.models import version as version_models
 def handle_post(request, logged_in_user, version_id):
     received_version_form = version_form.VersionDataForm(request.POST, request.FILES)
     version = version_models.Version.objects.get(pk=version_id)
-    project = version.project
-    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project.id)
 
     if received_version_form.is_valid():
-        if project:
-            version_data = version_models.VersionData.objects.create(
-                created_by=logged_in_user,
-                name=received_version_form.cleaned_data.get('name', ''),
-                description=received_version_form.cleaned_data.get('description', ''),
-                label=received_version_form.cleaned_data.get('label', ''),
-                is_active=received_version_form.cleaned_data.get('is_active', True)
-                )
-            version.current = version_data
-            version.save()
+        version_data = version_models.VersionData.objects.create(
+            created_by=logged_in_user,
+            name=received_version_form.cleaned_data.get('name', ''),
+            description=received_version_form.cleaned_data.get('description', ''),
+            label=received_version_form.cleaned_data.get('label', ''),
+            release_date=version.current.release_date,  # TODO: Get this in the web page
+            is_active=received_version_form.cleaned_data.get('is_active', True)
+            )
+        version.current = version_data
+        version.save()
 
-            messages.success(request, ('Your version was successfully updated!'))
-        else:
-            messages.error(request, 'Permission denied.')
+        messages.success(request, ('Your version was successfully updated!'))
     else:
         messages.error(request, 'Invalid data received. Please try again.')
 
+    project = version.project
     project_dict = model_to_dict(project.current)
-    if project.label.current.label:
+    if project.label:
         project_dict['label'] = project.label.current.label
     form = project_form.ProjectDataForm(project_dict)
     repositories = project.git_repositories.all()
@@ -58,15 +55,23 @@ def handle_post(request, logged_in_user, version_id):
 
 @login_required
 def version(request, version_id=None):
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+        version = version_models.Version.objects.get(pk=version_id)
+    except version_models.Version.DoesNotExist:
+        messages.error(request, 'The specified Version does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        return redirect("projects")
+
+    # Check if user can access project
+    project = version.project
+    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project.id)
+    if project is None:
+        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        return redirect("projects")
 
     if request.method == "POST":
         return handle_post(request, logged_in_user, version_id)
 
-    version = version_models.Version.objects.get(pk=version_id)
     version_data_dict = model_to_dict(version.current)
     version_form_data = version_form.VersionDataForm(version_data_dict)
 
