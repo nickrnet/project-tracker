@@ -1,20 +1,17 @@
-import uuid
-
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
+from frontend.util import project as project_utils
 from frontend.forms.project.issue import new_issue_form
 from core.models import user as core_user_models
 from project.models import issue as issue_models
-from project.models import project as project_models
 
 
-def handle_post(request, logged_in_user):
+def handle_post(request, logged_in_user, project):
     received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
     if received_new_issue_form.is_valid():
         # We return the whole issues_tab_pane, so get its required data
-        project = logged_in_user.list_projects().get(id=received_new_issue_form.cleaned_data.get('project'))
 
         issue_data = issue_models.IssueData.objects.create(
             created_by=logged_in_user,
@@ -31,7 +28,7 @@ def handle_post(request, logged_in_user):
             version_id=received_new_issue_form.cleaned_data.get("version", ''),
             component_id=received_new_issue_form.cleaned_data.get("component", ''),
             )
-        issue = issue_models.Issue.objects.create(
+        issue_models.Issue.objects.create(
             created_by=logged_in_user,
             current=issue_data,
             project=project,
@@ -51,24 +48,19 @@ def handle_post(request, logged_in_user):
             },
         )
 
+
 @login_required
-def new_issue(request, project_id=None):
+def new_issue(request, project_id):
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
-    if request.method == "POST":
-        return handle_post(request, logged_in_user)
+    # Check if user can access project
+    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
+    if project is None:
+        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        return redirect("projects")
 
-    if project_id:
-        try:
-            project_uuid = uuid.UUID(str(project_id))
-            project = logged_in_user.list_projects().get(id=project_uuid)
-        except ValueError:
-            try:
-                project = logged_in_user.list_projects().get(label__current__label=project_id)
-            except project_models.Project.DoesNotExist:
-                project = None
-    else:
-        project = None
+    if request.method == "POST":
+        return handle_post(request, logged_in_user, project)
 
     issue_form = new_issue_form.NewIssueForm()
     projects = logged_in_user.list_projects()

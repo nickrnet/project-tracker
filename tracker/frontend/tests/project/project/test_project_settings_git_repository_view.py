@@ -15,11 +15,12 @@ from frontend.forms.project.git_repository.git_repository_form import GitReposit
 class TestProjectSettingsGitRepositoryView(TestCase):
     def setUp(self):
         """
-        Creates 1 user, 1 project, 1 git repository.
+        Creates 2 users, 1 project, 1 git repository.
         """
 
         self.system_user = CoreUser.objects.get_or_create_system_user()
         self.user1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
+        self.user2 = CoreUser.objects.create_core_user_from_web({'email': 'testuser2@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
 
         self.git_repository1_data = GitRepositoryData.objects.create(
             created_by=self.user1,
@@ -61,6 +62,24 @@ class TestProjectSettingsGitRepositoryView(TestCase):
         response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_git_repository_modal.html')
+
+    def test_project_settings_git_repository_view_get_user_cannot_access_git_repository(self):
+        self.http_client.force_login(user=self.user2.user)
+        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified Git Repository does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+
+    def test_project_settings_git_repository_view_get_user_cannot_access_project(self):
+        self.project1.users.remove(self.user1)
+        self.project1.save()
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
 
     def test_project_settings_git_repository_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'

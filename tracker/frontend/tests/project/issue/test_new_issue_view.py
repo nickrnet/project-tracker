@@ -40,7 +40,7 @@ class TestNewIssueView(TestCase):
             created_by=self.user1,
             label='project01',
             description='Project 01 Label'
-        )
+            )
         self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data)
 
         self.project1_data = ProjectData.objects.create(
@@ -50,7 +50,7 @@ class TestNewIssueView(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label = self.project1_label)
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_label)
         self.project1.users.add(self.user1)
         self.project1.save()
 
@@ -60,23 +60,23 @@ class TestNewIssueView(TestCase):
             label='1.0.0',
             release_date=timezone.now(),
             is_active=True
-        )
+            )
         self.version1 = Version.objects.create(
             created_by=self.user1,
             current=self.version1_data,
             project=self.project1
-        )
+            )
 
         self.component1_data = ComponentData.objects.create(
             created_by=self.user1,
             name='Component1',
             is_active=True
-        )
+            )
         self.component1 = Component.objects.create(
             created_by=self.user1,
             current=self.component1_data,
             project=self.project1
-        )
+            )
 
         self.http_client = Client()
 
@@ -99,15 +99,9 @@ class TestNewIssueView(TestCase):
 
     def test_new_issue_view_get_with_project_label_that_does_not_exist(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('new_issue', kwargs={'project_id': 'this_project_does_not_exist'}))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/new_issue_modal.html')
-
-    def test_new_issue_view_get_without_project_id(self):
-        self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('new_issue'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/new_issue_modal.html')
+        response = self.http_client.get(reverse('new_issue', kwargs={'project_id': 'this-project-does-not-exist'}))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
 
     def test_new_issue_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -124,12 +118,12 @@ class TestNewIssueView(TestCase):
             'built_in_severity': str(self.issue_severity_minor.id),
             'version': str(self.version1.id),
             'component': str(self.component1.id)
-        }
+            }
         new_issue_form = NewIssueForm(new_issue_form_data)
         new_issue_form.is_valid()
         form_data = urlencode(new_issue_form.data)
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('new_issue'), form_data, url_encoding)
+        response = self.http_client.post(reverse('new_issue', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
         issue = Issue.objects.first()
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
@@ -152,7 +146,7 @@ class TestNewIssueView(TestCase):
         url_encoding = 'application/x-www-form-urlencoded'
         form_data = 'a=1'
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('new_issue'), form_data, url_encoding)
+        response = self.http_client.post(reverse('new_issue', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/issue/issues_table.html')

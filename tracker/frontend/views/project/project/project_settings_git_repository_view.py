@@ -3,11 +3,12 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.forms.models import model_to_dict
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
-from core.models import user as core_user_models
+from frontend.util import project as project_utils
 from frontend.forms.project.git_repository import git_repository_form as git_repository_form
 from frontend.forms.project.project import project_form
+from core.models import user as core_user_models
 from project.models import git_repository as git_repository_models
 
 
@@ -66,7 +67,17 @@ def git_repository(request, git_repository_id):
     """
 
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    git_repository = logged_in_user.list_git_repositories().get(pk=git_repository_id)
+    try:
+        git_repository = logged_in_user.list_git_repositories().get(pk=git_repository_id)
+    except git_repository_models.GitRepository.DoesNotExist:
+        messages.error(request, 'The specified Git Repository does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        return redirect("projects")
+
+    # Check if user can access project
+    project = project_utils.get_project_by_uuid_or_label(logged_in_user, git_repository.project_set.first().id)
+    if project is None:
+        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        return redirect("projects")
 
     if request.method == "POST":
         return handle_post(request, logged_in_user, git_repository)

@@ -63,8 +63,7 @@ def version(request, version_id=None):
         return redirect("projects")
 
     # Check if user can access project
-    project = version.project
-    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project.id)
+    project = project_utils.get_project_by_uuid_or_label(logged_in_user, version.project.id)
     if project is None:
         messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
         return redirect("projects")

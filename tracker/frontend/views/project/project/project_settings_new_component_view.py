@@ -8,14 +8,8 @@ from core.models import user as core_user_models
 from project.models import component as component_models
 
 
-def handle_post(request, logged_in_user, project_id):
+def handle_post(request, logged_in_user, project):
     received_new_component_form = new_component_form.NewComponentDataForm(request.POST, request.FILES)
-    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
-
-    # Check if user can access project
-    if project is None:
-        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
-        return redirect("projects")
 
     if received_new_component_form.is_valid():
         component_data = component_models.ComponentData.objects.create(
@@ -46,7 +40,7 @@ def handle_post(request, logged_in_user, project_id):
         context={
             'logged_in_user': logged_in_user,
             'project': project,
-            'project_id': project_id,
+            'project_id': str(project.id),
             'git_repositories': repositories,
             'components': components,
             'versions': versions,
@@ -58,8 +52,14 @@ def handle_post(request, logged_in_user, project_id):
 def new_component(request, project_id=None):
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
+    # Check if user can access project
+    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
+    if project is None:
+        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        return redirect("projects")
+
     if request.method == "POST":
-        return handle_post(request, logged_in_user, project_id)
+        return handle_post(request, logged_in_user, project)
 
     component_form = new_component_form.NewComponentDataForm()
 

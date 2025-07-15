@@ -52,9 +52,10 @@ def handle_post(request, logged_in_user, project):
 def new_issue(request, project_id=None):
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
+    # Check if user can access project
     project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
     if project is None:
-        messages.error(request, 'Choose a project.')
+        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
         return redirect("projects")
 
     if request.method == "POST":
