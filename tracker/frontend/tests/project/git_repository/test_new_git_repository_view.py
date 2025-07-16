@@ -38,7 +38,7 @@ class TestNewGitRepositoryView(TestCase):
             'name': 'Git Repository 1',
             'description': 'Initial Repo 1 Description',
             'url': 'https://github.com/nickrnet/project-tracker'
-        }
+            }
         git_repository_form = NewGitRepositoryForm(git_repository_form_data)
         git_repository_form.is_valid()
         form_data = urlencode(git_repository_form.data)

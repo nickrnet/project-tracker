@@ -11,7 +11,6 @@ from . import project as project_models
 
 
 class IssueData(core_models.CoreModel):
-
     # TODO: Make a create override function to validate the reporter and created_by are project members
 
     summary = models.CharField(max_length=255)

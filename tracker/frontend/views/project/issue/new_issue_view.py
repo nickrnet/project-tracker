@@ -11,8 +11,6 @@ from project.models import issue as issue_models
 def handle_post(request, logged_in_user, project):
     received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
     if received_new_issue_form.is_valid():
-        # We return the whole issues_tab_pane, so get its required data
-
         issue_data = issue_models.IssueData.objects.create(
             created_by=logged_in_user,
             project=project,

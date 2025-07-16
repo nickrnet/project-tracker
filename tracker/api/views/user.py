@@ -24,15 +24,7 @@ class CoreUserViewSet(viewsets.ModelViewSet):
     serializer_class = CoreUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    # TODO: Limit this list to only the users in the organizations the user is a member of
     def get_queryset(self):
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=self.request.user)
-        # Get unique users from owned organizations and projects
-        organization_users = logged_in_user.organizationmembers_set.values_list('members', flat=True)
-        # breakpoint()
-        project_users = logged_in_user.list_projects().values_list('users', flat=True)
-        # Managing users of an organization is a different view
-        # Combine the user IDs and get distinct users
-        user_ids = set(organization_users).union(set(project_users))
-        users = core_user_models.CoreUser.active_objects.filter(id__in=user_ids)
+        users = logged_in_user.list_users()
         return users.all()

@@ -25,6 +25,7 @@ def handle_post(request, logged_in_user, organization=None):
 
     return redirect("organization", organization_id=organization.id)
 
+
 @login_required
 def organization(request, organization_id=None):
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
