@@ -30,7 +30,7 @@ class TestLoginView(TestCase):
         login_form_data = {
             'email': 'testuser1@project-tracker.dev',
             'password': 'password'
-        }
+            }
         login_form = LoginForm(login_form_data)
         login_form.is_valid()
         form_data = urlencode(login_form.data)
@@ -45,7 +45,7 @@ class TestLoginView(TestCase):
         login_form_data = {
             'email': 'testuser2@project-tracker.dev',
             'password': 'password'
-        }
+            }
         login_form = LoginForm(login_form_data)
         login_form.is_valid()
         form_data = urlencode(login_form.data)

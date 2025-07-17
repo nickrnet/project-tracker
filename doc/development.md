@@ -113,3 +113,6 @@ When committing changes to these files, be sure to callout changes so they can b
 ## TODO
 
 Provide an environment file containing variables for cloud storage, database connection, etc. Document as we get there.
+
+Figure out how to consolidate the `.coveragerc` files. The one in `tracker` is the one the GitHub action uses, so it is the source of truth for now, but the one at the top level of the directory is for VSCode's TestExplorer. It is a copy and should just be stomped over as the main one in `tracker` changes. Maybe the GH Action can be modified with a `--cov-config` argument to point at it, will take testing and commits.
+

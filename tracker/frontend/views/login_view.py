@@ -51,6 +51,7 @@ def handle_post(request):
                 }
             )
 
+
 def login_to_app(request):
     if request.method == "POST":
         return handle_post(request)

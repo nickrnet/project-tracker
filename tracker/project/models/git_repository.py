@@ -24,9 +24,7 @@ class GitRepository(core_models.CoreModel):
     current = models.ForeignKey(GitRepositoryData, on_delete=models.CASCADE)
 
     def __str__(self):
-        potential_names = []
-        if self.current.name:
-            potential_names.append(self.current.name)
+        potential_names = [self.current.name]
         if self.current.url:
             potential_names.append(f"- ({self.current.url})")
         return " ".join(potential_names)
