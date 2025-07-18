@@ -10,15 +10,14 @@ from core.models import user as core_user_models
 
 def logout_of_app(request):
     user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    remote_addr = request.META.get('REMOTE_ADDR')
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    remote_addr = request.META.get('REMOTE_ADDR', '')
     core_user_models.UserLogout.objects.create(
         created_by=user,
         user=user,
-        x_forwarded_for=validate_ip_address(x_forwarded_for).split(',')[
-            0] if x_forwarded_for else None,
+        x_forwarded_for=validate_ip_address(x_forwarded_for).split(',')[0] if x_forwarded_for else None,
         remote_addr=validate_ip_address(remote_addr) if remote_addr else None,
-        user_agent=request.META['HTTP_USER_AGENT'],
+        user_agent=request.META.get('HTTP_USER_AGENT', 'UNKNOWN'),
         logout_time=timezone.now(),
         session_key=request.session.session_key
         )

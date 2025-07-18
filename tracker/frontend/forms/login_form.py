@@ -12,5 +12,6 @@ class LoginForm(forms.ModelForm):
             'next',
             ]
 
+    email = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput())
     next = forms.CharField(required=False, widget=forms.HiddenInput())
-    password = forms.CharField(required=False, widget=forms.PasswordInput())

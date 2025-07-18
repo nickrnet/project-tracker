@@ -3,15 +3,17 @@ import socket
 
 def validate_ip_address(ip_address):
     """
-    Get the sournce IP address of the request.
+   Validate an IP address.
 
     Args:
-        request (HTTPRequest): An HTTPRequest object.
+        ip_address (str): A string containing an IP address.
 
     Returns:
-        str: A string representation of the IP address.
+        str: The IP address if valid, None if invalid.
     """
 
+    ip_valid = False
+    ip_address = ip_address.strip() if ip_address else None
     if ip_address:
         try:
             socket.inet_aton(ip_address)

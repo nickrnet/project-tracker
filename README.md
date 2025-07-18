@@ -14,6 +14,14 @@ Eventually, if one assigns git repositories to a project, then tests _could_ get
 
 Project Tracker is a Django app with a Bootstrap front end. The front end is made responsive with HTMX and only updating parts of a page that are affected by UI controls. No React, please, just standard HTML and CSS wizardry.
 
+## Contributing
+
+All types of contributions are encouraged and valued. See the [Contributing guide](doc/contributing.md) for different ways to help and details about how this project handles them.
+
+## Code of Conduct
+
+See the [Code of Conduct](doc/code_of_conduct.md) for the code of conduct.
+
 ## Documentation Notes
 
 See the [`doc`](doc) directory for additional documentation.

@@ -162,7 +162,7 @@ cython_debug/
 #.idea/
 
 # Visual Studio Code
-.vscode/
+# .vscode/
 
 # Mac things
 .DS_Store

@@ -10,33 +10,29 @@ from core.models import organization as core_organization_models
 
 
 def handle_post(request, logged_in_user, organization_id=None):
-        received_organization_data_form = organization_form.OrganizationDataForm(
-            request.POST, request.FILES)
-        if received_organization_data_form.is_valid():
-            organization = core_organization_models.Organization.active_objects.get(pk=organization_id)
-            # TODO: This isn't allowed by normal users, but leave for now
-            if received_organization_data_form.cleaned_data['number_users_allowed'] is None:
-                received_organization_data_form.cleaned_data.pop('number_users_allowed')
-            organization_data = core_organization_models.OrganizationData(
-                **received_organization_data_form.cleaned_data)
-            organization_data.created_by = logged_in_user
-            organization_data.save()
+    received_organization_data_form = organization_form.OrganizationDataForm(request.POST, request.FILES)
+    if received_organization_data_form.is_valid():
+        organization = core_organization_models.Organization.active_objects.get(pk=organization_id)
+        # TODO: This isn't allowed by normal users, but leave for now
+        if received_organization_data_form.cleaned_data['number_users_allowed'] is None:
+            received_organization_data_form.cleaned_data.pop('number_users_allowed')
+        organization_data = core_organization_models.OrganizationData(
+            **received_organization_data_form.cleaned_data)
+        organization_data.created_by = logged_in_user
+        organization_data.save()
 
-            organization.current = organization_data
-            organization.save()
-            messages.success(request, ('Your organization was successfully updated!'))
-        else:
-            messages.error(request, 'Error updating organization.')
+        organization.current = organization_data
+        organization.save()
+        messages.success(request, ('Your organization was successfully updated!'))
+    else:
+        messages.error(request, 'Error updating organization.')
 
-        return redirect("organization", organization_id=organization_id)
+    return redirect("organization", organization_id=organization_id)
 
 
 @login_required
 def organization_settings(request, organization_id=None):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     if request.method == "POST":
         return handle_post(request, logged_in_user, organization_id)
@@ -50,7 +46,7 @@ def organization_settings(request, organization_id=None):
             if not line.startswith('#')
             )
         country_names = sorted(country_names.items(), key=lambda x: x[1])
-    
+
     return render(
         request=request,
         template_name="core/organization/organization_settings.html",

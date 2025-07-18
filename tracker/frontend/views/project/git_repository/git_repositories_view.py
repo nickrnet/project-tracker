@@ -6,10 +6,7 @@ from core.models import user as core_user_models
 
 @login_required
 def git_repositories(request):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     repositories = logged_in_user.list_git_repositories()
 

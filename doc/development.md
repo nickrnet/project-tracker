@@ -45,7 +45,7 @@ Until such time as someone is using this full-time for real data (production), w
 
 ## Testing
 
-Tests are run via Github Actions with `pytest` at merge to the main branch, including code coverage, every merge to the `main` branch. Test your code before pushing to the `main` branch with 
+Tests are run via Github Actions with `pytest` at merge to the main branch, including code coverage, every merge to the `main` branch. Test your code before pushing to the `main` branch with
 
 ```shell
 cd tracker
@@ -79,7 +79,7 @@ cd tracker
 python manage.py migrate
 ```
 
-There is a Django command to install demo data that has a pre-configured set of users, organizations, and projects. Run it with 
+There is a Django command to install demo data that has a pre-configured set of users, organizations, and projects. Run it with
 
 ```shell
 cd tracker
@@ -95,7 +95,7 @@ cd tracker
 python manage.py runserver 0.0.0.0:8000
 ```
 
-You can also get to a Django prompt with 
+You can also get to a Django prompt with
 
 ```shell
 cd tracker
@@ -104,6 +104,15 @@ python manage.py shell_plus
 
 and work with the live demo data that way, just like the Django code, but live in a terminal session.
 
+# Visual Studio Code
+
+Development environment files for Visual Studio Code are included. The `launch.json` file contains a debug configuration for running the Django web server, Django tests with the `python manage.py test` command, and the 'Install Demo Data' command. The `settings.json` file contains the configuration to use the Visual Studio Code Test Explorer feature to allow to run tests within the IDE and show test coverage using the `pytest` and `django-pytest` modules.
+
+When committing changes to these files, be sure to callout changes so they can be reviewed and properly tested by other developers, potentially on other platforms (Windows, Linux, etc.) for compatibility (though for now most developers are on Macs).
+
 ## TODO
 
 Provide an environment file containing variables for cloud storage, database connection, etc. Document as we get there.
+
+Figure out how to consolidate the `.coveragerc` files. The one in `tracker` is the one the GitHub action uses, so it is the source of truth for now, but the one at the top level of the directory is for VSCode's TestExplorer. It is a copy and should just be stomped over as the main one in `tracker` changes. Maybe the GH Action can be modified with a `--cov-config` argument to point at it, will take testing and commits.
+

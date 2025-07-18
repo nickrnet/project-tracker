@@ -5,9 +5,10 @@ from django.core.validators import URLValidator
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 
-from core.models import user as core_user_models
+from frontend.util import project as project_utils
 from frontend.forms.project.git_repository import git_repository_form as git_repository_form
 from frontend.forms.project.project import project_form
+from core.models import user as core_user_models
 from project.models import git_repository as git_repository_models
 
 
@@ -20,59 +21,69 @@ def validate_url(thing_to_validate: str) -> bool:
         return False
 
 
+def handle_post(request, logged_in_user, git_repository):
+    received_git_repository_form = git_repository_form.GitRepositoryDataForm(request.POST, request.FILES)
+    if received_git_repository_form.is_valid():
+        git_repository_data = git_repository_models.GitRepositoryData(
+            created_by=logged_in_user,
+            name=received_git_repository_form.cleaned_data.get('name'),
+            description=received_git_repository_form.cleaned_data.get('description'),
+            url=received_git_repository_form.cleaned_data.get('url'),
+            )
+        git_repository_data.save()
+        git_repository.current = git_repository_data
+        git_repository.save()
+        messages.info(request, 'Your git repository was successfully updated!')
+    else:
+        messages.error(request, 'Error saving git repository.')
+
+    # TODO: Guarantee the project is the correct one we came from
+    project = git_repository.project_set.first()
+    project_id = str(project.id)
+    project_dict = model_to_dict(project.current)
+    if project.label:
+        project_dict['label'] = project.label.current.label
+    form = project_form.ProjectDataForm(project_dict)
+    return render(
+        request=request,
+        template_name="project/project/project_settings_modal.html",
+        context={
+            'logged_in_user': logged_in_user,
+            'project': project,
+            'project_id': project_id,
+            'project_form': form,
+            'git_repositories': project.git_repositories.all(),
+            'issues': project.issue_set.all(),
+            }
+        )
+
+
 @login_required
-def git_repository(request, git_repository_id=None):
+def git_repository(request, git_repository_id):
+    """
+    Displays the Git Repository when a user clicks it in the Project Settings modal.
+
+    Currently assumes if this is requested, a git repository is tied to a project already.
+    """
+
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
     try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+        git_repository = logged_in_user.list_git_repositories().get(pk=git_repository_id)
+    except git_repository_models.GitRepository.DoesNotExist:
+        messages.error(request, 'The specified Git Repository does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        return redirect("projects")
+
+    # Check if user can access project
+    project = project_utils.get_project_by_uuid_or_label(logged_in_user, git_repository.project_set.first().id)
+    if project is None:
+        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+        return redirect("projects")
 
     if request.method == "POST":
-        received_git_repository_form = git_repository_form.GitRepositoryDataForm(request.POST, request.FILES)
-        if received_git_repository_form.is_valid():
-            git_repository = logged_in_user.list_git_repositories().get(pk=git_repository_id)
-            git_repository_data = git_repository_models.GitRepositoryData(
-                created_by=logged_in_user,
-                name=received_git_repository_form.cleaned_data.get('name'),
-                description=received_git_repository_form.cleaned_data.get('description'),
-                url=received_git_repository_form.cleaned_data.get('url'),
-                )
-            git_repository_data.save()
-            git_repository.current = git_repository_data
-            git_repository.save()
-            messages.info(request, 'Your git repository was successfully updated!')
-        else:
-            messages.error(request, 'Error saving git repository.')
+        return handle_post(request, logged_in_user, git_repository)
 
-        # TODO: Guarantee the project is the correct one we came from
-        project = git_repository.project_set.first()
-        project_id = str(project.id)
-        project_dict = model_to_dict(project.current)
-        if project.label.current.label:
-            project_dict['label'] = project.label.current.label
-        form = project_form.ProjectDataForm(project_dict)
-        return render(
-            request=request,
-            template_name="project/project/project_settings.html",
-            context={
-                'logged_in_user': logged_in_user,
-                'project': project,
-                'project_id': project_id,
-                'project_form': form,
-                'git_repositories': project.git_repositories.all(),
-                'issues': project.issue_set.all(),
-                }
-            )
-
-    form = git_repository_form.GitRepositoryDataForm()
-
-    try:
-        git_repository = logged_in_user.list_git_repositories().get(id=git_repository_id)
-        form = git_repository_form.GitRepositoryDataForm(model_to_dict(git_repository.current))
-        valid_url = validate_url(git_repository.current.url)
-    except git_repository_models.GitRepository.DoesNotExist:
-        messages.error(request, 'The specified Git Repository does not exist. Create it and try again.')
-        return redirect("new_git_repository")
+    form = git_repository_form.GitRepositoryDataForm(model_to_dict(git_repository.current))
+    valid_url = validate_url(git_repository.current.url)
 
     return render(
         request=request,

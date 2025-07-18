@@ -41,7 +41,11 @@
         </thead>
         <tbody>
             {% for project in projects %}
+                {% if project.label %}
             <tr onclick="window.location='{% url 'project' project.label.current.label %}'">
+                {% else %}
+            <tr onclick="window.location='{% url 'project' project.id %}'">
+                {% endif %}
                 {% with label=project.label.current.label %}
                 {% if label %}
                 <th scope="row">{{ project.label.current.label|safe|upper }}</th>

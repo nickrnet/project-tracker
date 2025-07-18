@@ -10,9 +10,9 @@ class BuiltInIssueSeverityManager(models.Manager):
         Keep this in sync with the BuiltInIssueSeverity.IssueSeverities class.
         """
         built_in_issue_severities = [
-            ('e82b1549-0beb-44ee-926b-d03b5dd95aa7', 'MINOR', 'Minor'),
-            ('9aaa5bfe-3150-4db1-ad02-ee47694f569b', 'MAJOR', 'Major'),
             ('8e0432d7-81c6-4a3d-a5c8-a2dfbba1b330', 'CRITICAL', 'Critical'),
+            ('9aaa5bfe-3150-4db1-ad02-ee47694f569b', 'MAJOR', 'Major'),
+            ('e82b1549-0beb-44ee-926b-d03b5dd95aa7', 'MINOR', 'Minor'),
             ]
         system_user = core_user_models.CoreUser.objects.get_or_create_system_user()
 

@@ -34,10 +34,7 @@ def handle_post(request, logged_in_user):
 
 @login_required
 def new_organization(request):
-    try:
-        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    except core_user_models.CoreUser.DoesNotExist:
-        return redirect("logout")
+    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     if request.method == "POST":
         return handle_post(request, logged_in_user)
@@ -52,7 +49,7 @@ def new_organization(request):
             if not line.startswith('#')
             )
         country_names = sorted(country_names.items(), key=lambda x: x[1])
-    
+
     return render(
         request=request,
         template_name="core/organization/new_organization_modal.html",

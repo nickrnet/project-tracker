@@ -156,6 +156,7 @@ class Command(BaseCommand):
 
         self.stdout.write("Flushing database...")
         call_command('flush', '--noinput')
+        call_command('migrate')
         call_command('setup')
 
         self.stdout.write("Creating users...")

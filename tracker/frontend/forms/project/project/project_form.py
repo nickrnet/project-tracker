@@ -9,7 +9,3 @@ class ProjectDataForm(forms.Form):
     is_private = forms.BooleanField(required=False)
     start_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
     end_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
-
-
-class ProjectForm(forms.Form):
-    current = ProjectDataForm()

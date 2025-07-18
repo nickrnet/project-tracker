@@ -17,7 +17,7 @@ class ProjectLabelData(core_models.CoreModel):
 
 
 class ProjectLabel(core_models.CoreModel):
-    current = models.ForeignKey('ProjectLabelData', on_delete=models.CASCADE)
+    current = models.ForeignKey(ProjectLabelData, on_delete=models.CASCADE)
 
 
 class ProjectData(core_models.CoreModel):
@@ -75,7 +75,7 @@ class Project(core_models.CoreModel):
             self.current = new_project_data
             self.save()
         return self
-    
+
     def update_git_repositories(self, git_repositories: list) -> 'Project':
         """
         A helper method to update the git repositories that may use this project.
@@ -90,7 +90,7 @@ class Project(core_models.CoreModel):
         self.save()
 
         return self
-    
+
     def update_users(self, users: list) -> 'Project':
         """
         A helper method to update the users that have access to this project.
@@ -116,7 +116,7 @@ class Project(core_models.CoreModel):
         """
 
         return "-".join(self.current.name.split()).lower()
-    
+
     def update_project_label(self, user_id: uuid.UUID, new_project_label: ProjectLabel):
         """
         A helper method to update a project label.
@@ -128,7 +128,7 @@ class Project(core_models.CoreModel):
         Returns:
             project (Project): The updated project.
         """
-        
+
         new_project_label_data = ProjectLabelData(created_by_id=user_id, **new_project_label.get('current'))
         new_project_label_data.save()
         new_label = ProjectLabel(created_by_id=user_id, current=new_project_label_data)
@@ -155,7 +155,7 @@ class Project(core_models.CoreModel):
         project_users = self.users.values_list('id', flat=True)
         # Combine the user IDs and get distinct users
         user_ids = set(organization_users).union(set(project_users))
-        return core_user_models.CoreUser.objects.filter(id__in=user_ids)
+        return core_user_models.CoreUser.active_objects.filter(id__in=user_ids)
 
     def list_issues(self):
         """
@@ -169,12 +169,12 @@ class Project(core_models.CoreModel):
         issue_ids = set()
         issue_datas = self.issuedata_set.values_list('issue', flat=True).filter(project=self)
         issue_ids.update(issue_datas)
-        return issue_models.Issue.objects.filter(id__in=issue_ids)
+        return issue_models.Issue.active_objects.filter(id__in=issue_ids)
 
     def __str__(self):
         potential_names = []
         if self.current.name:
             potential_names.append(self.current.name)
-        if self.current.label:
-            potential_names.append(f"- ({self.current.label})")
+        if self.label:
+            potential_names.append(f"- ({self.label})")
         return self.current.name
