@@ -11,9 +11,9 @@ cd <path to checkout>
 pipenv install
 pipenv shell
 cd tracker
-python manage.py migrate                 # to build a database
-python manage.py setup                   # to put standard Project Tracker configuration in the database
-python manage.py install_demo_data       # to put Project Tracker demo data in the database; also includes the setup command, so one or the other
+python manage.py migrate                 # to build a database, then
+python manage.py setup                   # to put standard Project Tracker configuration in the database, OR
+python manage.py install_demo_data       # to put Project Tracker demo data in the database; also includes the setup command, so one or the other, then
 python manage.py runserver 0.0.0.0:8000  # to start the Django application(s)
 ```
 

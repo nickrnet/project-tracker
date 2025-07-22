@@ -30,4 +30,4 @@ Be very careful placing configuration things in the `tracker/settings.py` file, 
 
 ## Frontend Views and Partials
 
-When developing frontend components (templates/partials), think about the template returning just a partial when working on the view code. See `frontend/templates/project/project/project_template.html`, `frontend/templates/project/project_pane.html`, and `frontend/templates/project/project/project_settings.html` for examples of a partial that is returned by a view called async. Those templates have a corresponding views in `frontend/views/project` and a corresponding endpoint in `frontend/urls.py`.
+When developing frontend components (templates/partials), think about the template returning just a partial when working on the view code. See `frontend/templates/project/project/project_template.html` and `frontend/templates/project/project/project_settings.html` for examples of a partial that is returned by a view called asynchronously via htmx. Those templates have a corresponding views in `frontend/views/project` and a corresponding endpoint in `frontend/urls.py`.
