@@ -1,6 +1,14 @@
 # How to Start Developing ProjectTracker
 
-This project is a Django app, which is a Python module. There is a `Pipfile` included that can be used with `pipenv` to set up a Python virtual environment to get up and running.
+This project is a Django app, which is a Python module. This project uses `uv` to manage the Python modules and Python version required.
+
+## Install UV
+
+See the instructions for the [uv package manager](https://docs.astral.sh/uv/getting-started/installation/).
+
+If on a Mac, you may want to set `SYSTEM_VERSION_COMPAT=0` in your shell when installing a virtual environment.
+
+There is a `Pipfile` included that can be used with `pipenv` to set up a Python virtual environment to get up and running.
 
 Django commands must be run from the `tracker` directory.
 
@@ -8,8 +16,9 @@ To run the application, use Python 3.12, and execute the following commands (man
 
 ```shell
 cd <path to checkout>
-pipenv install
-pipenv shell
+uv venv
+source .venv/bin/activate
+uv sync --dev
 cd tracker
 python manage.py migrate                 # to build a database, then
 python manage.py setup                   # to put standard Project Tracker configuration in the database, OR
