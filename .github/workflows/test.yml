@@ -29,6 +29,10 @@ jobs:
                 source .venv/bin/activate
                 uv sync --dev
 
+            - name: Stage .env file
+              run: pushd tracker && cp env.sample .env && popd
+              continue-on-error: false
+
             - name: Run tests
               run: pushd tracker && uv run pytest --cov --cov-report term --cov-report=html --cov-report=json --cov-report=xml && popd
               continue-on-error: true
