@@ -16,11 +16,11 @@ Project Tracker is a Django app with a Bootstrap front end. The front end is mad
 
 ## Contributing
 
-All types of contributions are encouraged and valued. See the [Contributing guide](doc/contributing.md) for different ways to help and details about how this project handles them.
+All types of contributions are encouraged and valued. See the [Contributing guide](contributing.md) for different ways to help and details about how this project handles them.
 
 ## Code of Conduct
 
-See the [Code of Conduct](doc/code_of_conduct.md) for the code of conduct.
+See the [Code of Conduct](code_of_conduct.md) for the code of conduct.
 
 ## Documentation Notes
 
