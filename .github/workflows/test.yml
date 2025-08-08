@@ -24,19 +24,25 @@ jobs:
             - name: Install dependencies
               run: |
                 python -m pip install --upgrade pip
-                pip install pipenv
-                pipenv install --dev
+                pip install uv
+                uv venv
+                source .venv/bin/activate
+                uv sync --dev
 
             - name: Run tests
-              run: pushd tracker && pipenv run pytest --cov --cov-report term --cov-report=html --cov-report=json --cov-report=xml && popd
+              run: |
+                source .venv/bin/activate
+                pushd tracker
+                cp env.sample .env
+                uv run pytest --cov --cov-report term --cov-report=html --cov-report=json --cov-report=xml
+                popd
               continue-on-error: true
-            
+
             - name: Generate coverage badge
               uses: tj-actions/coverage-badge-py@v2.0.3
               id: coverage-badge-py
               with:
-                # Output path to write the 
-                # coverage badge. 
+                # Output path to write the coverage badge.
                 # Type: string
                 # Default: "coverage.svg"
                 output: '../doc/coverage/coverage.svg'
@@ -44,7 +50,7 @@ jobs:
                 # Type: boolean
                 # Default: "true"
                 overwrite: 'true'
-                # Current working directory
+                # Current working directory.
                 # Type: string
                 # Default: "."
                 working-directory: './tracker'
@@ -54,8 +60,8 @@ jobs:
               id: verify-changed-files
               with:
                 files: ./doc/coverage/coverage.svg
-            
-            - name: Commit files
+
+            - name: Commit test result files and coverage badge
               if: steps.verify-changed-files.outputs.files_changed == 'true'
               run: |
                 if [ -e ./doc/coverage/html/.gitignore ]
@@ -67,7 +73,7 @@ jobs:
                 git add doc/coverage
                 git commit -m "Updated coverage.svg"
 
-            - name: Push changes
+            - name: Push test results and coverage changes back to repo
               if: steps.verify-changed-files.outputs.files_changed == 'true'
               uses: ad-m/github-push-action@master
               with:

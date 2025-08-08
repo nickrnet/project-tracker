@@ -4,4 +4,5 @@
     "python.testing.pytestArgs": [
         "tracker/."
     ],
+    "python.useEnvironmentsExtension": false,
 }

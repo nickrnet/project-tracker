@@ -17,6 +17,7 @@ omit =
     frontend/tests/*
     frontend/static/*
     frontend/templates/*
+    tracker/settings/*
 exclude_also =
     def __repr__
     def __str__
