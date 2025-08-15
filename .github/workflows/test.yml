@@ -79,3 +79,19 @@ jobs:
               with:
                 github_token: ${{ secrets.GITHUB_TOKEN }}
                 branch: ${{ github.ref }}
+
+    deploy-gh-pages:
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        needs: test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v4
+
+            - name: Deploy to GitHub Pages
+              uses: peaceiris/actions-gh-pages@v4
+              with:
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+                publish_dir: .
+                publish_branch: coverage
+                force_orphan: true
