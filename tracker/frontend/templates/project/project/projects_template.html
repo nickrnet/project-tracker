@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="my-4">Projects <button
+            hx-get="{% url 'new_project' %}"
+            hx-target="#projects-modal"
+            data-bs-toggle="modal"
+            data-bs-target="#projects-modal"
+            class="btn primary"><i class="bi bi-plus-circle"></i></button></h2>
+    </div>
+    {% include "project/project/projects_table.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+<div class="row g-3">
+    <div class="col-md-6">
+        <label for="id_name" class="form-label">Name:</label>
+        <input type="text" name="name" class="form-control" id="id_name" value="{{ git_repository.current.name }}" required>
+    </div>
+    <div class="col-md-6">
+        <label for="id_description" class="form-label">Description:</label>
+        <textarea name="description" class="form-control" id="id_description">{{ git_repository.current.description }}</textarea>
+    </div>
+</div>
+<div class="row g-3">
+    <div class="col-md-6">
+        <label for="id_url" class="form-label">URL:</label>
+        <input type="url" name="url" class="form-control" id="id_url" value="{{ git_repository.current.url }}">
+    </div>
+    {% if valid_url %}
+    <div class="col-sm-2">
+        <p>&nbsp;</p>
+        <a href="{{ git_repository.current.url }}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+    </div>
+    {% endif %}
+</div>

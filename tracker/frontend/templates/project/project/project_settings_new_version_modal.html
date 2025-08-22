@@ -1,0 +1,85 @@
+<script>
+    var versionForm = document.getElementById('version-form');
+    var submitButton1 = document.getElementById('submitButton1');
+
+    submitButton1.addEventListener('click', (e) => {
+        if (!versionForm.checkValidity()) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+        }
+        else {
+            versionForm.dispatchEvent(new Event('submit'));
+            versionModal = bootstrap.Modal.getInstance("#project-settings-version-modal");
+            versionModal.toggle();
+            const projectSettingsModal = new bootstrap.Modal('#project-settings-modal');
+            projectSettingsModal.toggle();
+        }
+    });
+</script>
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        <form
+            class="version-form"
+            id="version-form"
+            novalidate
+            hx-post="{% url 'project_settings_new_version' project_id %}"
+            hx-target="#project-settings-modal"
+            data-bs-toggle="mdoal"
+            data-bs-target="#project-settings-modal">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ version.current.name }}</h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-toggle="modal"
+                    data-bs-target="#project-settings-modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="id_name" class="form-label">Name:</label>
+                        <input hx-validate="true" type="text" name="name" class="form-control" id="id_name" required>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="id_description" class="form-label">Description:</label>
+                        <textarea hx-validate="true" name="description" class="form-control" id="id_description"></textarea>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="id_label" class="form-label">Label:</label>
+                        <input hx-validate="true" type="text" name="label" class="form-control" id="id_label" required>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-sm-2">
+                        <label for="id_is_active" class="form-label">Is Active?</label>
+                        <input type="checkbox" name="is_active" class="form-check-input" id="id_is_active">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#project-settings-modal"
+                    form="version-form">
+                    Submit
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#project-settings-modal">Cancel</button>
+            </div>
+            <input type="hidden" name="project_id" value="{{ project_id }}">
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</div>
