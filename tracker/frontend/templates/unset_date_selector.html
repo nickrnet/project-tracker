@@ -1,9 +1,9 @@
 <div class="row g-0 align-items-center">
     <div class="col-3">
-        <label for="id_end_date_month" class="form-label">End date:</label>
+        <label for="{{ model_date_unset_month }}" class="form-label">{{ model_date_unset_label }}</label>
     </div>
     <div class="col-4">
-        <select class="form-select" name="end_date_month" id="id_end_date_month">
+        <select class="form-select" name="{{ model_date_unset_month }}" id="{{ model_date_unset_month }}">
             <option value="">-----</option>
             <option value="1">January</option>
             <option value="2">February</option>
@@ -20,7 +20,7 @@
         </select>
     </div>
     <div class="col-2">
-        <select class="form-select" name="end_date_day" id="id_end_date_day">
+        <select class="form-select" name="{{ model_date_unset_day }}" id="{{ model_date_unset_day }}">
             <option value="">-----</option>
             <option value="1">1</option>
             <option value="2">2</option>
@@ -56,7 +56,7 @@
         </select>
     </div>
     <div class="col-3">
-        <select class="form-select" name="end_date_year" id="id_end_date_year">
+        <select class="form-select" name="{{ model_date_unset_year }}" id="{{ model_date_unset_year }}">
             <option value="">-----</option>
             <option value="2020">2020</option>
             <option value="2021">2021</option>

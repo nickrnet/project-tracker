@@ -100,5 +100,16 @@ def new_project(request):
             'organizations': organizations,
             'project': project,
             'users': users,
+            # We use Django Forms to validate the form data, but the date selector is generic
+            # HTML that is not part of the form, so we need to pass the field names here to
+            # render the date selector correctly so the data gets sent back correctly.
+            'model_date_today_label': 'Start date:',
+            'model_date_today_month': 'start_date_month',
+            'model_date_today_day': 'start_date_day',
+            'model_date_today_year': 'start_date_year',
+            'model_date_unset_label': 'End date:',
+            'model_date_unset_month': 'end_date_month',
+            'model_date_unset_day': 'end_date_day',
+            'model_date_unset_year': 'end_date_year',
             }
         )

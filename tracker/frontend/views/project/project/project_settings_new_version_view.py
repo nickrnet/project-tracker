@@ -74,5 +74,12 @@ def new_version(request, project_id):
             'logged_in_user': logged_in_user,
             'new_version_form': version_form,
             'project_id': project_id,
+            # We use Django Forms to validate the form data, but the date selector is generic
+            # HTML that is not part of the form, so we need to pass the field names here to
+            # render the date selector correctly so the data gets sent back correctly.
+            'model_date_unset_label': 'Release date:',
+            'model_date_unset_month': 'release_date_month',
+            'model_date_unset_day': 'release_date_day',
+            'model_date_unset_year': 'release_date_year',
             }
         )
