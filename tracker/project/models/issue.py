@@ -191,4 +191,4 @@ class Issue(core_models.Sequenced):
     project = models.ForeignKey(project_models.Project, on_delete=models.CASCADE)
 
     # TODO: Links to other issues
-    # TODO: Make a create override function to validate the reporter and created_by are project members
+    # TODO: Make a create override function to validate the reporter and created_by are project members, currently handled by views

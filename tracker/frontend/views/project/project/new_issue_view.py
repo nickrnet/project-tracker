@@ -6,12 +6,14 @@ from frontend.util import project as project_utils
 from frontend.forms.project.issue import new_issue_form
 from core.models import user as core_user_models
 from project.models import issue as issue_models
+from project.models import status as status_models
 
 
 def handle_post(request, logged_in_user, project):
     received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
 
     if received_new_issue_form.is_valid():
+        status = status_models.BuiltInIssueStatus.active_objects.get(id=received_new_issue_form.cleaned_data.get("built_in_status"))
         issue_data = issue_models.IssueData.objects.create(
             created_by=logged_in_user,
             project=project,
