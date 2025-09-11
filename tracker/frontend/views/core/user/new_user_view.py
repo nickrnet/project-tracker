@@ -22,7 +22,7 @@ def handle_post(request):
 @login_required
 def new_user(request):
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
-    
+
     if request.method == "POST":
         return handle_post(request)
 

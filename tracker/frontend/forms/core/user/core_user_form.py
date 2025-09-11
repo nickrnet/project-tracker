@@ -1,7 +1,5 @@
 from django import forms
 
-from core.models import user as core_user_models
-
 
 class UserDataForm(forms.Form):
     email = forms.EmailField()

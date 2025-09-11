@@ -17,7 +17,8 @@ def validate_url(thing_to_validate: str) -> bool:
         return True
     except ValidationError:
         return False
-    
+
+
 def handle_post(request, logged_in_user, git_repository):
     received_git_repository_form = git_repository_form.GitRepositoryDataForm(request.POST, request.FILES)
 
@@ -35,6 +36,7 @@ def handle_post(request, logged_in_user, git_repository):
         messages.error(request, 'Error saving git repository.')
 
     return redirect("git_repository", git_repository_id=git_repository.id)
+
 
 @login_required
 def git_repository(request, git_repository_id=None):

@@ -1,7 +1,6 @@
 from django import forms
 from django.utils import timezone
 
-from core.models import user as core_user_models
 from core.models import organization as core_organization_models
 
 
