@@ -19,6 +19,7 @@ dependencies = [
     { name = "django-htmx" },
     { name = "django-phone-field" },
     { name = "djangorestframework" },
+    { name = "gunicorn" },
     { name = "markdown" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp" },
@@ -28,6 +29,7 @@ dependencies = [
     { name = "opentelemetry-sdk" },
     { name = "psycopg2" },
     { name = "pytz" },
+    { name = "whitenoise" },
 ]
 
 [package.dev-dependencies]
@@ -55,6 +57,7 @@ requires-dist = [
     { name = "django-htmx" },
     { name = "django-phone-field" },
     { name = "djangorestframework" },
+    { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "markdown" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp" },
@@ -64,6 +67,7 @@ requires-dist = [
     { name = "opentelemetry-sdk" },
     { name = "psycopg2" },
     { name = "pytz" },
+    { name = "whitenoise", specifier = ">=6.10.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -504,6 +508,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e8/86/a8a38faaee87314851d97d5e3a8fc4f90876864bf694228532e41370c95d/grpcio-1.74.0rc1-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:0a5ac4a7432a4ddba936443ca328b914ebabf48267082c50eef1d3506378b123", size = 6489669, upload-time = "2025-07-14T20:05:50.073Z" },
     { url = "https://files.pythonhosted.org/packages/49/13/2f47f900a948b10c8340a35c4035802f3c9f847f94495a5fe8e77852fd42/grpcio-1.74.0rc1-cp312-cp312-win32.whl", hash = "sha256:988325ca49c047a48ee4542cd10e735b47a169a644bf73611ca05a123d8a2d53", size = 3807127, upload-time = "2025-07-14T20:05:51.688Z" },
     { url = "https://files.pythonhosted.org/packages/86/2b/74992115930c21904ad4c3113bd636c1e826d4277688a4bcc44604bca7fb/grpcio-1.74.0rc1-cp312-cp312-win_amd64.whl", hash = "sha256:289070f7959cfd13efbebdcbab0343597cff972fb73fd25c45e0440ad4da2b53", size = 4490151, upload-time = "2025-07-14T20:05:53.375Z" },
+]
+
+[[package]]
+name = "gunicorn"
+version = "23.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/34/72/9614c465dc206155d93eff0ca20d42e1e35afc533971379482de953521a4/gunicorn-23.0.0.tar.gz", hash = "sha256:f014447a0101dc57e294f6c18ca6b40227a4c90e9bdb586042628030cba004ec", size = 375031, upload-time = "2024-08-10T20:25:27.378Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cb/7d/6dac2a6e1eba33ee43f318edbed4ff29151a49b5d37f080aad1e6469bca4/gunicorn-23.0.0-py3-none-any.whl", hash = "sha256:ec400d38950de4dfd418cff8328b2c8faed0edb0d517d3394e457c317908ca4d", size = 85029, upload-time = "2024-08-10T20:25:24.996Z" },
 ]
 
 [[package]]
@@ -1274,6 +1290,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/6c/63/53559446a878410fc5a5974feb13d31d78d752eb18aeba59c7fef1af7598/wcwidth-0.2.13.tar.gz", hash = "sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5", size = 101301, upload-time = "2024-01-06T02:10:57.829Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fd/84/fd2ba7aafacbad3c4201d395674fc6348826569da3c0937e75505ead3528/wcwidth-0.2.13-py2.py3-none-any.whl", hash = "sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859", size = 34166, upload-time = "2024-01-06T02:10:55.763Z" },
+]
+
+[[package]]
+name = "whitenoise"
+version = "6.10.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/27/9a/4f4b84ff1f3a5c3cbc8070b6ecbbab6cd121c385244c9d24d80bb284190f/whitenoise-6.10.0.tar.gz", hash = "sha256:7b7e53de65d749cb1ce4a7100e751d9742e323b52746f9f93944c0d348ea2d02", size = 26412, upload-time = "2025-09-09T11:07:24.694Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cb/3b/4fa26e02935334fa0eb1422c938b1db796c55de7a432cc86b9d8cf97260c/whitenoise-6.10.0-py3-none-any.whl", hash = "sha256:bad74a40b33b055ba59731b6048dd08d5647f273b72bef922aa43ddd287b02da", size = 20194, upload-time = "2025-09-09T11:07:23.544Z" },
 ]
 
 [[package]]

@@ -60,7 +60,7 @@ def user(request, user_id=None):
             if not line.startswith('#')
             )
         country_names = sorted(country_names.items(), key=lambda x: x[1])
-        
+
     return render(
         request=request,
         template_name="core/user/core_user_template.html",
