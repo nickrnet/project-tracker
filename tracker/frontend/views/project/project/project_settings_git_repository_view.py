@@ -84,6 +84,8 @@ def git_repository(request, git_repository_id):
 
     form = git_repository_form.GitRepositoryDataForm(model_to_dict(git_repository.current))
     valid_url = validate_url(git_repository.current.url)
+    organizations = logged_in_user.list_organizations()
+    projects = logged_in_user.list_projects()
 
     return render(
         request=request,
@@ -95,5 +97,7 @@ def git_repository(request, git_repository_id):
             'project': git_repository.project_set.first(),
             'organization': git_repository.organizationgitrepositories_set.first(),
             'valid_url': valid_url,
+            'organizations': organizations,
+            'projects': projects,
             }
         )

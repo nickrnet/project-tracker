@@ -17,7 +17,6 @@ class TestGitRepositoryView(TestCase):
         """
 
         self.system_user = CoreUser.objects.get_or_create_system_user()
-        # TODO: BUG in the git repositories table template if the timezone is missing...
         self.user1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
 
         self.git_repository1_data = GitRepositoryData.objects.create(
@@ -54,7 +53,7 @@ class TestGitRepositoryView(TestCase):
         form_data = urlencode(git_repository_form.data)
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}), form_data, url_encoding)
-        self.assertRedirects(response, '/git_repository/' + str(self.git_repository1.id) + '/')
+        self.assertRedirects(response, '/git_repositories')
         messages = list(get_messages(response.wsgi_request))
         # Make sure the whole form came through to the database
         self.git_repository1.refresh_from_db()
@@ -68,7 +67,7 @@ class TestGitRepositoryView(TestCase):
         form_data = 'foo=1'
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}), form_data, url_encoding)
-        self.assertRedirects(response, '/git_repository/' + str(self.git_repository1.id) + '/')
+        self.assertRedirects(response, '/git_repositories')
         messages = list(get_messages(response.wsgi_request))
         # Make sure the form did not update the database
         self.git_repository1.refresh_from_db()

@@ -4,31 +4,14 @@
             <h5 class="modal-title">{{ git_repository.current.name|safe|upper }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form>
+        <form
+            id="git-repository-form"
+            hx-post="{% url 'git_repository' git_repository.id %}"
+            hx-target="#git-repository-modal"
+            hx-trigger="submit">
             <div class="modal-body">
                 {% csrf_token %}
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="id_name" class="form-label">Name:</label>
-                        <input type="text" name="name" value="{{ git_repository.current.name }}" class="form-control" id="id_name" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="id_description" class="form-label">Description:</label>
-                        <textarea name="description" value="{{ git_repository.current.description }}" class="form-control" id="id_description">{{ git_repository.current.description }}</textarea>
-                    </div>
-                </div>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="id_url" class="form-label">URL:</label>
-                        <input type="url" name="url" value="{{ git_repository.current.url }}" class="form-control" id="id_url">
-                    </div>
-                    {% if valid_url %}
-                    <div class="col-sm-2">
-                        <p>&nbsp;</p>
-                        <a href="{{ git_repository.current.url }}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
-                    </div>
-                    {% endif %}
-                </div>
+                {% include "project/git_repository/git_repository_form.html" %}
                 <div class="row g-3">
                     <div class="col">
                         <span>&nbsp;</span>
@@ -38,31 +21,18 @@
                     <div class="col">
                         <table class="table table-hover">
                             <tbody>
-                                {% if organization %}
-                                <tr>
-                                    <td>In Organization:</td>
-                                    <td>{{ organization.current.name }}</td>
-                                </tr>
-                                {% else %}
-                                <tr></tr>
-                                {% endif %}
-                                {% if project %}
-                                <tr>
-                                    <td>Used by Project:</td>
-                                    <td>{{ project.current.name }}</td>
-                                </tr>
-                                {% else %}
-                                <tr><td></td><td></td></tr>
-                                {% endif %}
+                                {% include 'core/organization_owner_table_row.html' %}
+                                {% include 'project/project_owner_table_row.html' %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
-            <input type="hidden" name="reporter" value="{{ logged_in_user.id }}">
+            <input type="hidden" name="project_id" value="{{ project_id }}">
             <input type="hidden" name="next" value="{{ next }}">
         </form>
     </div>
