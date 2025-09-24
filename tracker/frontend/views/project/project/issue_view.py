@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.forms.models import model_to_dict
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
+from frontend.util import project as project_utils
 from core.models import user as core_user_models
 from project.models import issue as issue_models
 from frontend.forms.project.issue import issue_form
@@ -11,6 +13,12 @@ def handle_post(request, logged_in_user, issue=None):
     received_issue_form = issue_form.IssueForm(request.POST, request.FILES)
 
     if received_issue_form.is_valid():
+        # Check if user can access project
+        project = project_utils.get_project_by_uuid_or_label(logged_in_user, received_issue_form.cleaned_data.get("project", ''))
+        if project is None:
+            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            return redirect("projects")
+
         issue_data = issue_models.IssueData.objects.create(
             created_by=logged_in_user,
             project_id=received_issue_form.cleaned_data.get("project", ''),
@@ -25,13 +33,12 @@ def handle_post(request, logged_in_user, issue=None):
             version_id=received_issue_form.cleaned_data.get("version", ''),
             component_id=received_issue_form.cleaned_data.get("component", ''),
             )
-
         issue.current = issue_data
         issue.save()
 
     return render(
         request=request,
-        template_name="project/issue/issues_table.html",
+        template_name="project/project/issues_table.html",
         context={
             'logged_in_user': logged_in_user,
             'issues': logged_in_user.list_issues(),
@@ -62,7 +69,7 @@ def issue(request, issue_id=None):
 
     return render(
         request=request,
-        template_name="project/issue/issue_modal.html",
+        template_name="project/project/issue_modal.html",
         context={
             'logged_in_user': logged_in_user,
             'issue_form': form,

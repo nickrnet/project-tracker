@@ -87,6 +87,12 @@ class TestNewIssueView(TestCase):
 
     def test_new_issue_view_get(self):
         self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('new_issue'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/issue/new_issue_modal.html')
+
+    def test_new_issue_view_get_with_project_id(self):
+        self.http_client.force_login(user=self.user1.user)
         response = self.http_client.get(reverse('new_issue', kwargs={'project_id': str(self.project1.id)}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/issue/new_issue_modal.html')
@@ -120,7 +126,7 @@ class TestNewIssueView(TestCase):
             'component': str(self.component1.id)
             }
         new_issue_form = NewIssueForm(new_issue_form_data)
-        new_issue_form.is_valid()
+        self.assertTrue(new_issue_form.is_valid())
         form_data = urlencode(new_issue_form.data)
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('new_issue', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
@@ -142,14 +148,83 @@ class TestNewIssueView(TestCase):
         self.assertEqual(issue.current.component, self.component1)
         self.assertIn('Your issue was successfully added!', str(messages))
 
+    def test_new_issue_post_without_project(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        new_issue_form_data = {
+            'summary': 'Issue Summary 1',
+            'description': 'Issue Description 1',
+            'project': str(self.project1.id),
+            'reporter': str(self.user1.id),
+            'assignee': str(self.user1.id),
+            'watchers': '',
+            'built_in_type': str(self.issue_type_bug.id),
+            'built_in_priority': str(self.issue_priority_low.id),
+            'built_in_status': str(self.issue_status_triage.id),
+            'built_in_severity': str(self.issue_severity_minor.id),
+            'version': str(self.version1.id),
+            'component': str(self.component1.id)
+            }
+        new_issue_form = NewIssueForm(new_issue_form_data)
+        self.assertTrue(new_issue_form.is_valid())
+        form_data = urlencode(new_issue_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('new_issue'), form_data, url_encoding)
+        issue = Issue.objects.first()
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        # Make sure the whole form came through to the database
+        self.assertEqual(issue.current.summary, 'Issue Summary 1')
+        self.assertEqual(issue.current.description, 'Issue Description 1')
+        self.assertEqual(issue.current.project, self.project1)
+        self.assertEqual(issue.current.reporter, self.user1)
+        self.assertEqual(issue.current.assignee, self.user1)
+        self.assertEqual(issue.current.built_in_type, self.issue_type_bug)
+        self.assertEqual(issue.current.built_in_priority, self.issue_priority_low)
+        self.assertEqual(issue.current.built_in_status, self.issue_status_triage)
+        self.assertEqual(issue.current.built_in_severity, self.issue_severity_minor)
+        self.assertEqual(issue.current.version, self.version1)
+        self.assertEqual(issue.current.component, self.component1)
+        self.assertIn('Your issue was successfully added!', str(messages))
+
     def test_new_issue_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'
-        form_data = 'a=1'
+        form_data = {'a': 1}
+        new_issue_form = NewIssueForm(form_data)
+        form_data = urlencode(new_issue_form.data)
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('new_issue', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/issue/issues_table.html')
         self.assertIn('Error saving issue.', str(messages))
+        # Make sure the form did not save to the database
+        self.assertEqual(Issue.objects.count(), 0)
+
+    def test_new_issue_post_to_project_that_does_not_exist(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        form_data = {
+            'summary': 'Issue Summary 1',
+            'description': 'Issue Description 1',
+            'project': 'f4b374e1-0d04-493b-a3c9-7841c7579755',
+            'reporter': str(self.user1.id),
+            'assignee': str(self.user1.id),
+            'watchers': '',
+            'built_in_type': str(self.issue_type_bug.id),
+            'built_in_priority': str(self.issue_priority_low.id),
+            'built_in_status': str(self.issue_status_triage.id),
+            'built_in_severity': str(self.issue_severity_minor.id),
+            'version': str(self.version1.id),
+            'component': str(self.component1.id)
+            }
+        new_issue_form = NewIssueForm(form_data)
+        self.assertTrue(new_issue_form.is_valid())
+        form_data = urlencode(new_issue_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('new_issue'), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
         # Make sure the form did not save to the database
         self.assertEqual(Issue.objects.count(), 0)

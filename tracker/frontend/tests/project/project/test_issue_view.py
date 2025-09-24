@@ -12,7 +12,7 @@ from project.models.severity import BuiltInIssueSeverity
 from project.models.project import Project, ProjectData, ProjectLabel, ProjectLabelData
 
 
-class TestIssueView(TestCase):
+class TestProjectIssueView(TestCase):
     def setUp(self):
         """
         Creates 1 user, 1 project, 1 issue, and the built-in Issue requirements.
@@ -74,20 +74,20 @@ class TestIssueView(TestCase):
         self.http_client = Client()
 
     def test_issue_view_redirects_when_not_logged_in(self):
-        response = self.http_client.get(reverse('issue', kwargs={'issue_id': str(self.issue1.id)}))
+        response = self.http_client.get(reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/issue/' + str(self.issue1.id) + '/')
+        self.assertRedirects(response, '/login?next=/project/issue/' + str(self.issue1.id) + '/')
 
     def test_issue_view_get(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('issue', kwargs={'issue_id': str(self.issue1.id)}))
+        response = self.http_client.get(reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issue_modal.html')
+        self.assertTemplateUsed(response, 'project/project/issue_modal.html')
 
     def test_issue_view_post(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('issue', kwargs={'issue_id': str(self.issue1.id)}),
+            reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}),
             data={
                 'project': str(self.project1.id),
                 'summary': 'Updated Issue 1 Summary',
@@ -103,7 +103,7 @@ class TestIssueView(TestCase):
                 }
             )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertTemplateUsed(response, 'project/project/issues_table.html')
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
         self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
@@ -111,7 +111,7 @@ class TestIssueView(TestCase):
     def test_issue_view_post_with_bad_form(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('issue', kwargs={'issue_id': str(self.issue1.id)}),
+            reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}),
             data={
                 'summary': 'Updated Issue 1 Summary',
                 'description': 'Updated description for issue 1',
@@ -126,7 +126,31 @@ class TestIssueView(TestCase):
                 }
             )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertTemplateUsed(response, 'project/project/issues_table.html')
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Issue 1')
+        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+
+    def test_issue_view_post_with_project_that_does_not_exist(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}),
+            data={
+                'project': '6cd54a2e-8a4e-47ff-b02c-4ecd6b92578f',
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'version': '',
+                'component': '',
+                }
+            )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
