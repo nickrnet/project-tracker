@@ -1,0 +1,35 @@
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">New Issue</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        {% if project %}
+        <form
+            hx-post={% url 'new_project_issue' project.label.current.label %}
+            hx-target="#issues-tab-pane"
+            hx-swap="outerHTML"
+            data-bs-toggle="toast"
+            data-bs-target="#toast">
+        {% else %}
+        <form
+            hx-post={% url 'new_project_issue' %}
+            hx-target="#issues-tab-pane"
+            hx-swap="outerHTML"
+            data-bs-toggle="toast"
+            data-bs-target="#toast">
+        {% endif %}
+            <div class="modal-body">
+                {% csrf_token %}
+                {% include "project/issue/issue_form.html" %}
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+            <input type="hidden" name="reporter" value="{{ logged_in_user.id }}">
+            <input type="hidden" name="project_id" value="{{ project.id }}">
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</div>

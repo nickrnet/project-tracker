@@ -1,0 +1,47 @@
+[project]
+name = ""
+version = "1.0.0"
+requires-python = ">=3.12.0, <3.13"
+dependencies = [
+    "celery==5.4.0",
+    "django>=5.2",
+    "django-app-metrics",
+    "django-celery",
+    "django-coverage",
+    "django-environ>=0.12.0",
+    "django-extensions",
+    "django-filter",
+    "django-health-check",
+    "django-htmx",
+    "django-phone-field",
+    "djangorestframework",
+    "gunicorn>=23.0.0",
+    "markdown",
+    "opentelemetry-api",
+    "opentelemetry-sdk",
+    "opentelemetry-instrumentation-django",
+    "opentelemetry-instrumentation-psycopg2",
+    "opentelemetry-instrumentation-sqlite3",
+    "opentelemetry-exporter-otlp",
+    "pytz",
+    "psycopg2",
+    "whitenoise>=6.10.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipdb",
+    "ipykernel",
+    "ipython>=8.26.0",
+    "pytest",
+    "pytest-cov",
+    "pytest-django",
+    "opentelemetry-exporter-otlp-proto-http",
+]
+
+[tool.uv]
+package = false
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"

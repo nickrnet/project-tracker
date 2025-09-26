@@ -1,0 +1,51 @@
+{% load static %}
+{% load tz %}
+{% load django_htmx %}
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+    <head>
+        <title>Project Tracker</title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+
+        <script src="{% static 'js/jquery-3.7.1.js' %}"></script>
+        <script src="{% static 'js/dataTables-2.1.6.min.js' %}"></script>
+        <script src="{% static 'js/dataTables-2.1.6.bootstrap5.js' %}"></script>
+        <script src="{% static 'js/dataTables.buttons-3.1.2.min.js' %}"></script>
+        <link rel="stylesheet" href="{% static 'css/dataTables-2.1.6.bootstrap5.css' %}"></link>
+
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"></link>
+        <link rel="stylesheet" href="{% static 'font/bootstrap-icons.min.css' %}"></link>
+        <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+        <script src="{% static 'js/htmx.min.js' %}"></script>
+
+        <style>
+            .container {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+            .dropdown-menu {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container-fluid" id="whole-page">
+            {% include "header.html" %}
+            <div class="row justify-content-start">
+                <div class="col-md-2">
+                    {% include "navigation_template.html" %}
+                </div>
+                <div class="col-md-10 pe-5">
+                    {% block content %} {% endblock %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,37 @@
+[run]
+branch = true
+
+[report]
+format = text
+show_missing = true
+precision = 2
+omit =
+    */__init__.py
+    api/tests/*
+    core/management/*
+    core/migrations/*
+    core/tests/*
+    project/management/*
+    project/migrations/*
+    project/tests/*
+    frontend/tests/*
+    frontend/static/*
+    frontend/templates/*
+    tracker/settings/*
+exclude_also =
+    def __repr__
+    def __str__
+    def squash_google_chrome_dev_tools
+
+[html]
+directory = ../doc/coverage/html
+
+[json]
+output = ../doc/coverage/coverage.json
+pretty_print = true
+
+[lcov]
+output = ../doc/coverage/coverage.lcov
+
+[xml]
+output = ../doc/coverage/coverage.xml
