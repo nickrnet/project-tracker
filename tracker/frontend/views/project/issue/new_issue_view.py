@@ -8,9 +8,15 @@ from core.models import user as core_user_models
 from project.models import issue as issue_models
 
 
-def handle_post(request, logged_in_user, project):
+def handle_post(request, logged_in_user):
     received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
+
     if received_new_issue_form.is_valid():
+        project = project_utils.get_project_by_uuid_or_label(logged_in_user, received_new_issue_form.cleaned_data.get("project", ''))
+        if project is None:
+            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            return redirect("projects")
+
         issue_data = issue_models.IssueData.objects.create(
             created_by=logged_in_user,
             project=project,
@@ -48,17 +54,18 @@ def handle_post(request, logged_in_user, project):
 
 
 @login_required
-def new_issue(request, project_id):
+def new_issue(request, project_id=None):
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     # Check if user can access project
-    project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
-    if project is None:
-        messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
-        return redirect("projects")
+    if project_id is not None:
+        project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
+        if project is None:
+            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            return redirect("projects")
 
     if request.method == "POST":
-        return handle_post(request, logged_in_user, project)
+        return handle_post(request, logged_in_user)
 
     issue_form = new_issue_form.NewIssueForm()
     projects = logged_in_user.list_projects()
@@ -66,8 +73,8 @@ def new_issue(request, project_id):
     issue_priorities = issue_models.Issue.active_objects.list_built_in_priorities()
     issue_statuses = issue_models.Issue.active_objects.list_built_in_statuses()
     issue_severities = issue_models.Issue.active_objects.list_built_in_severities()
-    issue_versions = issue_models.Issue.active_objects.list_versions(project.id) if project else []
-    issue_components = issue_models.Issue.active_objects.list_components(project.id) if project else []
+    issue_versions = issue_models.Issue.active_objects.list_versions(project.id) if project_id else []
+    issue_components = issue_models.Issue.active_objects.list_components(project.id) if project_id else []
 
     return render(
         request=request,

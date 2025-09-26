@@ -22,6 +22,7 @@ from frontend.views.project.project import project_settings_version_view
 from frontend.views.project.project import project_settings_new_version_view
 from frontend.views.project.project import project_settings_new_git_repository_view
 from frontend.views.project.project import projects_view
+from frontend.views.project.project import issue_view as project_issue_view
 from frontend.views.project.project import new_issue_view as new_project_issue_view
 from frontend.views.project.project import new_project_view
 from frontend.views.project.issue import issue_view
@@ -67,6 +68,8 @@ urlpatterns = [
     path('check_project_label_availability/<slug:label_text>/', check_project_label_availability_view.check_project_label_availability, name='check_project_label_availability'),
     path('projects', projects_view.projects, name='projects'),
     path('project/<uuid_or_label:project_id>/', project_view.project, name='project'),
+    path('project/issue/', project_issue_view.issue, name='project_issue'),
+    path('project/issue/<uuid_or_label:issue_id>/', project_issue_view.issue, name='project_issue'),
     path('project/new_issue/', new_project_issue_view.new_issue, name='new_project_issue'),
     path('project/new_issue/<uuid_or_label:project_id>/', new_project_issue_view.new_issue, name='new_project_issue'),
 
