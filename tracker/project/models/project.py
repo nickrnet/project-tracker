@@ -19,6 +19,9 @@ class ProjectLabelData(core_models.CoreModel):
 class ProjectLabel(core_models.CoreModel):
     current = models.ForeignKey(ProjectLabelData, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.current.label
+
 
 class ProjectData(core_models.CoreModel):
     name = models.CharField(max_length=255)
@@ -30,7 +33,7 @@ class ProjectData(core_models.CoreModel):
 
 
 class ProjectActiveManager(models.Manager):
-    def get_queryset(self):
+    def get_queryset(self) -> models.QuerySet:
         return super().get_queryset().filter(deleted=None).filter(current__is_active=True)
 
 
@@ -107,7 +110,7 @@ class Project(core_models.CoreModel):
 
         return self
 
-    def generate_label(self):
+    def generate_label(self) -> str:
         """
         A helper method to generate a project label based on the project's name.
 
@@ -117,7 +120,7 @@ class Project(core_models.CoreModel):
 
         return "-".join(self.current.name.split()).lower()
 
-    def update_project_label(self, user_id: uuid.UUID, new_project_label: ProjectLabel):
+    def update_project_label(self, user_id: uuid.UUID, new_project_label: ProjectLabel) -> 'Project':
         """
         A helper method to update a project label.
 
@@ -138,7 +141,7 @@ class Project(core_models.CoreModel):
 
         return self
 
-    def list_users(self):
+    def list_users(self) -> list:
         """
         A helper method to list the users that could potentially access this project. Based on the logged in user's organization and this project.
 
@@ -157,7 +160,7 @@ class Project(core_models.CoreModel):
         user_ids = set(organization_users).union(set(project_users))
         return core_user_models.CoreUser.active_objects.filter(id__in=user_ids)
 
-    def list_issues(self):
+    def list_issues(self) -> list:
         """
         A helper method to list the project's issues.
 
@@ -177,4 +180,4 @@ class Project(core_models.CoreModel):
             potential_names.append(self.current.name)
         if self.label:
             potential_names.append(f"- ({self.label})")
-        return self.current.name
+        return ' '.join(potential_names)

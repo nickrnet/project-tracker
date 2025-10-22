@@ -65,7 +65,7 @@ def project_settings(request, project_id):
     components = project.component_set.all()
     versions = project.version_set.all()
     repositories = project.git_repositories.all()
-    users = project.list_users()
+    available_users = project.list_users()
 
     return render(
         request=request,
@@ -78,7 +78,7 @@ def project_settings(request, project_id):
             'components': components,
             'versions': versions,
             'git_repositories': repositories,
-            'users': users,
+            'available_users': available_users,
             # We use Django Forms to validate the form data, but the date selector is generic
             # HTML that is not part of the form, so we need to pass the field names here to
             # render the date selector correctly so the data gets sent back correctly.

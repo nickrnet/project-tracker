@@ -1,73 +1,81 @@
-
-        <div class="modal-header">
-            <div class="container-fluid text-left">
-                <div class="row">
-                    <div class="col-sm-1 text-center">
-                        <h5 class="modal-title">
-                            {% if issue.current.built_in_type and issue.current.built_in_type.type == "CHANGE_REQUEST" %}
-                            <i class="bi bi-alarm"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "PROBLEM" %}
-                            <i class="bi bi-exclamation-square"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "INCIDENT" %}
-                            <i class="bi bi-building-exclamation"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "SERVICE_REQUEST" %}
-                            <i class="bi bi-basket"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "TEST" %}
-                            <i class="bi bi-bookmark-check"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "IMPROVEMENT" %}
-                            <i class="bi bi-clipboard-data"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "ENHANCEMENT" %}
-                            <i class="bi bi-crosshair"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "QUESTION" %}
-                            <i class="bi bi-question-circle"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "PROPOSAL" %}
-                            <i class="bi bi-envelope-paper"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "SPIKE" %}
-                            <i class="bi bi-activity"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "SUBTASK" %}
-                            <i class="bi bi-check2-square"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "TASK" %}
-                            <i class="bi bi-check-square"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "FEATURE" %}
-                            <i class="bi bi-lightning-charge"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "STORY" %}
-                            <i class="bi bi-journal-text"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "EPIC" %}
-                            <i class="bi bi-collection"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "DOCUMENTATION" %}
-                            <i class="bi bi-file-text"></i>
-                            {% elif issue.current.built_in_type and issue.current.built_in_type.type == "BUG" %}
-                            <i class="bi bi-bug"></i>
-                            {% else %}
-                            <i class="bi bi-question-octagon"></i>
-                            {% endif %}
-                        </h5>
-                    </div>
-                    <div class="col-sm-1 overflow-hidden">
-                        <h5 class="modal-title">
-                            {% if issue.current.built_in_status %}
-                            {{ issue.current.built_in_status.description }}
-                            {% endif %}
-                        </h5>
-                    </div>
-                    <div class="col-sm-4 overflow-hidden">
-                        {% if issue.current.project.label %}
-                        <h5 class="modal-title" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}">
-                            {{ issue.current.project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}
-                        {% else %}
-                        <h5 class="modal-title" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.project.current.name }} - {{ issue.sequence|stringformat:"s" }}">
-                            {{ issue.current.project.current.name }} - {{ issue.sequence|stringformat:"s" }}
-                        {% endif %}
-                        </h5>
-                    </div>
-                    <div class="col-sm-5 overflow-hidden">
-                        <h5 class="modal-title text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.summary }}">
-                            {{ issue.current.summary }}
-                        </h5>
-                    </div>
-                    <div class="col-sm-1 text-end">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                </div>
+{% load tz %}
+<div class="modal-header">
+    <div class="container-fluid text-left">
+        <div class="row">
+            <p>Created by: <a href="{% url 'user' issue.created_by.id %}">{{ issue.created_by.current.last_name }}, {{ issue.created_by.current.first_name }}</a>{% if issue.created_on %} on {{ issue.created_on|timezone:logged_in_user.current.timezone }}{% endif %}</p>
+        </div>
+        <div class="row">
+            <div class="col-sm-1 text-center">
+                <h5 class="modal-title">
+                    {% if issue.current.built_in_type and issue.current.built_in_type.type == "CHANGE_REQUEST" %}
+                    <i class="bi bi-alarm"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "PROBLEM" %}
+                    <i class="bi bi-exclamation-square"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "INCIDENT" %}
+                    <i class="bi bi-building-exclamation"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "SERVICE_REQUEST" %}
+                    <i class="bi bi-basket"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "TEST" %}
+                    <i class="bi bi-bookmark-check"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "IMPROVEMENT" %}
+                    <i class="bi bi-clipboard-data"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "ENHANCEMENT" %}
+                    <i class="bi bi-crosshair"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "QUESTION" %}
+                    <i class="bi bi-question-circle"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "PROPOSAL" %}
+                    <i class="bi bi-envelope-paper"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "SPIKE" %}
+                    <i class="bi bi-activity"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "SUBTASK" %}
+                    <i class="bi bi-check2-square"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "TASK" %}
+                    <i class="bi bi-check-square"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "FEATURE" %}
+                    <i class="bi bi-lightning-charge"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "STORY" %}
+                    <i class="bi bi-journal-text"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "EPIC" %}
+                    <i class="bi bi-collection"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "DOCUMENTATION" %}
+                    <i class="bi bi-file-text"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "BUG" %}
+                    <i class="bi bi-bug"></i>
+                    {% else %}
+                    <i class="bi bi-question-octagon"></i>
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="col-sm overflow-hidden">
+                <h5 class="modal-title">
+                    {% if issue.current.built_in_status %}
+                    {{ issue.current.built_in_status.description }}
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="col-sm-4 overflow-hidden">
+                {% if issue.current.project.label %}
+                <h5 class="modal-title" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}">
+                    {{ issue.current.project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}
+                {% else %}
+                <h5 class="modal-title" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.project.current.name }} - {{ issue.sequence|stringformat:"s" }}">
+                    {{ issue.current.project.current.name }} - {{ issue.sequence|stringformat:"s" }}
+                {% endif %}
+                </h5>
+            </div>
+            <div class="col-sm-1 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
         </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <hr/>
+            </div>
+        </div>
+        <div class="row">
+            <h5 class="modal-title text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.summary }}">
+                {{ issue.current.summary }}
+            </h5>
+        </div>
+    </div>
+</div>

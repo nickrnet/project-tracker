@@ -40,19 +40,31 @@
                 hx-target="#issues-modal"
                 data-bs-toggle="modal"
                 data-bs-target="#issues-modal">
-                <th class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}" scope="row">{{ issue.current.project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.project.current.name|safe }}">{{ issue.current.project.current.name|safe }}</th>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.summary|safe }}">{{ issue.current.summary|safe }}</th>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.description|safe }}">{{ issue.current.description|safe }}</td>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.type|safe }}">{{ issue.current.built_in_type.type|safe }}</td>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_priority.name|safe }}">{{ issue.current.built_in_priority.name|safe }}</td>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_severity.name|safe }}">{{ issue.current.built_in_severity.name|safe }}</td>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_status.name|safe }}">{{ issue.current.built_in_status.name|safe }}</td>
+                <th class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}" scope="row">{{ issue.current.project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.project.current.name|safe }}">{{ issue.current.project.current.name|safe }}</th>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.summary|safe }}">{{ issue.current.summary|safe }}</th>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.description|safe }}">{{ issue.current.description|safe }}</td>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}">{{ issue.current.built_in_type.description|safe }}</td>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_priority.description|safe }}">{{ issue.current.built_in_priority.description|safe }}</td>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_severity.description|safe }}">{{ issue.current.built_in_severity.description|safe }}</td>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_status.description|safe }}">{{ issue.current.built_in_status.description|safe }}</td>
                 {% if logged_in_user.current.timezone %}
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.created_on|timezone:logged_in_user.current.timezone }}">{{ issue.created_on|timezone:logged_in_user.current.timezone }}</td>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.created_on|timezone:logged_in_user.current.timezone }}">{{ issue.created_on|timezone:logged_in_user.current.timezone }}</td>
                 {% else %}
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.created_on|timezone:"UTC" }}">{{ issue.created_on|timezone:"UTC" }}</td>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.created_on|timezone:"UTC" }}">{{ issue.created_on|timezone:"UTC" }}</td>
                 {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td class="text-muted">No issues available.</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -61,7 +73,7 @@
         new DataTable('#issues-table-data', {
             order: [[8, 'desc']],
             language: {
-                emptyTable: 'No records found.',
+                emptyTable: 'No issues available.',
             },
             drawCallback: function (settings) {
                 loadTooltips();

@@ -42,6 +42,16 @@
             <div class="modal-content"></div>
         </div>
     </div>
+    <div id="project-settings-user-select-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="project-settings-user-select-modal"
+        aria-hidden="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
     <h2 class="my-4">{{ project.current.name }} <button
         hx-get="{% url 'project_settings' project_id %}"
         hx-target="#project-settings-modal"

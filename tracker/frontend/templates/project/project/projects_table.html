@@ -64,6 +64,14 @@
                 {% endwith %}
                 <td>{{ project.created_on|timezone:logged_in_user.current.timezone }}</td>
             </tr>
+            {% empty %}
+            <tr>
+                <td class="text-muted">No projects available.</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -71,7 +79,7 @@
         new DataTable('#projects-table-data', {
             order: [[4, 'desc']],
             language: {
-                emptyTable: 'No projects.',
+                emptyTable: 'No projects available.',
             },
             drawCallback: function (settings) {
                 loadTooltips();

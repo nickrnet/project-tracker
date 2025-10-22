@@ -7,7 +7,7 @@
         {% csrf_token %}
         <table>
             <tr>
-                <td>{{ issue_form.project.label_tag }}</td>
+                <td style="max-width: 75px;">{{ issue_form.project.label_tag }}</td>
                 <td>
                     <select name="project">
                     {% for project in projects %}
