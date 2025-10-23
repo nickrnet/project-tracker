@@ -1,7 +1,7 @@
 {% if organization %}
 <tr>
     <td>In Organization:</td>
-    <td><a href="{% url 'organization' organization.id %}">{{ organization.current.name }}</a></td>
+    <td><a href="{% url 'organization' organization.id %}">{{ organization.current.name|safe }}</a></td>
     <td>
         <!-- TODO: Allow moving git repositories to antoher organization -->
         {% comment %} <div class="dropend">
@@ -10,12 +10,16 @@
             </button>
             <ul class="dropdown-menu">
                 {% for organization in organizations %}
-                <li><a class="dropdown-item" href="#">{{ organization.current.name }}</a></li>
+                <li><a class="dropdown-item" href="#">{{ organization.current.name|safe }}</a></li>
                 {% endfor %}
             </ul>
         </div> {% endcomment %}
     </td>
 </tr>
 {% else %}
-<tr><td></td><td></td><td></td></tr>
+<tr>
+    <td></td>
+    <td></td>
+    <td></td>
+</tr>
 {% endif %}

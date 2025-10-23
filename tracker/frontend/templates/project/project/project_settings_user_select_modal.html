@@ -17,7 +17,7 @@
                         <label for="available_users" class="form-label">Available Users:</label>
                         <select class="form-select" multiple aria-label="Available Users", name="available_users", id="available_users">
                             {% for user in available_users %}
-                            <option value="{{ user.id }}">{{ user }}</option>
+                            <option value="{{ user.id }}">{{ user|safe }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -45,7 +45,7 @@
                         <label for="current_users" class="form-label">Current Users:</label>
                         <select class="form-select" multiple aria-label="Current Users", name="current_users", id="current_users">
                             {% for user in project_users %}
-                            <option value="{{ user.id }}">{{ user }}</option>
+                            <option value="{{ user.id }}">{{ user|safe }}</option>
                             {% endfor %}
                         </select>
                     </div>

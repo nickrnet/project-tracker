@@ -20,9 +20,9 @@
         <tbody>
         {% for user in members %}  {% comment %} TODO: Handle clicking a user {% endcomment %}
             <tr>
-                <td>{{ user.current.last_name }}</th>
-                <td>{{ user.current.first_name }}</td>
-                <td>{{ user.current.email }}</td>
+                <td>{{ user.current.last_name|safe }}</th>
+                <td>{{ user.current.first_name|safe }}</td>
+                <td>{{ user.current.email|safe }}</td>
             </tr>
         {% empty %}
             <tr>

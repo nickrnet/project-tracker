@@ -21,10 +21,10 @@
         <tbody>
         {% for user in users %}
             <tr onclick="window.location='{% url 'user' user.id %}'">
-                <td>{{ user.current.last_name }}</th>
-                <td>{{ user.current.first_name }}</td>
-                <td>{{ user.current.email }}</td>
-                <td>{% if user.organizationmembers_set.exists %}{% for organization in user.organizationmembers_set.all %}{{organization.current.name}}, {% endfor %}{% endif %}</td>  {% comment %} TODO: This is ugly as hell in the browser, maybe a table per org? Might be too scrolly then... {% endcomment %}
+                <td>{{ user.current.last_name|safe }}</th>
+                <td>{{ user.current.first_name|safe }}</td>
+                <td>{{ user.current.email|safe }}</td>
+                <td>{% if user.organizationmembers_set.exists %}{% for organization in user.organizationmembers_set.all %}{{ organization.current.name|safe }}, {% endfor %}{% endif %}</td>  {% comment %} TODO: This is ugly as hell in the browser, maybe a table per org? Might be too scrolly then... {% endcomment %}
             </tr>
         {% empty %}
             <tr>

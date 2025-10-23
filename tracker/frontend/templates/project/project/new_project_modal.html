@@ -35,7 +35,7 @@
                         <select name="organization" id="id_organization" class="form-select">
                             <option value="">-----</option>
                             {% for organization in organizations %}
-                            <option value="{{ organization.id }}">{{ organization.current.name }}</option>
+                            <option value="{{ organization.id }}">{{ organization.current.name|safe }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -54,7 +54,7 @@
                         <label for="id_description" class="form-label">Description:</label>
                     </div>
                     <div class="col">
-                        <textarea name="description" class="form-control" id="id_description">{{ project.current.description }}</textarea>
+                        <textarea name="description" class="form-control" id="id_description">{{ project.current.description|safe }}</textarea>
                     </div>
                 </div>
                 <div class="row align-items-center">
@@ -101,7 +101,7 @@
                         <select name="git_repository" id="id_git_repository" multiple class="form-select">
                             {% if repositories %}
                             {% for repository in repositories %}
-                            <option value="{{ repository.id }}">{{ repository }}</option>
+                            <option value="{{ repository.id }}">{{ repository|safe }}</option>
                             {% endfor %}
                             {% endif %}
                         </select>
@@ -115,7 +115,7 @@
                         <select name="user" id="id_user" multiple class="form-select">
                             {% if users %}
                             {% for user in users %}
-                            <option value="{{ user.id }}">{{ user }}{% if user.organizationmembers_set.exists %} {{ user.organizationmembers_set.first.current.name }} {% endif %}</option>
+                            <option value="{{ user.id }}">{{ user|safe }}{% if user.organizationmembers_set.exists %} {{ user.organizationmembers_set.first.current.name|safe }} {% endif %}</option>
                             {% endfor %}
                             {% endif %}
                         </select>

@@ -45,7 +45,7 @@
                     {% if logged_in_user.current.timezone %}
                     <td class="text-truncate" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.created_on|timezone:logged_in_user.current.timezone }}">{{ repository.created_on|timezone:logged_in_user.current.timezone }}</td>
                     {% else %}
-                    <td class="text-truncate" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.created_on }}">{{ repository.created_on }}</td>
+                    <td class="text-truncate" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.created_on|timezone:"UTC" }}">{{ repository.created_on|timezone:"UTC" }}</td>
                     {% endif %}
                 </tr>
             {% empty %}

@@ -20,9 +20,9 @@
         <tbody>
             {% for organization in organizations %}
             <tr onclick="window.location='{% url 'organization' organization.id %}'">
-                <th scope="row">{{ organization.current.name }}</th>
-                <td>{{ organization.current.description }}</td>
-                <td>{{ organization.current.responsible_party_email }}</td>
+                <th scope="row">{{ organization.current.name|safe }}</th>
+                <td>{{ organization.current.description|safe }}</td>
+                <td>{{ organization.current.responsible_party_email|safe }}</td>
             </tr>
             {% empty %}
             <tr>

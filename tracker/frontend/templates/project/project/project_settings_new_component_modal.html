@@ -41,19 +41,19 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="id_name" class="form-label">Name:</label>
-                        <input hx-validate="true" type="text" name="name" class="form-control" id="id_name" value="{{ component.current.name }}" required>
+                        <input hx-validate="true" type="text" name="name" class="form-control" id="id_name" value="{{ component.current.name|safe }}" required>
                     </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="id_description" class="form-label">Description:</label>
-                        <textarea hx-validate="true" name="description" class="form-control" id="id_description" value="{{ component.current.description }}"></textarea>
+                        <textarea hx-validate="true" name="description" class="form-control" id="id_description" value="{{ component.current.description|safe }}"></textarea>
                     </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="id_label" class="form-label">Label:</label>
-                        <input hx-validate="true" type="text" name="label" class="form-control" id="id_label" value="{{ component.current.label }}">
+                        <input hx-validate="true" type="text" name="label" class="form-control" id="id_label" value="{{ component.current.label|safe }}">
                     </div>
                 </div>
                 <div class="row g-3">

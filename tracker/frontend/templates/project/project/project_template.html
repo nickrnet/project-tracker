@@ -52,7 +52,7 @@
             <div class="modal-content"></div>
         </div>
     </div>
-    <h2 class="my-4">{{ project.current.name }} <button
+    <h2 class="my-4">{{ project.current.name|safe }} <button
         hx-get="{% url 'project_settings' project_id %}"
         hx-target="#project-settings-modal"
         data-bs-toggle="modal"
@@ -60,7 +60,7 @@
         class="btn primary"><i class="bi bi-gear"></i></button></h2>
         {% with project_org=project.organizationprojects_set.first %}
         {% if project_org %}
-        <p>Organization: <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></p>
+        <p>Organization: <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name|safe }}</a></p>
         {% endif %}
         {% endwith %}
         <ul class="nav nav-tabs" id="myTab" role="tablist">

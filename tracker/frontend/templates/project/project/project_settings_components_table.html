@@ -44,7 +44,11 @@
                     <td class="text-truncate" style="max-width: 155px;" {% if component.current.description %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.description|safe }}"{% endif %}>{% if component.current.description %}{{ component.current.description|safe }}{% endif %}</th>
                     <td class="text-truncate" style="max-width: 155px;" {% if component.current.label %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.label|safe }}"{% endif %}>{% if component.current.label %}{{ component.current.label|safe }}{% endif %}</td>
                     <td class="text-truncate" style="max-width: 155px;" {% if component.current.is_active %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.is_active|safe }}"{% endif %}>{% if component.current.is_active %}{{ component.current.is_active|safe }}{% endif %}</td>  {% comment %} TODO: Checkbox for this {% endcomment %}
+                    {% if logged_in_user.current.timezone %}
                     <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ component.created_on|timezone:logged_in_user.current.timezone }}">{{ component.created_on|timezone:logged_in_user.current.timezone }}</td>
+                    {% else %}
+                    <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ component.created_on|timezone:"UTC" }}">{{ component.created_on|timezone:"UTC" }}</td>
+                    {% endif %}
                 </tr>
             {% empty %}
                 <tr>
