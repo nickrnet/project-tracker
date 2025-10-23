@@ -14,6 +14,7 @@ def logout_of_app(request):
     remote_addr = request.META.get('REMOTE_ADDR', '')
     core_user_models.UserLogout.objects.create(
         created_by=user,
+        created_on=timezone.now(),
         user=user,
         x_forwarded_for=validate_ip_address(x_forwarded_for).split(',')[0] if x_forwarded_for else None,
         remote_addr=validate_ip_address(remote_addr) if remote_addr else None,

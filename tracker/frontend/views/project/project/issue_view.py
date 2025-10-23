@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from frontend.util import project as project_utils
 from core.models import user as core_user_models
@@ -21,6 +22,7 @@ def handle_post(request, logged_in_user, issue=None):
 
         issue_data = issue_models.IssueData.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             project_id=received_issue_form.cleaned_data.get("project", ''),
             summary=received_issue_form.cleaned_data.get("summary"),
             description=received_issue_form.cleaned_data.get("description", ''),

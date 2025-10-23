@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from frontend.forms.project.git_repository import git_repository_form as git_repository_form
 from core.models import user as core_user_models
@@ -25,6 +26,7 @@ def handle_post(request, logged_in_user, git_repository):
     if received_git_repository_form.is_valid():
         git_repository_data = git_repository_models.GitRepositoryData.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             name=received_git_repository_form.cleaned_data.get('name'),
             description=received_git_repository_form.cleaned_data.get('description'),
             url=received_git_repository_form.cleaned_data.get('url'),

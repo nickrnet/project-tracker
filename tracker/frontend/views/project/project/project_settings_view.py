@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from frontend.util import project as project_utils
 from core.models import user as core_user_models
@@ -20,10 +21,12 @@ def handle_post(request, logged_in_user: core_user_models.CoreUser, project_id: 
         if project_label:
             new_project_label_data = project_models.ProjectLabelData.objects.create(
                 created_by=logged_in_user,
+                created_on=timezone.now(),
                 label=project_label,
                 )
             new_project_label = project_models.ProjectLabel.objects.create(
                 created_by=logged_in_user,
+                created_on=timezone.now(),
                 current=new_project_label_data,
                 )
             project.label = new_project_label
@@ -35,7 +38,9 @@ def handle_post(request, logged_in_user: core_user_models.CoreUser, project_id: 
                 project_id = project_label
 
         project_data_form["created_by_id"] = str(logged_in_user.id)
-        project_data = project_models.ProjectData.objects.create(**project_data_form)
+        project_data = project_models.ProjectData(**project_data_form)
+        project_data.created_on = timezone.now()
+        project_data.save()
         project.current = project_data
         project.save()  # THIS IS NUKING THE USER'S PROJECT_SET FOR SOME REASON IN TESTS, THIS DOES NOT APPEAR TO HAPPEN IN A WEB REQUEST WTAF
 
