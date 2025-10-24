@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% block content %}
+<div class="container-fluid pe-5">
+    <div class="row">
+        <h2 class="my-4">Git Repositories <button
+            hx-get="{% url 'new_git_repository' %}"
+            hx-target="#git-repository-modal"
+            hx-target="#git-repository-modal"
+            data-bs-toggle="modal"
+            data-bs-target="#git-repository-modal"
+            class="btn primary"><i class="bi bi-plus-circle"></i></button></h2>
+    </div>
+    {% include "project/git_repository/git_repositories_table.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% block content %}
+<div class="container-fluid pe-5" id="project">
+    <div id="project-settings-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="project-settings-modal"
+        aria-hidden="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    <div id="project-settings-component-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="project-settings-component-modal"
+        aria-hidden="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    <div id="project-settings-version-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="project-settings-version-modal"
+        aria-hidden="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    <div id="project-settings-git-repository-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="project-settings-git-repository-modal"
+        aria-hidden="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    <div id="project-settings-user-select-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="project-settings-user-select-modal"
+        aria-hidden="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    <h2 class="my-4">{{ project.current.name|safe }} <button
+        hx-get="{% url 'project_settings' project_id %}"
+        hx-target="#project-settings-modal"
+        data-bs-toggle="modal"
+        data-bs-target="#project-settings-modal"
+        class="btn primary"><i class="bi bi-gear"></i></button></h2>
+        {% with project_org=project.organizationprojects_set.first %}
+        {% if project_org %}
+        <p>Organization: <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name|safe }}</a></p>
+        {% endif %}
+        {% endwith %}
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="issues-tab" data-bs-toggle="tab" data-bs-target="#issues-tab-pane" type="button" role="tab" aria-controls="issues-tab-pane" aria-selected="true">Issues</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            {% include "project/project/issues_tab_pane.html" %}
+        </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+import uuid
+
+from django.contrib.messages import get_messages
+from django.test import Client
+from django.test import TestCase
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.http import urlencode
+
+from frontend.forms.project.version.new_version_form import NewVersionDataForm
+from core.models.user import CoreUser
+from project.models import version as version_models
+from project.models.project import Project, ProjectData, ProjectLabel, ProjectLabelData
+
+
+class TestProjectSettingsNewVersionView(TestCase):
+    def setUp(self):
+        """
+        Creates 2 user, 1 project.
+        """
+        # Create Users
+        self.user1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
+
+        self.user2 = CoreUser.objects.create_core_user_from_web({'email': 'testuser2@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
+
+        # Create Project
+        self.project1_label_data = ProjectLabelData.objects.create(
+            created_by=self.user1,
+            label='project01',
+            description='Project 01 Label'
+            )
+        self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data)
+
+        self.project1_data = ProjectData.objects.create(
+            created_by=self.user1,
+            name="Initial Project 1",
+            description="Initial Project 1 Description",
+            start_date=timezone.now(),
+            is_active=True
+            )
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_label)
+        self.project1.users.add(self.user1)
+        self.project1.save()
+
+        # Create Client
+        self.http_client = Client()
+
+    def test_project_settings_new_version_redirects_if_not_logged_in(self):
+        response = self.http_client.get(reverse('project_settings_new_version'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login?next=/project-settings/new-version/')
+
+    def test_project_settings_new_version_view_get_if_no_project_id(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('project_settings_new_version'))
+        self.assertEqual(response.status_code, 302)
+        # TODO Does this redirect somewhere?
+
+    def test_project_settings_new_version_view_get(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('project_settings_new_version', kwargs={'project_id': self.project1.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/project/project_settings_new_version_modal.html')
+
+    def test_project_settings_new_version_view_post(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        version_form_data = {
+            'name': 'Version 1',
+            'description': 'First Version Description',
+            'label': 'Primary',
+            'release_date': '2025-01-01',
+            'is_active': True
+            }
+        version_form = NewVersionDataForm(version_form_data)
+        version_form.is_valid()
+        form_data = urlencode(version_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('project_settings_new_version', kwargs={'project_id': self.project1.id}), form_data, url_encoding)
+        version = version_models.Version.objects.first()
+        messages = list(get_messages(response.wsgi_request))
+        # Make sure the whole form came through to the database
+        self.assertEqual(version.current.name, 'Version 1')
+        self.assertEqual(version.current.description, 'First Version Description')
+        self.assertEqual(version.current.label, 'Primary')
+        self.assertEqual(version.current.is_active, True)
+        self.assertIn('Your version was successfully added!', str(messages))
+
+    def test_project_settings_new_version_view_post_project_id_is_label(self):
+        self.http_client.force_login(user=self.user1.user)
+        url_encoding = 'application/x-www-form-urlencoded'
+        version_form_data = {
+            'name': 'Version 1',
+            'description': 'First Version Description',
+            'label': 'Primary',
+            'release_date': '2025-01-01',
+            'is_active': True
+            }
+        version_form = NewVersionDataForm(version_form_data)
+        version_form.is_valid()
+        form_data = urlencode(version_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('project_settings_new_version', kwargs={'project_id': self.project1_label_data.label}), form_data, url_encoding)
+        version = version_models.Version.objects.first()
+        messages = list(get_messages(response.wsgi_request))
+        # Make sure the whole form came through to the database
+        self.assertEqual(version.current.name, 'Version 1')
+        self.assertEqual(version.current.description, 'First Version Description')
+        self.assertEqual(version.current.label, 'Primary')
+        self.assertEqual(version.current.is_active, True)
+        self.assertIn('Your version was successfully added!', str(messages))
+
+    def test_project_settings_new_version_view_post_with_invalid_project_id(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        version_form_data = {
+            'name': 'Version 1',
+            'description': 'First Version Description',
+            'label': 'Primary',
+            'release_date': '2025-01-01',
+            'is_active': True
+            }
+        version_form = NewVersionDataForm(version_form_data)
+        version_form.is_valid()
+        form_data = urlencode(version_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        # Project ID is invalid
+        response = self.http_client.post(reverse('project_settings_new_version', kwargs={'project_id': uuid.UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        # TODO - Improve handling
+        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+
+    def test_project_settings_new_version_view_post_with_bad_form(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        form_data = 'foo=1'
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('project_settings_new_version', kwargs={'project_id': self.project1.id}), form_data, url_encoding)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "project/project/project_settings_modal.html")
+        messages = list(get_messages(response.wsgi_request))
+        # Make sure the form did not update the database
+        self.assertEqual(version_models.Version.objects.count(), 0)
+        self.assertIn('Invalid data received. Please try again.', str(messages))
+
+    def test_project_settings_new_version_view_post_user_no_permission(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        version_form_data = {
+            'name': 'Version 1',
+            'description': 'First Version Description',
+            'label': 'Primary',
+            'release_date': '2025-01-01',
+            'is_active': True
+            }
+        version_form = NewVersionDataForm(version_form_data)
+        version_form.is_valid()
+        form_data = urlencode(version_form.data)
+        self.http_client.force_login(user=self.user2.user)
+        response = self.http_client.post(reverse('project_settings_new_version', kwargs={'project_id': self.project1.id}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/projects')
+        # Make sure the form did not update the database
+        self.assertEqual(version_models.Version.objects.count(), 0)
+        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))

@@ -1,0 +1,12 @@
+{% load tz %}
+<div class="tab-pane fade show active" id="issues-tab-pane" role="tabpanel" aria-labelledby="issues-tab" tabindex="0">
+    <div class="row">
+        <h3 class="my-4">Issues <button
+            hx-get="{% if project_id %}{% url 'new_project_issue' project_id %}{% else %}{% url 'new_issue' %}{% endif %}"
+            hx-target="#issue-modal"
+            data-bs-toggle="modal"
+            data-bs-target="#issue-modal"
+            class="btn primary"><i class="bi bi-plus-circle"></i></button></h3>
+        {% include "project/project/issues_table.html" %}
+    </div>
+</div>

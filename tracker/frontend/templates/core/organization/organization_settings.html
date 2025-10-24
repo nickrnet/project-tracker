@@ -1,0 +1,31 @@
+
+{% load tz %}
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Organization "{{ organization.current.name|safe }}" Settings</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form
+                id="organization-settings-form"
+                hx-post="{% url 'organization_settings' organization_id %}"
+                hx-target="window"
+                hx-trigger="submit">
+                {% csrf_token %}
+                {% include "core/organization/organization_form.html" %}
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button
+                type="submit"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#organization-settings-modal"
+                form="organization-settings-form">
+                Submit
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>

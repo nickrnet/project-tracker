@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% block content %}
+<div class="container-fluid">
+    <div id="new-user-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="new-user-modal"
+        aria-inert="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    <div class="row">
+        <h2 class="my-4">
+            Users
+            <button
+                hx-get="{% url 'new_user' %}"
+                hx-target="#new-user-modal"
+                data-bs-toggle="modal"
+                data-bs-target="#new-user-modal"
+                class="btn primary"><i class="bi bi-plus-circle"></i>
+            </button>
+        </h2>
+    </div>
+    {% include "core/user/users_table.html" %}
+</div>
+{% endblock %}
