@@ -24,6 +24,7 @@ def handle_post(request, logged_in_user):
         start_date = new_project_data.get("start_date") if new_project_data.get("start_date") else timezone.now()
         project_data = project_models.ProjectData.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             name=new_project_data.get("name"),
             description=new_project_data.get("description"),
             is_active=new_project_data.get("is_active"),
@@ -34,6 +35,7 @@ def handle_post(request, logged_in_user):
         project_data.save()
         project = project_models.Project.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             current=project_data,
             )
 
@@ -41,11 +43,13 @@ def handle_post(request, logged_in_user):
             project_label_name = new_project_data.pop("label")
             project_label_data = project_models.ProjectLabelData(
                 created_by_id=logged_in_user.id,
+                created_on=timezone.now(),
                 label=project_label_name,
                 )
             project_label_data.save()
             project_label = project_models.ProjectLabel(
                 created_by_id=logged_in_user.id,
+                created_on=timezone.now(),
                 current=project_label_data,
                 )
             project_label.save()

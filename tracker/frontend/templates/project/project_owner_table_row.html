@@ -2,9 +2,9 @@
 <tr>
     <td>Used by Project:</td>
     {% if project.label %}
-    <td><a href="{% url 'project' project.label.current.label %}">{{ project.current.name }}</a></td>
+    <td><a href="{% url 'project' project.label.current.label %}">{{ project.current.name|safe }}</a></td>
     {% else %}
-    <td><a href="{% url 'project' project.id %}">{{ project.current.name }}</a></td>
+    <td><a href="{% url 'project' project.id %}">{{ project.current.name|safe }}</a></td>
     {% endif %}
     <td>
         <!-- TODO: Allow moving git repositories to antoher project -->
@@ -14,12 +14,16 @@
             </button>
             <ul class="dropdown-menu">
                 {% for project in projects %}
-                <li><a class="dropdown-item" href="#">{{ project.current.name }}</a></li>
+                <li><a class="dropdown-item" href="#">{{ project.current.name|safe }}</a></li>
                 {% endfor %}
             </ul>
         </div> {% endcomment %}
     </td>
 </tr>
 {% else %}
-<tr><td></td><td></td><td></td></tr>
+<tr>
+    <td></td>
+    <td></td>
+    <td></td>
+</tr>
 {% endif %}

@@ -55,7 +55,7 @@ class TestOrganizationView(TestCase):
         response = self.http_client.get(reverse('organization', kwargs={'organization_id': str(self.organization1.id)}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/organization/organization_template.html')
-        
+
     def test_organization_view_get_with_bad_organization_id(self):
         bad_uuid = '4af0c4fd-839a-4403-bf2d-e4204b9dab79'
         url_encoding = 'application/x-www-form-urlencoded'
@@ -72,7 +72,7 @@ class TestOrganizationView(TestCase):
             'timezone': 'EST',
             'is_paid': True,
             'renewal_date': '',
-        }
+            }
         organization_form = OrganizationDataForm(new_organization_form_data)
         organization_form.is_valid()
         form_data = urlencode(organization_form.data)
@@ -97,7 +97,7 @@ class TestOrganizationView(TestCase):
             'is_paid': True,
             'renewal_date': '',
             'number_users_allowed': 1000
-        }
+            }
         organization_form = OrganizationDataForm(new_organization_form_data)
         organization_form.is_valid()
         form_data = urlencode(organization_form.data)
@@ -121,7 +121,7 @@ class TestOrganizationView(TestCase):
         self.assertEqual(self.organization1.current.is_paid, True)
         self.assertEqual(self.organization1.current.renewal_date, None)
         self.assertEqual(self.organization1.current.number_users_allowed, 1000)
-        self.assertIn('Your organization was successfully updated!', str(messages))
+        self.assertIn('Organization successfully updated!', str(messages))
 
     def test_organization_view_post_without_number_users_allowed(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -138,7 +138,7 @@ class TestOrganizationView(TestCase):
             'timezone': 'EST',
             'is_paid': True,
             'renewal_date': '',
-        }
+            }
         organization_form = OrganizationDataForm(new_organization_form_data)
         organization_form.is_valid()
         form_data = urlencode(organization_form.data)
@@ -161,7 +161,7 @@ class TestOrganizationView(TestCase):
         self.assertEqual(self.organization1.current.timezone, 'EST')
         self.assertEqual(self.organization1.current.is_paid, True)
         self.assertEqual(self.organization1.current.renewal_date, None)
-        self.assertIn('Your organization was successfully updated!', str(messages))
+        self.assertIn('Organization successfully updated!', str(messages))
 
     def test_organization_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from frontend.util import project as project_utils
 from frontend.forms.project.component import new_component_form as new_component_form
@@ -14,6 +15,7 @@ def handle_post(request, logged_in_user, project):
     if received_new_component_form.is_valid():
         component_data = component_models.ComponentData.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             name=received_new_component_form.cleaned_data.get('name', ''),
             description=received_new_component_form.cleaned_data.get('description', ''),
             label=received_new_component_form.cleaned_data.get('label', ''),
@@ -21,6 +23,7 @@ def handle_post(request, logged_in_user, project):
             )
         component_models.Component.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             current=component_data,
             project=project
             )

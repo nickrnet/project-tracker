@@ -17,19 +17,27 @@
                 <th scope="col">Responsible Party</th>
             </tr>
         </thead>
-        <tbody>{% for organization in organizations %}
+        <tbody>
+            {% for organization in organizations %}
             <tr onclick="window.location='{% url 'organization' organization.id %}'">
-                <th scope="row">{{ organization.current.name }}</th>
-                <td>{{ organization.current.description }}</td>
-                <td>{{ organization.current.responsible_party_email }}</td>
-            </tr>{% endfor %}
+                <th scope="row">{{ organization.current.name|safe }}</th>
+                <td>{{ organization.current.description|safe }}</td>
+                <td>{{ organization.current.responsible_party_email|safe }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td class="text-muted">No organizations available.</td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
     <script>
         new DataTable('#organizations-table-data', {
             order: [[4, 'desc']],
             language: {
-                emptyTable: 'No organizations.',
+                emptyTable: 'No organizations available.',
             },
             drawCallback: function (settings) {
                 loadTooltips();

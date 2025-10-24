@@ -33,19 +33,32 @@
             </thead>
             <tbody>
             {% for component in components %}
-            <tr
-                hx-get="{% url 'project_settings_component' component.id %}"
-                hx-target="#project-settings-component-modal"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#project-settings-component-modal"
-                >
-                <th scope="row" class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ component.current.name|safe|upper }}">{{ component.current.name|safe|upper }}</th>
-                <td class="text-truncate" style="max-width: 155px;" {% if component.current.description %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.description|safe }}"{% endif %}>{% if component.current.description %}{{ component.current.description|safe }}{% endif %}</th>
-                <td class="text-truncate" style="max-width: 155px;" {% if component.current.label %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.label|safe }}"{% endif %}>{% if component.current.label %}{{ component.current.label|safe }}{% endif %}</td>
-                <td class="text-truncate" style="max-width: 155px;" {% if component.current.is_active %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.is_active|safe }}"{% endif %}>{% if component.current.is_active %}{{ component.current.is_active|safe }}{% endif %}</td>  {% comment %} TODO: Checkbox for this {% endcomment %}
-                <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ component.created_on|timezone:logged_in_user.current.timezone }}">{{ component.created_on|timezone:logged_in_user.current.timezone }}</td>
-            </tr>
+                <tr
+                    hx-get="{% url 'project_settings_component' component.id %}"
+                    hx-target="#project-settings-component-modal"
+                    hx-swap="innerHTML"
+                    data-bs-toggle="modal"
+                    data-bs-target="#project-settings-component-modal"
+                    >
+                    <th scope="row" class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ component.current.name|safe|upper }}">{{ component.current.name|safe|upper }}</th>
+                    <td class="text-truncate" style="max-width: 155px;" {% if component.current.description %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.description|safe }}"{% endif %}>{% if component.current.description %}{{ component.current.description|safe }}{% endif %}</th>
+                    <td class="text-truncate" style="max-width: 155px;" {% if component.current.label %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.label|safe }}"{% endif %}>{% if component.current.label %}{{ component.current.label|safe }}{% endif %}</td>
+                    <td class="text-truncate" style="max-width: 155px;" {% if component.current.is_active %}data-bs-toggle="tooltip" data-bs-title="{{ component.current.is_active|safe }}"{% endif %}>{% if component.current.is_active %}{{ component.current.is_active|safe }}{% endif %}</td>  {% comment %} TODO: Checkbox for this {% endcomment %}
+                    {% if logged_in_user.current.timezone %}
+                    <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ component.created_on|timezone:logged_in_user.current.timezone }}">{{ component.created_on|timezone:logged_in_user.current.timezone }}</td>
+                    {% else %}
+                    <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ component.created_on|timezone:"UTC" }}">{{ component.created_on|timezone:"UTC" }}</td>
+                    {% endif %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td class="text-muted">No components available.</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>

@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from frontend.util import project as project_utils
 from frontend.forms.project.git_repository import new_git_repository_form as new_git_repository_form
@@ -16,12 +17,14 @@ def handle_post(request, logged_in_user, project):
     if received_new_git_repository_form.is_valid():
         git_repository_data = git_repository_models.GitRepositoryData.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             name=received_new_git_repository_form.cleaned_data.get('name'),
             description=received_new_git_repository_form.cleaned_data.get('description'),
             url=received_new_git_repository_form.cleaned_data.get('url'),
             )
         git_repository = git_repository_models.GitRepository.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             current=git_repository_data
             )
 

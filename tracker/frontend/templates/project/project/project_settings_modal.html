@@ -15,12 +15,19 @@
         </div>
         <div class="modal-body">
             <div class="row">
-                <p>Created by: <a href="{% url 'user' project.created_by.id %}">{{ project.created_by.current.last_name }}, {{ project.created_by.current.first_name }}</a> on {{ project.created_on|timezone:logged_in_user.current.timezone }}</p>
+                <p>
+                    {% if logged_in_user.current.timezone %}
+                    Created {{ project.created_on|timezone:logged_in_user.current.timezone }}
+                    {% else %}
+                    Created {{ project.created_on|timezone:"UTC" }}
+                    {% endif %}
+                    by <a href="{% url 'user' project.created_by.id %}">{{ project.created_by.current.last_name|safe }}, {{ project.created_by.current.first_name|safe }}</a>
+                </p>
             </div>
             <div class="row">
                 {% with project_org=project.organizationprojects_set.first %}
                 {% if project_org %}
-                <p>Organization: <a href="{% url 'organization' project_org.id %}">{{ project_org.name }}</a></p>
+                <p>Organization: <a href="{% url 'organization' project_org.id %}">{{ project_org.current.name|safe }}</a></p>
                 {% endif %}
                 {% endwith %}
             </div>
@@ -45,7 +52,7 @@
                                             <label for="id_name" class="form-label align-items-bottom">Name:</label>
                                         </div>
                                         <div class="col">
-                                            <input type="text" name="name" value="{{ project.current.name }}" class="form-control" id="id_name" required>
+                                            <input type="text" name="name" value="{{ project.current.name|safe }}" class="form-control" id="id_name" required>
                                         </div>
                                     </div>
                                     <div class="row align-items-top">
@@ -53,7 +60,7 @@
                                             <label for="id_description" class="form-label">Description:</label>
                                         </div>
                                         <div class="col">
-                                            <textarea name="description" class="form-control" id="id_description">{{ project.current.description }}</textarea>
+                                            <textarea name="description" class="form-control" id="id_description">{{ project.current.description|safe }}</textarea>
                                         </div>
                                     </div>
                                     <div class="row align-items-center">
@@ -61,7 +68,7 @@
                                             <label for="id_label" class="form-label">Label:</label>
                                         </div>
                                         <div class="col">
-                                            <input type="text" name="label" value="{{ project.label.current.label }}" class="form-control" id="id_label" required>
+                                            <input type="text" name="label" value="{{ project.label.current.label|safe }}" class="form-control" id="id_label" required>
                                         </div>
                                         <div class="col-2">
                                             <label for="id_is_active" class="form-label">Is active?</label>
@@ -148,6 +155,17 @@
                         <div id="project-settings-users-content" class="accordion-collapse collapse" data-bs-parent="#project-settings-accordion">
                             <div class="accordion-body">
                                 <div class="row">
+                                    <div class="col-2">
+                                    <button
+                                        hx-get="{% url 'project_settings_user_select' project_id %}"
+                                        hx-target="#project-settings-user-select-modal"
+                                        hx-swap="innerHTML"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#project-settings-user-select-modal"
+                                        class="btn primary"><i class="bi bi-pencil"></i></button>
+                                    </div>
+                                </div>
+                                <div class="row">
                                     <table class="table table-striped table-hover" id="project-settings-users-table">
                                         <thead>
                                             <tr>
@@ -157,16 +175,18 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        {% for user in users %}
-                                        <tr>
-                                            <td>{{ user.current.last_name }}</th>
-                                            <td>{{ user.current.first_name }}</td>
-                                            <td>{{ user.current.email }}</td>
-                                        </tr>
+                                        {% for user in project.users.all %}
+                                            <tr>
+                                                <td>{{ user.current.last_name|safe }}</th>
+                                                <td>{{ user.current.first_name|safe }}</td>
+                                                <td>{{ user.current.email|safe }}</td>
+                                            </tr>
                                         {% empty %}
-                                        <tr>
-                                            <td colspan="7" class="text-muted">No users associated with this project.</td>  {% comment %} TODO: Link to a new one for this project {% endcomment %}
-                                        </tr>
+                                            <tr>
+                                                <td class="text-muted">No users associated with this project.</td>  {% comment %} TODO: Link to a new one for this project {% endcomment %}
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
                                         {% endfor %}
                                         </tbody>
                                     </table>
@@ -183,10 +203,7 @@
     </div>
     <script>
         new DataTable('#project-settings-users-table', {
-            order: [[4, 'desc']],
-            language: {
-                emptyTable: 'No records found.',
-            },
+            order: [[0, 'asc']],
             drawCallback: function (settings) {
                 loadTooltips();
             },

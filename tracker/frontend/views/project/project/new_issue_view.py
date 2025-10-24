@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from frontend.util import project as project_utils
 from frontend.forms.project.issue import new_issue_form
@@ -14,6 +15,7 @@ def handle_post(request, logged_in_user, project):
     if received_new_issue_form.is_valid():
         issue_data = issue_models.IssueData.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             project=project,
             reporter_id=received_new_issue_form.cleaned_data.get("reporter"),
             assignee_id=received_new_issue_form.cleaned_data.get("assignee"),
@@ -28,6 +30,7 @@ def handle_post(request, logged_in_user, project):
             )
         issue_models.Issue.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             current=issue_data,
             project=project,
             sequence=issue_models.Issue.objects.get_next_sequence_number(project.id)

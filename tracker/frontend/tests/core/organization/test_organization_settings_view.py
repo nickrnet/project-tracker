@@ -67,7 +67,7 @@ class TestOrganizationSettingsView(TestCase):
             'is_paid': True,
             'renewal_date': '',
             'number_users_allowed': 1000
-        }
+            }
         organization_form = OrganizationDataForm(new_organization_form_data)
         organization_form.is_valid()
         form_data = urlencode(organization_form.data)
@@ -108,7 +108,7 @@ class TestOrganizationSettingsView(TestCase):
             'timezone': 'EST',
             'is_paid': True,
             'renewal_date': '',
-        }
+            }
         organization_form = OrganizationDataForm(new_organization_form_data)
         organization_form.is_valid()
         form_data = urlencode(organization_form.data)

@@ -34,20 +34,33 @@
             </thead>
             <tbody>
             {% for version in versions %}
-            <tr
-                hx-get="{% url 'project_settings_version' version.id %}"
-                hx-target="#project-settings-version-modal"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#project-settings-version-modal"
-                >
-                <th scope="row" class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ version.current.name|safe|upper }}">{{ version.current.name|safe|upper }}</th>
-                <td class="text-truncate" style="max-width: 155px;" {% if version.current.description %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.description|safe }}"{% endif %}>{% if version.current.description %}{{ version.current.description|safe }}{% endif %}</th>
-                <td class="text-truncate" style="max-width: 155px;" {% if version.current.label %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.label|safe }}"{% endif %}>{% if version.current.label %}{{ version.current.label|safe }}{% endif %}</td>
-                <td class="text-truncate" style="max-width: 155px;" {% if version.current.release_date %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.release_date|safe }}"{% endif %}>{% if version.current.release_date %}{{ version.current.release_date|safe }}{% endif %}</td>
-                <td class="text-truncate" style="max-width: 155px;" {% if version.current.is_active %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.is_active|safe }}"{% endif %}>{% if version.current.is_active %}{{ version.current.is_active|safe }}{% endif %}</td>  {% comment %} TODO: Checkbox for this {% endcomment %}
-                <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ version.created_on|timezone:logged_in_user.current.timezone }}">{{ version.created_on|timezone:logged_in_user.current.timezone }}</td>
-            </tr>
+                <tr
+                    hx-get="{% url 'project_settings_version' version.id %}"
+                    hx-target="#project-settings-version-modal"
+                    hx-swap="innerHTML"
+                    data-bs-toggle="modal"
+                    data-bs-target="#project-settings-version-modal"
+                    >
+                    <th scope="row" class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ version.current.name|safe|upper }}">{{ version.current.name|safe|upper }}</th>
+                    <td class="text-truncate" style="max-width: 155px;" {% if version.current.description %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.description|safe }}"{% endif %}>{% if version.current.description %}{{ version.current.description|safe }}{% endif %}</th>
+                    <td class="text-truncate" style="max-width: 155px;" {% if version.current.label %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.label|safe }}"{% endif %}>{% if version.current.label %}{{ version.current.label|safe }}{% endif %}</td>
+                    <td class="text-truncate" style="max-width: 155px;" {% if version.current.release_date %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.release_date|safe }}"{% endif %}>{% if version.current.release_date %}{{ version.current.release_date|safe }}{% endif %}</td>
+                    <td class="text-truncate" style="max-width: 155px;" {% if version.current.is_active %}data-bs-toggle="tooltip" data-bs-title="{{ version.current.is_active|safe }}"{% endif %}>{% if version.current.is_active %}{{ version.current.is_active|safe }}{% endif %}</td>  {% comment %} TODO: Checkbox for this {% endcomment %}
+                    {% if logged_in_user.current.timezone %}
+                    <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ version.created_on|timezone:logged_in_user.current.timezone }}">{{ version.created_on|timezone:logged_in_user.current.timezone }}</td>
+                    {% else %}
+                    <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ version.created_on|timezone:"UTC" }}">{{ version.created_on|timezone:"UTC" }}</td>
+                    {% endif %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td class="text-muted">No versions available.</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>

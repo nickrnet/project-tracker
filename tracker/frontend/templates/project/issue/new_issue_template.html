@@ -6,21 +6,21 @@
     {% csrf_token %}
     <table>
         <tr>
-            <td>{{ new_issue_form.project.label_tag }}</td>
+            <td>{{ new_issue_form.project.label_tag|safe }}</td>
             <td>
                 <select name="project">
                 {% for project in projects %}
-                    <option value="{{ project.id }}">{{ project.current.name }}</option>
+                    <option value="{{ project.id }}">{{ project.current.name|safe }}</option>
                 {% endfor %}
             </td>
         </tr>
         <tr>
-            <td>{{ new_issue_form.current.summary.label_tag }}</td>
-            <td>{{ new_issue_form.current.summary }}</td>
+            <td>{{ new_issue_form.current.summary.label_tag|safe }}</td>
+            <td>{{ new_issue_form.current.summary|safe }}</td>
         </tr>
         <tr>
-            <td>{{ new_issue_form.current.description.label_tag }}</td>
-            <td>{{ new_issue_form.current.description }}</td>
+            <td>{{ new_issue_form.current.description.label_tag|safe }}</td>
+            <td>{{ new_issue_form.current.description|safe }}</td>
         </tr>
     </table>
     <button class="btn btn-primary my-4" type="submit">Submit</button>

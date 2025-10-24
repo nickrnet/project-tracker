@@ -20,6 +20,7 @@ def handle_post(request):
             remote_addr = request.META.get('REMOTE_ADDR', '')
             core_user_models.UserLogin.objects.create(
                 created_by=core_user,
+                created_on=timezone.now(),
                 user=core_user,
                 x_forwarded_for=validate_ip_address(x_forwarded_for).split(',')[0] if x_forwarded_for else None,
                 remote_addr=validate_ip_address(remote_addr) if remote_addr else None,

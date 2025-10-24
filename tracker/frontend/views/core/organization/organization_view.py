@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from frontend.forms.core.organization import organization_form as organization_form
 from core.models import user as core_user_models
@@ -15,11 +16,12 @@ def handle_post(request, logged_in_user, organization=None):
             received_organization_data_form.cleaned_data.pop('number_users_allowed')
         organization_data = core_organization_models.OrganizationData(**received_organization_data_form.cleaned_data)
         organization_data.created_by = logged_in_user
+        organization_data.created_on = timezone.now()
         organization_data.save()
 
         organization.current = organization_data
         organization.save()
-        messages.success(request, ('Your organization was successfully updated!'))
+        messages.success(request, ('Organization successfully updated!'))
     else:
         messages.error(request, 'Error updating organization.')
 
@@ -47,5 +49,5 @@ def organization(request, organization_id=None):
                 }
             )
     except core_organization_models.Organization.DoesNotExist:
-        messages.error(request, 'The specified Organization does not exist. Create it and try again.')
+        messages.error(request, 'The specified organization does not exist. Create it and try again.')
         return redirect("organizations")

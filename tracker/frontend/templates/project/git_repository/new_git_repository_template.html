@@ -15,14 +15,21 @@
     {% for repository in repositories %}
         <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
             <div class="card h-100 p-4">
-                <a href="{% url 'git_repository' repository.id %}"><h4>{{ repository.current.name }}</h4></a>
-                <p class="text-muted">{{ repository.current.description }}</p>
+                <a href="{% url 'git_repository' repository.id %}"><h4>{{ repository.current.name|safe }}</h4></a>
+                <p class="text-muted">{{ repository.current.description|safe }}</p>
                 {% if repository.current.url %}
-                <h4>{{ repository.current.url }}</h4>
+                <h4>{{ repository.current.url|safe }}</h4>
                 {% else %}
                 <h4></h4>
                 {% endif %}
-                <p class="text-muted">Created {{ repository.created_on|timezone:logged_in_user.current.timezone }} by <a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.last_name }}, {{ repository.created_by.current.first_name }}</a></p>
+                <p class="text-muted">
+                {% if logged_in_user.current.timezone %}
+                Created {{ repository.created_on|timezone:logged_in_user.current.timezone }}
+                {% else %}
+                Created {{ repository.created_on|timezone:"UTC" }}
+                {% endif %}
+                by <a href="{% url 'user' repository.created_by.id %}">{{ repository.created_by.current.last_name|safe }}, {{ repository.created_by.current.first_name|safe }}</a>
+            </p>
             </div>
         </div>
     {% empty %}

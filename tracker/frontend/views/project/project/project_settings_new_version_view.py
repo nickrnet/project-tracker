@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from frontend.util import project as project_utils
 from frontend.forms.project.version import new_version_form as new_version_form
@@ -16,6 +17,7 @@ def handle_post(request, logged_in_user, project):
     if received_new_version_form.is_valid():
         version_data = version_models.VersionData.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             name=received_new_version_form.cleaned_data.get('name', ''),
             description=received_new_version_form.cleaned_data.get('description', ''),
             label=received_new_version_form.cleaned_data.get('label', ''),
@@ -24,6 +26,7 @@ def handle_post(request, logged_in_user, project):
             )
         version_models.Version.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             current=version_data,
             project=project
             )
@@ -54,6 +57,9 @@ def handle_post(request, logged_in_user, project):
 
 @login_required
 def new_version(request, project_id):
+    """
+    Displays the Version when a user clicks it in the Project Settings modal.
+    """
     logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
     # Check if user can access project

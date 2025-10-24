@@ -57,12 +57,24 @@
                 <td>{{ project.current.description|safe }}</th>
                 {% with project_org=project.organizationprojects_set.first %}
                 {% if project_org %}
-                <td><a href="{% url 'organization' project_org.id %}">{{ project_org.current.name }}</a></td>
+                <td><a href="{% url 'organization' project_org.id %}">{{ project_org.current.name|safe }}</a></td>
                 {% else %}
                 <td></td>
                 {% endif %}
                 {% endwith %}
+                {% if logged_in_user.current.timezone %}
                 <td>{{ project.created_on|timezone:logged_in_user.current.timezone }}</td>
+                {% else %}
+                <td>{{ project.created_on|timezone:"UTC" }}</td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td class="text-muted">No projects available.</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -71,7 +83,7 @@
         new DataTable('#projects-table-data', {
             order: [[4, 'desc']],
             language: {
-                emptyTable: 'No projects.',
+                emptyTable: 'No projects available.',
             },
             drawCallback: function (settings) {
                 loadTooltips();

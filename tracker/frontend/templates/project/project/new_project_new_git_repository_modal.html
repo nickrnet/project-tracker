@@ -12,17 +12,17 @@
                 {% csrf_token %}
                 <table class="table table-hover">
                     <tr>
-                        <td>{{ new_git_repository_form.name.label_tag }}</td>
-                        <td>{{ new_git_repository_form.name }}</td>
+                        <td>{{ new_git_repository_form.name.label_tag|safe }}</td>
+                        <td>{{ new_git_repository_form.name|safe }}</td>
                         </td>
                     </tr>
                     <tr>
-                        <td>{{ new_git_repository_form.description.label_tag }}</td>
-                        <td>{{ new_git_repository_form.description }}</td>
+                        <td>{{ new_git_repository_form.description.label_tag|safe }}</td>
+                        <td>{{ new_git_repository_form.description|safe }}</td>
                     </tr>
                     <tr>
-                        <td>{{ new_git_repository_form.url.label_tag }}</td>
-                        <td>{{ new_git_repository_form.url }}</td>
+                        <td>{{ new_git_repository_form.url.label_tag|safe }}</td>
+                        <td>{{ new_git_repository_form.url|safe }}</td>
                     </tr>
                 </table>
             </div>

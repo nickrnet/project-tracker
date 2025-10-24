@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from core.models import user as core_user_models
 from frontend.forms.core.user import core_user_form
@@ -15,6 +16,7 @@ def handle_post(request, logged_in_user, user_id):
         user = core_user_models.CoreUser.active_objects.get(pk=user_id)
         user_data = core_user_models.CoreUserData(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             name_prefix=user_data_form.cleaned_data.get('name_prefix', ''),
             first_name=user_data_form.cleaned_data.get('first_name', ''),
             middle_name=user_data_form.cleaned_data.get('middle_name', ''),

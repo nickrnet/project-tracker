@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from frontend.util import project as project_utils
 from frontend.forms.project.version import version_form
@@ -17,6 +18,7 @@ def handle_post(request, logged_in_user, version_id):
     if received_version_form.is_valid():
         version_data = version_models.VersionData.objects.create(
             created_by=logged_in_user,
+            created_on=timezone.now(),
             name=received_version_form.cleaned_data.get('name', ''),
             description=received_version_form.cleaned_data.get('description', ''),
             label=received_version_form.cleaned_data.get('label', ''),
