@@ -82,3 +82,14 @@ class UpdateOrganizationDataTest(TestCase):
 
         self.assertEqual(self.organization.current.name, 'Updated Organization Name')
         self.assertEqual(self.organization.current.description, 'Updated Description')
+
+    def test_update_organization_users(self):
+        new_members = [str(self.member1.id), str(self.member2.id)]
+
+        self.organization.update_members(new_members)
+        self.organization.refresh_from_db()
+
+        self.assertEqual(self.organization.current.name, 'Test Organization')
+        self.assertEqual(self.organization.members.count(), 2)
+        self.assertTrue(self.organization.members.filter(id=self.member1.id).exists())
+        self.assertTrue(self.organization.members.filter(id=self.member2.id).exists())

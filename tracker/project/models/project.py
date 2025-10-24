@@ -89,6 +89,7 @@ class Project(core_models.CoreModel):
         Returns:
             Project: The updated project.
         """
+
         self.git_repositories.set(git_repositories)
         self.save()
 
@@ -105,8 +106,9 @@ class Project(core_models.CoreModel):
             Project: The updated project
         """
 
-        self.users.set(users)
-        self.save()
+        with transaction.atomic():
+            self.users.set(users)
+            self.save()
 
         return self
 

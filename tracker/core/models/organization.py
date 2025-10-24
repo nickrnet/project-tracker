@@ -91,5 +91,22 @@ class Organization(core_models.CoreModel):
 
         return self
 
+    def update_members(self, user_ids: list[str]) -> 'Organization':
+        """
+        A helper method to update the users that have access to this organization.
+
+        Args:
+            user_ids (list[str]): A list of UUIDs of users to be shown with this organization.
+
+        Returns:
+            Organization: The updated organization.
+        """
+
+        with transaction.atomic():
+            self.members.set(user_ids)
+            self.save()
+
+        return self
+
     def __str__(self) -> str:
         return self.current.name

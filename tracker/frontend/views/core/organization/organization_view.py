@@ -21,7 +21,7 @@ def handle_post(request, logged_in_user, organization=None):
 
         organization.current = organization_data
         organization.save()
-        messages.success(request, ('Your organization was successfully updated!'))
+        messages.success(request, ('Organization successfully updated!'))
     else:
         messages.error(request, 'Error updating organization.')
 
@@ -49,5 +49,5 @@ def organization(request, organization_id=None):
                 }
             )
     except core_organization_models.Organization.DoesNotExist:
-        messages.error(request, 'The specified Organization does not exist. Create it and try again.')
+        messages.error(request, 'The specified organization does not exist. Create it and try again.')
         return redirect("organizations")

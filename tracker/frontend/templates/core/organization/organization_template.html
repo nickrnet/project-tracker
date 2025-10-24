@@ -12,6 +12,16 @@
             <div class="modal-content"></div>
         </div>
     </div>
+    <div id="organization-settings-user-select-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="organization-settings-user-selectmodal"
+        aria-inert="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
     <div class="row">
         <h2 class="my-4">{{ organization.current.name }} <button
             hx-get="{% url 'organization_settings' organization.id %}"
@@ -43,7 +53,20 @@
                     </h2>
                     <div id="organization-users-accordion-content" class="accordion-collapse collapse" data-bs-parent="#organization-accordion">
                         <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-2">
+                                <button
+                                    hx-get="{% url 'organization_settings_user_select' organization.id %}"
+                                    hx-target="#organization-settings-user-select-modal"
+                                    hx-swap="innerHTML"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#organization-settings-user-select-modal"
+                                    class="btn primary"><i class="bi bi-pencil"></i></button>
+                                </div>
+                            </div>
+                            <div class="row" id="users-table">
                             {% include "core/organization/organization_users_table.html" %}
+                            </div>
                         </div>
                     </div>
                 </div>
