@@ -84,7 +84,7 @@ jobs:
 
             - name: Install dependencies
               run: |
-                python -m pip install --upgrade pip uv
+                python -m pip install --upgrade pip uv setuptools genbadge[coverage]
                 uv venv
                 source .venv/bin/activate
                 uv sync --dev
@@ -100,9 +100,9 @@ jobs:
 
             - name: Generate coverage badge
               run: |
-                pip install setuptools genbadge[coverage]
-                cd tracker
+                pushd tracker
                 genbadge coverage -i coverage.xml -o ../doc/coverage/coverage.svg
+                popd
 
             - name: Verify Changed files
               uses: tj-actions/verify-changed-files@v20.0.4
