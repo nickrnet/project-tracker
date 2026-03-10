@@ -112,7 +112,7 @@ jobs:
           files: ./doc/coverage/coverage.svg
 
       - name: Commit test result files and coverage badge
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.verify-changed-files.outputs.files_changed == 'true'
         run: |
           if [ -e ./doc/coverage/html/.gitignore ]
           then
@@ -124,7 +124,7 @@ jobs:
           git commit -m "Updated coverage.svg"
 
       - name: Push test results and coverage changes back to repo
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.verify-changed-files.outputs.files_changed == 'true'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -132,7 +132,6 @@ jobs:
 
   deploy-gh-pages:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [generate-coverage-badge]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
