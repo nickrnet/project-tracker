@@ -98,10 +98,6 @@ jobs:
           popd
         continue-on-error: true
 
-  generate-coverage-badge:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
       - name: Generate coverage badge
         run: |
           source .venv/bin/activate
