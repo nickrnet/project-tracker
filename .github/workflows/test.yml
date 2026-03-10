@@ -1,154 +1,158 @@
 name: Tests
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-    docker-migration-test:
-        runs-on: ubuntu-latest
+  docker-migration-test:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Check out code
-              uses: actions/checkout@v4
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-            - name: Create .env file
-              run: |
-                cat > tracker/.env << EOF
-                DEBUG=True
-                LOCAL=False
-                DJANGO_SECRET_KEY=test-secret-key-for-ci
-                DATABASE_URL=postgres://tracker:tracker@postgres:5432/tracker
-                POSTGRES_DB=tracker
-                POSTGRES_USER=tracker
-                POSTGRES_PASSWORD=tracker
-                CELERY_BROKER_URL=redis://redis:6379/0
-                EOF
+      - name: Create .env file
+        run: |
+          cat > tracker/.env << EOF
+          DEBUG=True
+          LOCAL=False
+          DJANGO_SECRET_KEY=test-secret-key-for-ci
+          DATABASE_URL=postgres://tracker:tracker@postgres:5432/tracker
+          POSTGRES_DB=tracker
+          POSTGRES_USER=tracker
+          POSTGRES_PASSWORD=tracker
+          CELERY_BROKER_URL=redis://redis:6379/0
+          EOF
 
-            - name: Start Docker services and run migrations
-              run: |
-                docker compose up -d postgres
-                echo "Waiting for postgres to be healthy..."
-                timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U tracker -d tracker; do sleep 2; done'
-                echo "Starting Django service..."
-                docker compose up -d django
-                echo "Waiting for Django to start and run migrations..."
-                sleep 10
-                # Wait for migrations to complete by checking logs
-                for i in {1..30}; do
-                  if docker compose logs django | grep -q "Starting development server"; then
-                    echo "Django server started successfully!"
-                    break
-                  fi
-                  if docker compose logs django | grep -qi "error\|exception\|failed"; then
-                    echo "Error detected in Django logs!"
-                    docker compose logs django
-                    exit 1
-                  fi
-                  echo "Waiting... (attempt $i/30)"
-                  sleep 5
-                done
-                echo "Final Django logs:"
-                docker compose logs django
+      - name: Start Docker services and run migrations
+        run: |
+          docker compose up -d postgres
+          echo "Waiting for postgres to be healthy..."
+          timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U tracker -d tracker; do sleep 2; done'
+          echo "Starting Django service..."
+          docker compose up -d django
+          echo "Waiting for Django to start and run migrations..."
+          sleep 10
+          # Wait for migrations to complete by checking logs
+          for i in {1..30}; do
+            if docker compose logs django | grep -q "Starting development server"; then
+              echo "Django server started successfully!"
+              break
+            fi
+            if docker compose logs django | grep -qi "error\|exception\|failed"; then
+              echo "Error detected in Django logs!"
+              docker compose logs django
+              exit 1
+            fi
+            echo "Waiting... (attempt $i/30)"
+            sleep 5
+          done
+          echo "Final Django logs:"
+          docker compose logs django
 
-            - name: Verify migrations succeeded
-              run: |
-                if docker compose logs django | grep -q "Error\|Exception\|FAILED"; then
-                  echo "Migration errors detected!"
-                  docker compose logs django
-                  exit 1
-                fi
-                echo "Migrations completed successfully!"
+      - name: Verify migrations succeeded
+        run: |
+          if docker compose logs django | grep -q "Error\|Exception\|FAILED"; then
+            echo "Migration errors detected!"
+            docker compose logs django
+            exit 1
+          fi
+          echo "Migrations completed successfully!"
 
-            - name: Clean up Docker services
-              if: always()
-              run: |
-                docker compose down -v
+      - name: Clean up Docker services
+        if: always()
+        run: |
+          docker compose down -v
 
-    test:
-        needs: docker-migration-test
-        runs-on: ubuntu-latest
+  test:
+    needs: docker-migration-test
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Check out code
-              uses: actions/checkout@v4
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                python-version: '3.12'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-            - name: Install dependencies
-              run: |
-                python -m pip install --upgrade pip uv setuptools genbadge[coverage]
-                uv venv
-                source .venv/bin/activate
-                uv sync --dev
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip uv setuptools genbadge[coverage]
+          uv venv
+          source .venv/bin/activate
+          uv sync --dev
 
-            - name: Run tests
-              run: |
-                source .venv/bin/activate
-                cp .env.sample tracker/.env
-                pushd tracker
-                uv run pytest --cov --cov-report term --cov-report=html --cov-report=json --cov-report=xml
-                popd
-              continue-on-error: true
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          cp .env.sample tracker/.env
+          pushd tracker
+          uv run pytest --cov --cov-report term --cov-report=html --cov-report=json --cov-report=xml
+          popd
+        continue-on-error: true
 
-            - name: Generate coverage badge
-              run: |
-                source .venv/bin/activate
-                pushd tracker
-                genbadge coverage -i ../doc/coverage/coverage.xml -o ../doc/coverage/coverage.svg
-                popd
+  generate-coverage-badge:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Generate coverage badge
+        run: |
+          source .venv/bin/activate
+          pushd tracker
+          genbadge coverage -i ../doc/coverage/coverage.xml -o ../doc/coverage/coverage.svg
+          popd
 
-            - name: Verify Changed files
-              uses: tj-actions/verify-changed-files@v20.0.4
-              id: verify-changed-files
-              with:
-                files: ./doc/coverage/coverage.svg
+      - name: Verify Changed files
+        uses: tj-actions/verify-changed-files@v20.0.4
+        id: verify-changed-files
+        with:
+          files: ./doc/coverage/coverage.svg
 
-            - name: Commit test result files and coverage badge
-              if: steps.verify-changed-files.outputs.files_changed == 'true'
-              run: |
-                if [ -e ./doc/coverage/html/.gitignore ]
-                then
-                    rm ./doc/coverage/html/.gitignore
-                fi
-                git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-                git config --local user.name "${{ github.actor }}"
-                git add doc/coverage
-                git commit -m "Updated coverage.svg"
+      - name: Commit test result files and coverage badge
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        run: |
+          if [ -e ./doc/coverage/html/.gitignore ]
+          then
+              rm ./doc/coverage/html/.gitignore
+          fi
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git add doc/coverage
+          git commit -m "Updated coverage.svg"
 
-            - name: Push test results and coverage changes back to repo
-              if: steps.verify-changed-files.outputs.files_changed == 'true'
-              uses: ad-m/github-push-action@master
-              with:
-                github_token: ${{ secrets.GITHUB_TOKEN }}
-                branch: ${{ github.ref }}
+      - name: Push test results and coverage changes back to repo
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
 
-    deploy-gh-pages:
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        needs: [docker-migration-test, test]
-        runs-on: ubuntu-latest
-        steps:
-            - name: Check out code
-              uses: actions/checkout@v4
-              with:
-                ref: main
-                fetch-depth: 0
+  deploy-gh-pages:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [generate-coverage-badge]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
-            - name: Pull latest changes (including coverage)
-              run: |
-                git pull origin main
+      - name: Pull latest changes (including coverage)
+        run: |
+          git pull origin main
 
-            - name: Deploy to GitHub Pages
-              uses: peaceiris/actions-gh-pages@v4
-              with:
-                github_token: ${{ secrets.GITHUB_TOKEN }}
-                publish_dir: .
-                publish_branch: coverage
-                force_orphan: true
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: coverage
+          force_orphan: true
