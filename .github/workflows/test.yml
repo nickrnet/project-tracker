@@ -84,8 +84,7 @@ jobs:
 
             - name: Install dependencies
               run: |
-                python -m pip install --upgrade pip setuptools
-                pip install uv
+                python -m pip install --upgrade pip uv
                 uv venv
                 source .venv/bin/activate
                 uv sync --dev
@@ -93,8 +92,8 @@ jobs:
             - name: Run tests
               run: |
                 source .venv/bin/activate
+                cp env.sample tracker/.env
                 pushd tracker
-                cp env.sample .env
                 uv run pytest --cov --cov-report term --cov-report=html --cov-report=json --cov-report=xml
                 popd
               continue-on-error: true
