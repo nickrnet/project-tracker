@@ -18,17 +18,40 @@ jobs:
 
             - name: Create .env file
               run: |
-                cp tracker/env.sample tracker/.env
+                cat > tracker/.env << EOF
+                DEBUG=True
+                LOCAL=False
+                DJANGO_SECRET_KEY=test-secret-key-for-ci
+                DATABASE_URL=postgres://tracker:tracker@postgres:5432/tracker
+                POSTGRES_DB=tracker
+                POSTGRES_USER=tracker
+                POSTGRES_PASSWORD=tracker
+                EOF
 
             - name: Start Docker services and run migrations
               run: |
                 docker compose up -d postgres
                 echo "Waiting for postgres to be healthy..."
                 timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U tracker -d tracker; do sleep 2; done'
+                echo "Starting Django service..."
                 docker compose up -d django
-                echo "Waiting for migrations to complete..."
-                timeout 120 bash -c 'until docker compose logs django | grep -q "migrate --noinput"; do sleep 2; done'
-                sleep 5
+                echo "Waiting for Django to start and run migrations..."
+                sleep 10
+                # Wait for migrations to complete by checking logs
+                for i in {1..30}; do
+                  if docker compose logs django | grep -q "Starting development server"; then
+                    echo "Django server started successfully!"
+                    break
+                  fi
+                  if docker compose logs django | grep -qi "error\|exception\|failed"; then
+                    echo "Error detected in Django logs!"
+                    docker compose logs django
+                    exit 1
+                  fi
+                  echo "Waiting... (attempt $i/30)"
+                  sleep 5
+                done
+                echo "Final Django logs:"
                 docker compose logs django
 
             - name: Verify migrations succeeded
