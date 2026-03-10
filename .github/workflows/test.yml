@@ -100,8 +100,9 @@ jobs:
 
             - name: Generate coverage badge
               run: |
+                source .venv/bin/activate
                 pushd tracker
-                genbadge coverage -i ./doc/coverage/coverage.xml -o ../doc/coverage/coverage.svg
+                genbadge coverage -i ../doc/coverage/coverage.xml -o ../doc/coverage/coverage.svg
                 popd
 
             - name: Verify Changed files
