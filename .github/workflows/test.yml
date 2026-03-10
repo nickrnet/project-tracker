@@ -100,23 +100,10 @@ jobs:
               continue-on-error: true
 
             - name: Generate coverage badge
-              uses: tj-actions/coverage-badge-py@v2
-              env:
-                SETUPTOOLS_USE_DISTUTILS: stdlib
-              id: coverage-badge-py
-              with:
-                # Output path to write the coverage badge.
-                # Type: string
-                # Default: "coverage.svg"
-                output: '../doc/coverage/coverage.svg'
-                # Overwrite an existing coverage badge.
-                # Type: boolean
-                # Default: "true"
-                overwrite: 'true'
-                # Current working directory.
-                # Type: string
-                # Default: "."
-                working-directory: './tracker'
+              run: |
+                pip install coverage-badge
+                cd tracker
+                coverage-badge -o ../doc/coverage/coverage.svg -f
 
             - name: Verify Changed files
               uses: tj-actions/verify-changed-files@v20.0.4
