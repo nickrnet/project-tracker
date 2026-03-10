@@ -1,0 +1,6 @@
+You have been invited to join the organization "{{ organization|safe }}".
+
+Please click the link below or paste into your browser to accept the invitation:
+{{ accept_organization_invite_url|safe }}
+
+If you did not expect this invitation, you can ignore and delete this email. You will not be contacted again regarding this invitation.

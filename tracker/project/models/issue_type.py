@@ -6,9 +6,8 @@ from core.models import user as core_user_models
 
 class BuiltInIssueTypeManager(models.Manager):
     def initialize_built_in_types(self):
-        """
-        Keep this synchronized with the BuiltInIssueType.IssueTypeChoices class.
-        """
+        # Keep this synchronized with the BuiltInIssueType.IssueTypeChoices class.
+        # We force specific UUIDs here to ensure consistency across all installations.
         built_in_types = [
             ('c166c9dc-f058-4fb7-99c3-eb2bc14a46ee', 'CHANGE_REQUEST', 'Change Request'),
             ('94e3841b-3c88-4273-9dd0-190aa5e7c8ea', 'PROBLEM', 'Problem'),
@@ -40,9 +39,7 @@ class BuiltInIssueType(core_models.CoreModel):
         unique_together = ['type', 'description']
 
     class IssueTypeChoices(models.TextChoices):
-        """
-        Keep this synchronized with the BuiltInIssueTypeManager.initialize_built_in_types method.
-        """
+        # Keep this synchronized with the BuiltInIssueTypeManager.initialize_built_in_types method.
         CHANGE_REQUEST = 'CHANGE_REQUEST', 'Change Request'
         PROBLEM = 'PROBLEM', 'Problem'
         INCIDENT = 'INCIDENT', 'Incident'

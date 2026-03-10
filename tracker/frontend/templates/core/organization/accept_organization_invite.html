@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% block content %}
+{% if logged_in_user %}
+<div class="container-fluid pe-5" id="organization">
+    <div class="row">
+        <h2 class="my-4">Accept Organization Invite</h2>
+    </div>
+    <div class="row">
+        <p>You have been invited to join the organization "{{ organization.current.name|safe }}".</p>
+        <p>Please click the button below to accept or decline the invitation:</p>
+        <form method="post" action="{% url 'accept_organization_invite' invite.id %}">
+            {% csrf_token %}
+            <select name="response" class="form-select mb-3" required>
+                <option value="accept">Accept</option>
+                <option value="decline">Decline</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="container-fluid pe-5" id="organization">
+    <div class="row">
+        <h2 class="my-4">Accept Organization Invite</h2>
+    </div>
+    <div class="row">
+        <p>You must be logged in to accept or decline the invitation to join the organization "{{ organization.current.name|safe }}".</p>
+        <p>
+            <div>
+                <a class="btn btn-primary" role="button" aria-disabled="false" href="{% url 'login' %}?next={{next_url}}">Login</a>
+                <a class="btn btn-primary" role="button" aria-disabled="false" href="{% url 'signup' %}?next={{next_url}}">Signup</a>
+            </div>
+        </p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

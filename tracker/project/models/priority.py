@@ -6,9 +6,8 @@ from core.models import user as core_user_models
 
 class BuiltInIssuePriorityManager(models.Manager):
     def initialize_built_in_priorities(self):
-        """
-        Keep this in sync with the BuiltInIssuePriorities.IssuePriorities class.
-        """
+        # Keep this in sync with the BuiltInIssuePriorities.IssuePriorities class.
+        # We force specific UUIDs here to ensure consistency across all installations.
         built_in_issue_priorities = [
             ('cbb014f3-f9ab-46da-926e-7d76bca69470', 'CRITICAL', 'Critical'),
             ('376295d8-2132-410f-a9aa-4e32757f5324', 'HIGH', 'High'),
@@ -27,6 +26,7 @@ class BuiltInIssuePriority(core_models.CoreModel):
         unique_together = ['name', 'description']
 
     class IssuePriorities(models.TextChoices):
+        # Keep this in sync with the BuiltInIssuePriorityManager.initialize_built_in_priorities method.
         LOW = 'LOW', 'Low'
         MEDIUM = 'MEDIUM', 'Medium'
         HIGH = 'HIGH', 'High'

@@ -14,9 +14,9 @@ omit =
     project/management/*
     project/migrations/*
     project/tests/*
-    frontend/tests/*
     frontend/static/*
     frontend/templates/*
+    frontend/tests/*
     tracker/settings/*
 exclude_also =
     def __repr__

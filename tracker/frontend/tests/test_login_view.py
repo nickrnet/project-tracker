@@ -40,6 +40,36 @@ class TestLoginView(TestCase):
         self.assertIn('You were successfully logged in!', str(messages))
         self.assertEqual(1, UserLogin.objects.count())
 
+    def test_login_view_post_with_next_url(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        login_form_data = {
+            'email': 'testuser1@project-tracker.dev',
+            'password': 'password'
+            }
+        login_form = LoginForm(login_form_data)
+        login_form.is_valid()
+        form_data = urlencode(login_form.data)
+        response = self.http_client.post(reverse('login'), form_data, url_encoding, QUERY_STRING=urlencode({'next': '/issues'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/issues')
+        self.assertIn('You were successfully logged in!', str(messages))
+        self.assertEqual(1, UserLogin.objects.count())
+
+    def test_login_view_post_with_bad_next_url(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        login_form_data = {
+            'email': 'testuser1@project-tracker.dev',
+            'password': 'password'
+            }
+        login_form = LoginForm(login_form_data)
+        login_form.is_valid()
+        form_data = urlencode(login_form.data)
+        response = self.http_client.post(reverse('login'), form_data, url_encoding, QUERY_STRING=urlencode({'next': 'https://www.google.com'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/projects')
+        self.assertIn('You were successfully logged in!', str(messages))
+        self.assertEqual(1, UserLogin.objects.count())
+
     def test_login_view_post_with_unknown_user(self):
         url_encoding = 'application/x-www-form-urlencoded'
         login_form_data = {

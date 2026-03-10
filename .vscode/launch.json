@@ -14,7 +14,8 @@
             ],
             "django": true,
             "autoStartBrowser": false,
-            "program": "${workspaceFolder}/tracker/manage.py"
+            "program": "${workspaceFolder}/tracker/manage.py",
+            "cwd": "${workspaceFolder}/tracker",
         },
         {
             "name": "Django Run Install Demo Data",
@@ -25,19 +26,20 @@
             ],
             "django": true,
             "autoStartBrowser": false,
-            "program": "${workspaceFolder}/tracker/manage.py"
+            "program": "${workspaceFolder}/tracker/manage.py",
+            "cwd": "${workspaceFolder}/tracker",
         },
         {
             "name": "Django Tests",
             "type": "debugpy",
             "request": "launch",
             "args": [
-                "test",
+                "test", "frontend.tests.test_login_view.TestLoginView.test_login_view_post_with_bad_next_url",
             ],
             "django": true,
             "autoStartBrowser": false,
+            "program": "${workspaceFolder}/tracker/manage.py",
             "cwd": "${workspaceFolder}/tracker",
-            "program": "${workspaceFolder}/tracker/manage.py"
         },
     ]
 }

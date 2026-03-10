@@ -14,9 +14,9 @@ omit =
     tracker/project/management/*
     tracker/project/migrations/*
     tracker/project/tests/*
-    tracker/frontend/tests/*
     tracker/frontend/static/*
     tracker/frontend/templates/*
+    tracker/frontend/tests/*
     tracker/tracker/settings/*
 exclude_also =
     def __repr__

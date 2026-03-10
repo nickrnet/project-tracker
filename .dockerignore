@@ -1,0 +1,49 @@
+# Exclude git and editor metadata
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Python cache / build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Django / local files
+*.sqlite3
+db.sqlite3
+db_*.sqlite3
+results.sqlite
+celerybeat-schedule.db
+static_root/
+.env
+.env.*
+
+# Test / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Docker compose overrides
+docker-compose.override.yml
+
+# Node modules
+node_modules/
+
+# Misc
+.cache/
+.mypy_cache/
+.tox/
+*.log

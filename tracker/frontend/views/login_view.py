@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from core.util import validate_ip_address
 
@@ -14,6 +15,7 @@ def handle_post(request):
     if received_login_form.is_valid():
         user = authenticate(username=received_login_form.cleaned_data['email'], password=received_login_form.cleaned_data['password'])
         if user is not None:
+            next_url = request.GET.get('next')
             login(request, user)
             core_user = core_user_models.CoreUser.active_objects.get(user=user)
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
@@ -30,7 +32,10 @@ def handle_post(request):
                 )
             messages.success(request, ('You were successfully logged in!'))
 
-            return redirect(request.GET.get("next", '/projects'))
+            if next_url and url_has_allowed_host_and_scheme(url=next_url, allowed_hosts=request.get_host()):
+                return redirect(next_url)
+            else:
+                return redirect('projects')
         else:
             messages.error(request, 'Error logging in.')
 
