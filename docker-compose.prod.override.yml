@@ -1,0 +1,81 @@
+# Combined production override with options for TLS:
+# - Default (recommended): nginx-proxy + acme-companion (automatic Let's Encrypt)
+# - Alternative: a simple nginx service that mounts cert files (see commented
+#   section below). Enable only one approach at a time to avoid port conflicts.
+#
+# Usage (default automatic TLS):
+#   docker-compose -f docker-compose.prod.yml -f docker-compose.prod.override.yml up --build -d
+
+services:
+  #########################################################################
+  # Option A: nginx-proxy + ACME companion (automatic Let's Encrypt)
+  # Recommended for simple automation on a single trusted host. Requires
+  # mounting the Docker socket into the proxy/companion containers.
+  #########################################################################
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - proxy_certs:/etc/nginx/certs
+      - proxy_vhost:/etc/nginx/vhost.d
+      - proxy_html:/usr/share/nginx/html
+    environment:
+      ENABLE_IPV6: 'false'
+
+  letsencrypt:
+    image: nginxproxy/acme-companion
+    restart: unless-stopped
+    depends_on:
+      - nginx-proxy
+    environment:
+      NGINX_PROXY_CONTAINER: nginx-proxy
+      ACME_CA_URI: https://acme-v02.api.letsencrypt.org/directory
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - proxy_certs:/etc/nginx/certs
+      - proxy_vhost:/etc/nginx/vhost.d
+      - proxy_html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
+
+  # Label the web service so the proxy and companion will request certs.
+  web:
+    labels:
+      - "VIRTUAL_HOST=${NGINX_HOST}"
+      - "LETSENCRYPT_HOST=${NGINX_HOST}"
+      - "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}"
+
+  #########################################################################
+  # Option B: simple nginx with mounted certs (manual cert management)
+  # If you prefer to manage certificates yourself, uncomment the nginx
+  # service below and ensure you have `secrets/fullchain.pem` and
+  # `secrets/privkey.pem` available on the host. Do NOT enable both A and B.
+  #########################################################################
+
+  # nginx:
+  #   volumes:
+  #     - ./docker/nginx/prod-ssl.conf:/etc/nginx/conf.d/default.conf:ro
+  #     - ./secrets/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+  #     - ./secrets/privkey.pem:/etc/ssl/private/privkey.pem:ro
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   environment:
+  #     NGINX_HOST: ${NGINX_HOST:-localhost}
+
+volumes:
+  proxy_certs:
+  proxy_vhost:
+  proxy_html:
+  acme:
+
+# Notes:
+# - This file consolidates the previous override files. Use the first option
+#   (nginx-proxy + acme-companion) for automated Let's Encrypt issuance on a
+#   trusted single-host deployment. Use the commented `nginx` section if you
+#   already manage certificates externally and prefer a static nginx config.
+# - Ensure `.env.prod` contains `NGINX_HOST` and `LETSENCRYPT_EMAIL` when
+#   using the automatic option.

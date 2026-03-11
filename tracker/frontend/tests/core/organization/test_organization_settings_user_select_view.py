@@ -61,7 +61,7 @@ class TestOrganizationSettingsUserSelectView(TestCase):
     def test_organization_settings_user_select_view_redirects_when_not_logged_in(self):
         response = self.http_client.get(reverse('organization_settings_user_select', kwargs={'organization_id': str(self.organization1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/' + str(self.organization1.id) + '/organization-settings/user-select/')
+        self.assertRedirects(response, '/login?next=/organization/' + str(self.organization1.id) + '/organization-settings/user-select/')
 
     def test_organization_settings_user_select_view_get(self):
         self.http_client.force_login(user=self.user1.user)
@@ -93,9 +93,29 @@ class TestOrganizationSettingsUserSelectView(TestCase):
         self.assertIn(self.user2, self.organization1.members.all())
         self.assertIn('Organization users updated successfully!', str(messages))
 
+    def test_organization_settings_user_select_view_removes_user(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        form_data = 'current_users=' + str(self.user1.id) + '&current_users=' + str(self.user2.id)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('organization_settings_user_select', kwargs={'organization_id': str(self.organization1.id)}), form_data, url_encoding)
+        form_data = 'current_users=' + str(self.user1.id)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('organization_settings_user_select', kwargs={'organization_id': str(self.organization1.id)}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'core/organization/organization_users_table.html')
+        # Make sure the form came through to the database and only changed the organization users
+        self.organization1.refresh_from_db()
+        self.assertEqual(self.organization1.current.name, 'Test Organization 1')
+        self.assertEqual(self.organization1.members.count(), 1)
+        self.assertIn(self.user1, self.organization1.members.all())
+        self.assertNotIn(self.user2, self.organization1.members.all())
+        self.assertIn('Organization users updated successfully!', str(messages))
+
     def test_organization_settings_user_select_view_post_with_invalid_users(self):
         url_encoding = 'application/x-www-form-urlencoded'
-        form_data = 'current_users=b5de211e-97f1-4119-98df-5827d56ca12f&current_users=39f44dc9-5d81-4e57-a4f7-559d0f89a245'
+        # Current users include 1 valid user and 2 invalid users
+        form_data = 'current_users=b5de211e-97f1-4119-98df-5827d56ca12f&current_users=39f44dc9-5d81-4e57-a4f7-559d0f89a245&current_users=' + str(self.user1.id)
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('organization_settings_user_select', kwargs={'organization_id': self.organization1.id}), form_data, url_encoding)
         self.assertEqual(response.status_code, 200)

@@ -43,7 +43,7 @@ class TestSignupView(TestCase):
             'state': 'NY',
             'country': 'US',
             'timezone': 'EST'
-        }
+            }
         login_form = SignupForm(login_form_data)
         login_form.is_valid()
         form_data = urlencode(login_form.data)
@@ -78,3 +78,69 @@ class TestSignupView(TestCase):
         self.assertTemplateUsed(response, 'signup_template.html')
         self.assertIn('Error saving user. Double check your data and try again.', str(messages))
         self.assertEqual(0, UserLogin.objects.count())
+
+    def test_signup_view_post_with_next_url(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        login_form_data = {
+            'email': 'testuser1@project-tracker.dev',
+            'password': 'password',
+            'name_prefix': 'Prefix',
+            'first_name': 'Test',
+            'middle_name': '1',
+            'last_name': 'User',
+            'name_suffix': 'Suffix',
+            'secondary_email': 'testuser1+secondary@project-tracker.dev',
+            'home_phone': '5555551111',
+            'mobile_phone': '5555552222',
+            'work_phone': '5555553333',
+            'address_line_1': '1234 Tomato Ln',
+            'address_line_2': 'n/a',
+            'postal_code': 12345,
+            'city': 'Anytown',
+            'state': 'NY',
+            'country': 'US',
+            'timezone': 'EST'
+            }
+        url_encoding = 'application/x-www-form-urlencoded'
+        signup_form = SignupForm(login_form_data)
+        signup_form.is_valid()
+        form_data = urlencode(signup_form.data)
+        response = self.http_client.post(reverse('signup'), form_data, url_encoding, QUERY_STRING=urlencode({'next': '/issues'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/issues', target_status_code=302)  # '/issues' redirects if not logged in, so target_status_code is 302 instead of 200
+        self.assertIn('Your signup was successful!', str(messages))
+        test1_user = CoreUser.objects.get(current__email='testuser1@project-tracker.dev')
+        self.assertIn(test1_user, CoreUser.objects.all())
+
+    def test_signup_view_post_with_bad_next_url(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        login_form_data = {
+            'email': 'testuser1@project-tracker.dev',
+            'password': 'password',
+            'name_prefix': 'Prefix',
+            'first_name': 'Test',
+            'middle_name': '1',
+            'last_name': 'User',
+            'name_suffix': 'Suffix',
+            'secondary_email': 'testuser1+secondary@project-tracker.dev',
+            'home_phone': '5555551111',
+            'mobile_phone': '5555552222',
+            'work_phone': '5555553333',
+            'address_line_1': '1234 Tomato Ln',
+            'address_line_2': 'n/a',
+            'postal_code': 12345,
+            'city': 'Anytown',
+            'state': 'NY',
+            'country': 'US',
+            'timezone': 'EST'
+            }
+        url_encoding = 'application/x-www-form-urlencoded'
+        signup_form = SignupForm(login_form_data)
+        signup_form.is_valid()
+        form_data = urlencode(signup_form.data)
+        response = self.http_client.post(reverse('signup'), form_data, url_encoding, QUERY_STRING=urlencode({'next': 'https://www.google.com'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/login')
+        self.assertIn('Your signup was successful!', str(messages))
+        test1_user = CoreUser.objects.get(current__email='testuser1@project-tracker.dev')
+        self.assertIn(test1_user, CoreUser.objects.all())

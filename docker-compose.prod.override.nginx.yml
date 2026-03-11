@@ -1,0 +1,79 @@
+# This override adds an automatic Let's Encrypt-enabled NGINX reverse proxy
+# using the nginx-proxy + acme-companion pattern. It requires access to the
+# Docker socket and will automatically obtain/renew certificates for containers
+# that expose `VIRTUAL_HOST` and `LETSENCRYPT_HOST` environment variables.
+#
+# IMPORTANT: This override REPLACES the simple nginx service from docker-compose.prod.yml
+# by using profiles to disable it.
+#
+# Usage:
+#  docker-compose -f docker-compose.prod.yml -f docker-compose.prod.override.nginx.yml --env-file .env.prod up -d
+
+services:
+  # Disable the simple nginx from base prod file by setting a profile it won't match
+  nginx:
+    profiles:
+      - disabled
+
+  # Reverse proxy that listens on 80/443 and dynamically configures upstreams
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - proxy_certs:/etc/nginx/certs
+      - proxy_vhost:/etc/nginx/vhost.d
+      - proxy_html:/usr/share/nginx/html
+    environment:
+      ENABLE_IPV6: 'false'
+
+  # ACME companion that requests and renews Let's Encrypt certificates
+  letsencrypt:
+    image: nginxproxy/acme-companion
+    restart: unless-stopped
+    depends_on:
+      - nginx-proxy
+    environment:
+      # Use the actual container name from docker ps (respects COMPOSE_PROJECT_NAME)
+      DEFAULT_EMAIL: ${LETSENCRYPT_EMAIL:-}
+      ACME_CA_URI: https://acme-v02.api.letsencrypt.org/directory
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - proxy_certs:/etc/nginx/certs:rw
+      - proxy_vhost:/etc/nginx/vhost.d
+      - proxy_html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
+    volumes_from:
+      - nginx-proxy
+      - proxy_html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
+
+  # Add labels to the existing `web` service so the proxy and companion know
+  # which host to request certs for. Ensure you set `NGINX_HOST` and
+  # `LETSENCRYPT_EMAIL` in `.env.prod` (or your environment).
+  web:
+    labels:
+      - "VIRTUAL_HOST=${NGINX_HOST}"
+      - "LETSENCRYPT_HOST=${NGINX_HOST}"
+      - "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}"
+
+volumes:
+  proxy_certs:
+  proxy_vhost:
+  proxy_html:
+  acme:
+
+# Notes:
+# - This approach requires mounting the Docker socket into the proxy/companion
+#   containers so they can detect running containers and request certificates.
+#   Mounting the socket is powerful but should be limited to trusted hosts.
+# - The `web` service in `docker-compose.prod.yml` should NOT map ports 80/443
+#   if you enable this override; the proxy exposes those ports.
+# - Make sure `.env.prod` contains at least:
+#     NGINX_HOST=example.com
+#     LETSENCRYPT_EMAIL=ops@example.com
+# - For cluster or multi-host deployments, prefer an external TLS terminator or
+#   a managed certificate solution instead of docker-socket based automation.

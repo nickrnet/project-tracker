@@ -15,7 +15,17 @@
     <div id="organization-settings-user-select-modal"
         class="modal modal-blur fade"
         style="display: none"
-        aria-labelledby="organization-settings-user-selectmodal"
+        aria-labelledby="organization-settings-user-select-modal"
+        aria-inert="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    <div id="organization-settings-invite-user-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-labelledby="organization-settings-invite-user-modal"
         aria-inert="true"
         tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
@@ -29,6 +39,22 @@
             data-bs-toggle="modal"
             data-bs-target="#organization-settings-modal"
             class="btn primary"><i class="bi bi-gear"></i></button></h2>
+        <p>
+            {% if logged_in_user.current.timezone %}
+            Created {{ organization.created_on|timezone:logged_in_user.current.timezone }}
+            {% else %}
+            Created {{ organization.created_on|timezone:"UTC" }}
+            {% endif %}
+            by <a href="{% url 'user' organization.created_by.id %}">{{ organization.created_by.current.last_name|safe }}, {{ organization.created_by.current.first_name|safe }}</a>
+        </p>
+        <p>
+            {% if logged_in_user.current.timezone %}
+            Updated {{ organization.current.created_on|timezone:logged_in_user.current.timezone }}
+            {% else %}
+            Updated {{ organization.current.created_on|timezone:"UTC" }}
+            {% endif %}
+            by <a href="{% url 'user' organization.current.created_by.id %}">{{ organization.current.created_by.current.last_name|safe }}, {{ organization.current.created_by.current.first_name|safe }}</a>
+        </p>
     </div>
     <div class="row">
         <div class="container overflow-hidden">
@@ -53,19 +79,11 @@
                     </h2>
                     <div id="organization-users-accordion-content" class="accordion-collapse collapse" data-bs-parent="#organization-accordion">
                         <div class="accordion-body">
-                            <div class="row">
-                                <div class="col-2">
-                                <button
-                                    hx-get="{% url 'organization_settings_user_select' organization.id %}"
-                                    hx-target="#organization-settings-user-select-modal"
-                                    hx-swap="innerHTML"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#organization-settings-user-select-modal"
-                                    class="btn primary"><i class="bi bi-pencil"></i></button>
-                                </div>
-                            </div>
                             <div class="row" id="users-table">
                             {% include "core/organization/organization_users_table.html" %}
+                            </div>
+                            <div class="row" id="invites-table">
+                            {% include "core/organization/organization_invites_table.html" %}
                             </div>
                         </div>
                     </div>

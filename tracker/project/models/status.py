@@ -6,9 +6,8 @@ from core.models import user as core_user_models
 
 class BuiltInIssueStatusManager(models.Manager):
     def initialize_built_in_statuses(self):
-        """
-        Keep this in sync with the BuiltInIssueStatuses.IssueStatuses class.
-        """
+        # Keep this in sync with the BuiltInIssueStatus.IssueStatuses class.
+        # We force specific UUIDs here to ensure consistency across all installations.
         built_in_issue_statuses = [
             ('24c03dc0-a98f-4125-a9db-51781e610444', 'CLOSED', 'Closed'),
             ('24494695-c0f8-4a90-aacc-670776b40ff9', 'COMPLETE', 'Complete'),
@@ -30,6 +29,7 @@ class BuiltInIssueStatus(core_models.CoreModel):
         unique_together = ['name', 'description']
 
     class IssueStatuses(models.TextChoices):
+        # Keep this in sync with the BuiltInIssueStatusManager.initialize_built_in_statuses method.
         TRIAGE = 'TRIAGE', 'Triage'
         OPEN = 'OPEN', 'Open'
         READY_FOR_DEVELOPMENT = 'READY_FOR_DEVELOPMENT', 'Ready for Development'

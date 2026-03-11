@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Other packages
     # 'app_metrics',
+    'django_celery_beat',
+    'django_celery_results',
     'django_extensions',
     "django_htmx",
     'health_check',
@@ -126,14 +128,69 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / 'static_root'
 WHITENOISE_ROOT = BASE_DIR / 'static_root'
 
+# Media files (user uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = env('MEDIA_ROOT', default=BASE_DIR / 'media')
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        },
+    }
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = reverse_lazy('login')
+# Configure logging
+# https://docs.djangoproject.com/en/5.2/topics/logging/
+# 2025-12-10 04:00:27,604 - INFO - basehttp - "GET /organization/e3e46d34-d466-4a49-b8fe-9433b40cf98c/ HTTP/1.1" 200 23235
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} - {levelname} - {module} - {message}",
+            "style": "{",
+            },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+            },
+        },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+            },
+        },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+        },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+            },
+        'celery': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True
+            },
+        'handlers': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True
+            },
+        },
+    }
 
-CELERY_ALWAYS_EAGER = True
+LOGIN_URL = reverse_lazy('login')
 
 HEALTH_CHECK = {
     "SUBSETS": {
@@ -141,6 +198,8 @@ HEALTH_CHECK = {
         "liveness-probe": ["DatabaseBackend"],
         },
     }
+
+CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", default=False)
 
 # Load the correct settings based on the environment
 if env.bool('LOCAL', default=False):

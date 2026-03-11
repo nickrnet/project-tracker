@@ -8,7 +8,25 @@
             });
         };
     </script>
-
+    <h3 class="my-4">Organization Members
+    <div class="row">
+        <div class="col-2">
+        <button
+            hx-get="{% url 'organization_settings_invite_user' organization.id %}"
+            hx-target="#organization-settings-invite-user-modal"
+            hx-swap="innerHTML"
+            data-bs-toggle="modal"
+            data-bs-target="#organization-settings-invite-user-modal"
+            class="btn primary"><i class="bi bi-plus" data-bs-toggle="tooltip" data-bs-title="Invite A User"></i></button>
+        <button
+            hx-get="{% url 'organization_settings_user_select' organization.id %}"
+            hx-target="#organization-settings-user-select-modal"
+            hx-swap="innerHTML"
+            data-bs-toggle="modal"
+            data-bs-target="#organization-settings-user-select-modal"
+            class="btn primary"><i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-title="Manage Users"></i></button>
+        </div>
+    </div></h3>
     <table class="table table-striped table-hover" id="users-table-data">
         <thead>
             <tr>

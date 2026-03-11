@@ -1,0 +1,34 @@
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Invite Organization User</h3>
+            <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#organization-settings-invite-user-modal" aria-label="Close"></button>
+        </div>
+        <form
+            id="organization-settings-user-select-form"
+            hx-post="{% url 'organization_settings_invite_user' organization.id %}"
+            hx-target="#invites-table"
+            hx-trigger="submit"
+            onSubmit="selectAllOptions('current_users')">
+            <div class="modal-body">
+                {% csrf_token %}
+                <div class="row align-items-center">
+                    <div clas="col-2">
+                        <label for="id_email" class="form-label">Email address:</label>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="email" class="form-control" id="id_email" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#organization-settings-invite-user-modal">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#organization-settings-invite-user-modal">Cancel</button>
+            </div>
+            <input type="hidden" name="organization_id" value="{{ organization.id }}">
+            {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+        </form>
+    </div>
+</div>

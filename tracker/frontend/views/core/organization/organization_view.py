@@ -45,7 +45,8 @@ def organization(request, organization_id=None):
                 'logged_in_user': logged_in_user,
                 'organization': organization,
                 'projects': organization.projects.all(),
-                'members': organization.members.all()
+                'members': organization.members.all(),
+                'organization_invites': organization.member_invites.all().exclude(current__status='ACCEPTED'),
                 }
             )
     except core_organization_models.Organization.DoesNotExist:

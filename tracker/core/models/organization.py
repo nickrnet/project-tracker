@@ -53,7 +53,7 @@ class Organization(core_models.CoreModel):
     """
     An organization. The _real_ inforomation about an Organization is stored in `current` as OrganizationData.
 
-    Every time a user or a git repository or a project is added to an organization, a new OrganizationData object is created and the `current` field is updated to reflect the new data.
+    Every time a user updates information about an organization, a new OrganizationData object is created and the `current` field is updated to reflect the new data.
     """
 
     class Meta:
@@ -65,6 +65,7 @@ class Organization(core_models.CoreModel):
 
     # TODO: Activity Tracking for tracking changes to these things
     members = models.ManyToManyField(core_user_models.CoreUser, related_name='organizationmembers_set')
+    member_invites = models.ManyToManyField('OrganizationInvite', related_name='organizationmemberinvite_set')
     git_repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationgitrepositories_set')
     projects = models.ManyToManyField(project_models.Project, related_name='organizationprojects_set')
 
@@ -84,6 +85,7 @@ class Organization(core_models.CoreModel):
             current_organization_data = model_to_dict(self.current)
             current_organization_data.update(new_organization_data)
             current_organization_data['created_by_id'] = user_id
+            current_organization_data['created_on'] = timezone.now()
             new_organization_data = OrganizationData.objects.create(**current_organization_data)
             new_organization_data.save()
             self.current = new_organization_data

@@ -18,6 +18,7 @@ lib/
 lib64/
 parts/
 sdist/
+secrets/
 var/
 wheels/
 share/python-wheels/
@@ -60,6 +61,7 @@ local_settings.py
 *.sqlite3
 *.sqlite3-journal
 *.sqlite3.*
+celerybeat-schedule.db
 
 # Flask stuff:
 instance/
@@ -123,6 +125,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.prod
 .venv
 env/
 venv/

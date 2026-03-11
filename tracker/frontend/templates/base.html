@@ -23,6 +23,18 @@
 
         <script src="{% static 'js/htmx.min.js' %}"></script>
 
+        <script>
+            function copyToClipboard(fieldId) {
+                // Get the text field
+                var copyText = document.getElementById(fieldId);
+                // Select the text field
+                copyText.select();
+                copyText.setSelectionRange(0, 99999); // For mobile devices
+                // Copy the text inside the text field
+                navigator.clipboard.writeText(copyText.value);
+            }
+        </script>
+
         <style>
             .container {
                 display: flex;

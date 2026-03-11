@@ -2,6 +2,7 @@ from importlib import resources
 
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from core.models import user as core_user_models
 from frontend.forms.signup_form import SignupForm
@@ -9,14 +10,16 @@ from frontend.forms.signup_form import SignupForm
 
 def handle_post(request, timezone_choices, country_names):
     new_user_data_form = SignupForm(request.POST, request.FILES)
+    next_url = request.GET.get('next')
     if new_user_data_form.is_valid():
         core_user_models.CoreUser.objects.create_core_user_from_web(new_user_data_form.cleaned_data)
         messages.success(request, ('Your signup was successful!'))
-
-        return redirect("login")
+        if next_url and url_has_allowed_host_and_scheme(url=next_url, allowed_hosts=request.get_host()):
+            return redirect(next_url)
+        else:
+            return redirect('login')
     else:
         messages.error(request, 'Error saving user. Double check your data and try again.')
-
         return render(
             request=request,
             template_name="signup_template.html",

@@ -35,12 +35,14 @@ ALLOWED_HOSTS = ["*"]
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-DATABASE_URL = env.bool('DATABASE_URL', default=None)
+DATABASE_URL = env('DATABASE_URL', default=None)
 if DATABASE_URL:
+    print(f"Using DATABASE_URL: {DATABASE_URL}")
     DATABASES = {
         'default': env.db('DATABASE_URL'),
         }
 else:
+    print("No DATABASE_URL found, using SQLite")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -54,9 +56,13 @@ else:
 
 # Static file serving.
 # https://whitenoise.readthedocs.io/en/stable/django.html#add-compression-and-caching-support
-STORAGES = {
-    # ...
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-        },
-    }
+
+# Media files (user uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'  # noqa: F405
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="memory://localhost/")
+CELERY_RESULT_BACKEND = 'django-db+sqlite:///results.sqlite'
+CELERY_TASK_EAGER_PROPAGATES = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

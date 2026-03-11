@@ -3,7 +3,7 @@
         <label for="id_email" class="form-label">{% if "new_user" not in requestget_full_path %}* {% endif %}* Email address:</label>
         <input type="text" name="email" class="form-control" id="id_email" required {% if user %}value="{{ user.current.email|safe }}"{% endif %}>
     </div>
-    {% if "new_user" in request.get_full_path %}
+    {% if "new_user" in request.get_full_path or "signup" in request.get_full_path %}
     <div class="col-md-6">
         <label for="id_password" class="form-label">* Password:</label>
         <input type="password" name="password" class="form-control" id="id_password" required></textarea>

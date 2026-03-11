@@ -6,9 +6,8 @@ from core.models import user as core_user_models
 
 class BuiltInIssueSeverityManager(models.Manager):
     def initialize_built_in_severities(self):
-        """
-        Keep this in sync with the BuiltInIssueSeverity.IssueSeverities class.
-        """
+        # Keep this in sync with the BuiltInIssueSeverity.IssueSeverities class.
+        # We force specific UUIDs here to ensure consistency across all installations.
         built_in_issue_severities = [
             ('8e0432d7-81c6-4a3d-a5c8-a2dfbba1b330', 'CRITICAL', 'Critical'),
             ('9aaa5bfe-3150-4db1-ad02-ee47694f569b', 'MAJOR', 'Major'),
@@ -26,6 +25,7 @@ class BuiltInIssueSeverity(core_models.CoreModel):
         unique_together = ['name', 'description']
 
     class IssueSeverities(models.TextChoices):
+        # Keep this in sync with the BuiltInIssueSeverityManager.initialize_built_in_severities method.
         MINOR = 'MINOR', 'Minor'
         MAJOR = 'MAJOR', 'Major'
         CRITICAL = 'CRITICAL', 'Critical'

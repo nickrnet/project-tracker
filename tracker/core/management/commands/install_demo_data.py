@@ -4,6 +4,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from core.util import timed_function
 from core.models.organization import Organization, OrganizationData
 from core.models.user import CoreUser
 from project.models.git_repository import GitRepository, GitRepositoryData
@@ -145,6 +146,7 @@ def create_git_repository(project_id, repository_name=None, git_repositories=[])
 
 class Command(BaseCommand):
     # TODO: Refactor this to make is simpler, ditch the noqa bit
+    @timed_function
     def handle(self, *args, **options):  # noqa
         total_users = 50
         total_organizations = 30

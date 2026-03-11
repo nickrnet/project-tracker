@@ -11,8 +11,10 @@ from frontend.views.project.git_repository import new_git_repository_view
 from frontend.views.core.organization import organization_view
 from frontend.views.core.organization import organizations_view
 from frontend.views.core.organization import new_organization_view
+from frontend.views.core.organization import organization_accept_invite_view
 from frontend.views.core.organization import organization_settings_view
 from frontend.views.core.organization import organization_settings_user_select_view
+from frontend.views.core.organization import organization_settings_invite_user_view
 from frontend.views.project.project import project_view
 from frontend.views.project.project import check_project_label_availability_view
 from frontend.views.project.project import project_settings_view
@@ -103,7 +105,9 @@ urlpatterns = [
     path('organizations', organizations_view.organizations, name='organizations'),
     path('organization/<uuid:organization_id>/', organization_view.organization, name='organization'),
     path('organization-settings/<uuid:organization_id>/', organization_settings_view.organization_settings, name='organization_settings'),
-    path('<uuid_or_label:organization_id>/organization-settings/user-select/', organization_settings_user_select_view.user_select, name='organization_settings_user_select'),
+    path('organization/<uuid_or_label:organization_id>/organization-settings/user-select/', organization_settings_user_select_view.user_select, name='organization_settings_user_select'),
+    path('organization/<uuid_or_label:organization_id>/organization-settings/invite-user/', organization_settings_invite_user_view.invite_user, name='organization_settings_invite_user'),
+    path('accept_organization_invite/<uuid:invite_id>/', organization_accept_invite_view.accept_organization_invite, name='accept_organization_invite'),
 
     path('users', users_view.users, name='users'),
     path('new_user', new_user_view.new_user, name='new_user'),

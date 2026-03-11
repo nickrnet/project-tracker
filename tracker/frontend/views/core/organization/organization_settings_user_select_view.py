@@ -11,7 +11,7 @@ def handle_post(request, logged_in_user, organization):
 
     updated_users = False
     if len(selected_user_ids) > 0:
-        # Make sure each user does have an account
+        # Make sure each user received has an account
         for user_id in selected_user_ids:
             try:
                 user = core_user_models.CoreUser.active_objects.get(pk=user_id)
@@ -21,6 +21,11 @@ def handle_post(request, logged_in_user, organization):
             except core_user_models.CoreUser.DoesNotExist:
                 messages.error(request, 'Could not add ' + str(user_id) + ' to organization users.')
                 continue
+        for user in organization.members.all():
+            # Remove any users that were not selected
+            if str(user.id) not in selected_user_ids:
+                organization.members.remove(user)
+                updated_users = True
     else:
         organization.members.clear()
         updated_users = True
