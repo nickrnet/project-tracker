@@ -1,0 +1,119 @@
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Manage Users</h3>
+            <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#project-settings-modal" aria-label="Close"></button>
+        </div>
+        <form
+            id="project-settings-user-select-form"
+            hx-post="{% url 'project_settings_user_select' project.id %}"
+            hx-target="#project-settings-modal"
+            hx-trigger="submit"
+            onSubmit="selectAllOptions('current_users')">
+            <div class="modal-body">
+                {% csrf_token %}
+                <div class="row g-3 justify-content-center">
+                    <div class="col">
+                        <label for="available_users" class="form-label">Available Users:</label>
+                        <select class="form-select" multiple aria-label="Available Users", name="available_users", id="available_users">
+                            {% for user in available_users %}
+                            <option value="{{ user.id }}">{{ user|safe }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-3 text-center">
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" id="btn-move-to-current" class="btn primary" title="Add Selected" onClick="moveSelected('available_users', 'current_users')">
+                                    Add <i class="bi bi-box-arrow-in-right"></i>
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" id="btn-move-to-available" class="btn primary" title="Remove Selected" onClick="moveSelected('current_users', 'available_users')">
+                                    <i class="bi bi-box-arrow-in-left"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <button type="button" id="btn-move-all-to-current" class="btn secondary" title="Add All" onClick="moveAll('available_users', 'current_users')">Add All<i class="bi bi-chevron-double-right"></i></button>
+                        </div>
+                        <div class="row">
+                            <button type="button" id="btn-move-all-to-available" class="btn secondary" title="Remove All" onClick="moveAll('current_users', 'available_users')"><i class="bi bi-chevron-double-left"></i>Remove All</button>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="current_users" class="form-label">Current Users:</label>
+                        <select class="form-select" multiple aria-label="Current Users", name="current_users", id="current_users">
+                            {% for user in project_users %}
+                            <option value="{{ user.id }}">{{ user|safe }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col">
+                        <span>&nbsp;</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-settings-modal">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#project-settings-modal">Cancel</button>
+            </div>
+            <input type="hidden" name="project_id" value="{{ project_id }}">
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+        <script>
+            // Move option elements from one select to another.
+            function moveOptions(sourceSelect, targetSelect, predicate) {
+                const src = document.getElementById(sourceSelect);
+                const tgt = document.getElementById(targetSelect);
+                if (!src || !tgt) return 0;
+
+                // Collect options to move to avoid mutating while iterating
+                const toMove = [];
+                for (let i = 0; i < src.options.length; i++) {
+                    const opt = src.options[i];
+                    if (predicate(opt)) toMove.push(opt);
+                }
+
+                // Move options, avoiding duplicates
+                let moved = 0;
+                const existing = new Set();
+                for (let i = 0; i < tgt.options.length; i++) existing.add(String(tgt.options[i].value));
+                toMove.forEach(opt => {
+                    if (!existing.has(String(opt.value))) {
+                        const newOpt = new Option(opt.text, opt.value);
+                        tgt.add(newOpt);
+                        existing.add(String(opt.value));
+                    }
+                    // Remove from source
+                    for (let j = 0; j < src.options.length; j++) {
+                        if (String(src.options[j].value) === String(opt.value)) {
+                            src.remove(j);
+                            break;
+                        }
+                    }
+                    moved += 1;
+                });
+                return moved;
+            }
+
+            function moveSelected(sourceId, targetId) {
+                return moveOptions(sourceId, targetId, opt => opt.selected);
+            }
+
+            function moveAll(sourceId, targetId) {
+                return moveOptions(sourceId, targetId, _ => true);
+            }
+
+            // Ensure all options in current_users are selected before submitting so they
+            // are included in the POST payload (multiple select only sends selected options).
+            function selectAllOptions(selectId) {
+                const sel = document.getElementById(selectId);
+                if (!sel) return;
+                for (let i = 0; i < sel.options.length; i++) sel.options[i].selected = true;
+            }
+        </script>
+    </div>
+</div>

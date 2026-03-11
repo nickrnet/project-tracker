@@ -1,0 +1,93 @@
+{% load tz %}
+<script>
+    function loadTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    };
+</script>
+<div class="row" id="git-repositories-table">
+    <div id="git-repository-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-hidden="true"
+        tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    {% include "project/git_repository/git_repository_toast.html" %}
+    <table class="table table-striped table-hover" id="git-repositories-table-data">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">URL</th>
+                <th scope="col">Organization</th>
+                <th scope="col">Project</th>
+                <th scope="col">Date Created</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for repository in git_repositories %}
+            <tr
+                hx-get="{% url 'git_repository' repository.id %}"
+                hx-target="#git-repository-modal"
+                data-bs-toggle="modal"
+                data-bs-target="#git-repository-modal">
+                <th scope="row" class="text-truncate" style="max-width: 80px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.current.name|safe|upper }}">{{ repository.current.name|safe|upper }}</th>
+                <td class="text-truncate" style="max-width: 175px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.current.description|safe }}">{{ repository.current.description|safe }}</th>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.current.url|safe }}"><a href="{{ repository.current.url }}" target="_blank">{{ repository.current.url|safe }}</a></td>
+                {% with repo_org=repository.organizationgitrepositories_set.first %}
+                    {% if repo_org %}
+                <td class="text-truncate" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-title="{{ repo_org.current.name }}">
+                    <a href="{% url 'organization' repo_org.id %}">{{ repo_org.current.name }}</a>
+                </td>
+                    {% else %}
+                <td style="max-width: 100px;">
+                    <span class="text-muted">&nbsp;</span>
+                </td>
+                    {% endif %}
+                {% endwith %}
+                {% with repo_project=repository.project_set.first %}
+                    {% if repo_project %}
+                <td class="text-truncate" style="max-width: 155px;" data-bs-toggle="tooltip" data-bs-title="{{ repo_project.current.name }}">
+                    <a href="{% url 'project' repo_project.id %}">{{ repo_project.current.name }}</a>
+                </td>
+                    {% else %}
+                <td style="max-width: 155px;">
+                    <span class="text-muted">&nbsp;</span>
+                </td>
+                    {% endif %}
+                {% endwith %}
+                {% if logged_in_user.current.timezone %}
+                <td class="text-truncate" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.created_on|timezone:logged_in_user.current.timezone }}">{{ repository.created_on|timezone:logged_in_user.current.timezone }}</td>
+                {% else %}
+                <td class="text-truncate" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-title="{{ repository.created_on|timezone:"UTC" }}">{{ repository.created_on|timezone:"UTC" }}</td>
+                {% endif %}
+            </tr>
+        {% empty %}
+            <tr>
+                <td class="text-muted">No git repositories available.</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        new DataTable('#git-repositories-table-data', {
+            order: [[5, 'desc']],
+            language: {
+                emptyTable: 'No git repositories found.',
+            },
+            drawCallback: function (settings) {
+                loadTooltips();
+            }
+        });
+    </script>
+</div>

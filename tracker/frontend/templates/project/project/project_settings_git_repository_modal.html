@@ -1,0 +1,39 @@
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">{{ git_repository.current.name|safe|upper }}</h5>
+            <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#project-settings-modal" aria-label="Close"></button>
+        </div>
+        <form
+            id="project-settings-git-repository-form"
+            hx-post="{% url 'project_settings_git_repository' git_repository.id %}"
+            hx-target="#project-settings-modal"
+            hx-trigger="submit">
+            <div class="modal-body">
+                {% csrf_token %}
+                {% include "project/git_repository/git_repository_form.html" %}
+                <div class="row g-3">
+                    <div class="col">
+                        <span>&nbsp;</span>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col">
+                        <table class="table table-hover">
+                            <tbody>
+                                {% include 'core/organization_owner_table_row.html' %}
+                                {% include 'project/project_owner_table_row.html' %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-settings-modal">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#project-settings-modal">Cancel</button>
+            </div>
+            <input type="hidden" name="project_id" value="{{ project_id }}">
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</div>

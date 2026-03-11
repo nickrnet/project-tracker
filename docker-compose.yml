@@ -1,0 +1,105 @@
+# Notes:
+# - This compose file expects either a `Dockerfile` at the repo root so the
+#   container can install dependencies on startup. Installing at container
+#   start is convenient for development but slower than building an image.
+
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  # PostgreSQL service for Docker development
+  # For local development without Docker, you can stop this service
+  postgres:
+    image: postgres:15
+    env_file: ./tracker/.env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-tracker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tracker}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tracker} -d ${POSTGRES_DB:-tracker}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Django Development server
+  django:
+    build: .
+    command: >
+      sh -c "/app/ensure-db.sh && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./tracker:/app/tracker:delegated
+      - ./docker/django/ensure-db.sh:/app/ensure-db.sh:ro
+    working_dir: /app/tracker
+    env_file: ./tracker/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: tracker.settings.docker
+      # If DATABASE_URL is not set in .env, assemble it from POSTGRES_* vars.
+      DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_USER:-tracker}:${POSTGRES_PASSWORD:-tracker}@postgres:5432/${POSTGRES_DB:-tracker}}
+      POSTGRES_DB: ${POSTGRES_DB:-tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-tracker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tracker}
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+# Celery Worker service
+  celery-worker:
+    build: .
+    command: >
+      sh -c "/app/ensure-db.sh && celery -A tracker.celery worker -l info --without-gossip --without-mingle"
+    volumes:
+      - ./tracker:/app/tracker:delegated
+      - ./docker/django/ensure-db.sh:/app/ensure-db.sh:ro
+    working_dir: /app/tracker
+    env_file: ./tracker/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: tracker.settings.docker
+      # Keep same DATABASE_URL assembly for workers
+      DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_USER:-tracker}:${POSTGRES_PASSWORD:-tracker}@postgres:5432/${POSTGRES_DB:-tracker}}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      POSTGRES_DB: ${POSTGRES_DB:-tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-tracker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tracker}
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+# Celery Beat service for scheduled tasks
+  celery-beat:
+    build: .
+    command: >
+      sh -c "/app/ensure-db.sh && celery -A tracker.celery beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    volumes:
+      - ./tracker:/app/tracker:delegated
+      - ./docker/django/ensure-db.sh:/app/ensure-db.sh:ro
+    working_dir: /app/tracker
+    env_file: ./tracker/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: tracker.settings.docker
+      DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_USER:-tracker}:${POSTGRES_PASSWORD:-tracker}@postgres:5432/${POSTGRES_DB:-tracker}}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      POSTGRES_DB: ${POSTGRES_DB:-tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-tracker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tracker}
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

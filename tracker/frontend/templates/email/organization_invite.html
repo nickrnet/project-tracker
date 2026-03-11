@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% block content %}
+    <p>You have been invited to join the organization "{{ organization|safe }}".</p>
+    <p>Please click the link below to accept the invitation:</p>
+    <p><a href="{{ accept_organization_invite_url|safe }}">Accept Invitation</a></p>
+    <p>If you did not expect this invitation, you can ignore and delete this email. You will not be contacted again regarding this invitation.</p>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% block content %}
+<div class="container-fluid pe-5">
+    <h2 class="my-4">{{ user.current.first_name|safe }} {{ user.current.last_name|safe }} - {{ user.current.email|safe }}</h2>
+    {% comment %} TODO: Not sure what to show here... show the user form for now {% endcomment %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% include "core/user/user_form.html" %}
+        <button class="btn btn-primary my-4" type="submit">Submit</button>
+    </form>
+</div>
+{% endblock %}

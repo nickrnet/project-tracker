@@ -1,0 +1,45 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Django Run Server",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "runserver",
+                "0.0.0.0:8000"
+            ],
+            "django": true,
+            "autoStartBrowser": false,
+            "program": "${workspaceFolder}/tracker/manage.py",
+            "cwd": "${workspaceFolder}/tracker",
+        },
+        {
+            "name": "Django Run Install Demo Data",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "install_demo_data",
+            ],
+            "django": true,
+            "autoStartBrowser": false,
+            "program": "${workspaceFolder}/tracker/manage.py",
+            "cwd": "${workspaceFolder}/tracker",
+        },
+        {
+            "name": "Django Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "test", "frontend.tests.test_login_view.TestLoginView.test_login_view_post_with_bad_next_url",
+            ],
+            "django": true,
+            "autoStartBrowser": false,
+            "program": "${workspaceFolder}/tracker/manage.py",
+            "cwd": "${workspaceFolder}/tracker",
+        },
+    ]
+}

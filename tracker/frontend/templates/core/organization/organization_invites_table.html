@@ -1,0 +1,65 @@
+{% load tz %}
+<script>
+    function loadTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    };
+</script>
+
+<div class="row" id="organization-invites-table">
+    <h3 class="my-4">Organization Invites</h3>
+    <table class="table table-striped table-hover" id="organization-invites-table-data">
+        <thead>
+            <tr>
+                <th scope="col">Email Address</th>
+                <th scope="col">Invited By</th>
+                <th scope="col" style="width: 30%;">Invite Link</th>
+                <th scope="col">Status</th>
+                <th scope="col">Expires</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invite in organization_invites %}
+            <tr>
+                <td style="vertical-align: middle;">{{ invite.current.email }}</th>
+                <td style="vertical-align: middle;"><a href="{% url 'user' invite.current.invited_by.id %}">{{ invite.current.invited_by.current.last_name|safe }}, {{ invite.current.invited_by.current.first_name|safe }}</a></td>
+                <td style="vertical-align: middle;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" class="form-control" readonly id="invite-link-{{ invite.id }}" value="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'accept_organization_invite' invite.id %}" onclick="copyToClipboard('invite-link-{{ invite.id }}')">
+                        <button class="btn primary" onclick="copyToClipboard('invite-link-{{ invite.id }}')">
+                            <i class="bi bi-clipboard-plus" data-bs-toggle="tooltip" data-bs-title="Copy to clipboard"></i>
+                        </button>
+                    </div>
+                </td>
+                <td style="vertical-align: middle;">{{ invite.current.status|safe }}</td>
+                {% if logged_in_user.current.timezone %}
+                 <td class="text-truncate" style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-title="{{ invite.current.expires_on|timezone:logged_in_user.current.timezone }}">{{ invite.current.expires_on|timezone:logged_in_user.current.timezone }}</td>
+                {% else %}
+                 <td class="text-truncate" style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-title="{{ invite.current.expires_on|timezone:"UTC" }}">{{ invite.current.expires_on|timezone:"UTC" }}</td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td class="text-muted">No organization invites available.</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        new DataTable('#organization-invites-table-data', {
+            order: [[3, 'desc']],
+            language: {
+                emptyTable: 'No organization invites available.',
+            },
+            drawCallback: function (settings) {
+                loadTooltips();
+            },
+        });
+    </script>
+</div>

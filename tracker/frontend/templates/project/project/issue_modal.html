@@ -1,0 +1,33 @@
+<script>
+    function loadTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    };
+</script>
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        {% include 'project/issue/issue_modal_header.html' %}
+        <form
+            id="issue-form"
+            hx-post="{% url 'issue' issue.id %}"
+            hx-target="#issues-table"
+            hx-trigger="submit">
+            <div class="modal-body">
+                {% csrf_token %}
+                {% include 'project/issue/issue_form.html' %}
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            <input type="hidden" name="reporter" value="{{ logged_in_user.id }}">
+            <input type="hidden" name="project_id" value="{{ project_id }}">
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+    <script>
+        loadTooltips();
+    </script>
+</div>

@@ -1,0 +1,20 @@
+<div id="project-label-availability">
+    <script>
+        function loadTooltips() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        };
+    </script>
+    <span>
+        {% if available %}
+        <i class="bi bi-check-circle-fill" data-bs-toggle="tooltip" data-bs-title="That project label is available."></i>
+        {% else %}
+        <i class="bi bi-slash-circle" data-bs-toggle="tooltip" data-bs-title="That project label is in use."></i>
+        {% endif %}
+    </span>
+    <script>
+        loadTooltips();
+    </script>
+</div>

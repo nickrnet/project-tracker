@@ -1,0 +1,54 @@
+{% load tz %}
+<div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="container-fluid text-left">
+                <div class="row">
+                    <h5 class="modal-title">{{ git_repository.current.name|safe }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="row">
+                    <p>
+                        {% if logged_in_user.current.timezone %}
+                        Created {{ git_repository.created_on|timezone:logged_in_user.current.timezone }}
+                        {% else %}
+                        Created {{ git_repository.created_on|timezone:"UTC" }}
+                        {% endif %}
+                        by <a href="{% url 'user' git_repository.created_by.id %}">{{ git_repository.created_by.current.last_name|safe }}, {{ git_repository.created_by.current.first_name|safe }}</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <form
+            id="git-repository-form"
+            hx-post="{% url 'git_repository' git_repository.id %}"
+            hx-target="#git-repository-modal"
+            hx-trigger="submit">
+            <div class="modal-body">
+                {% csrf_token %}
+                {% include "project/git_repository/git_repository_form.html" %}
+                <div class="row g-3">
+                    <div class="col">
+                        <span>&nbsp;</span>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col">
+                        <table class="table table-hover">
+                            <tbody>
+                                {% include 'core/organization_owner_table_row.html' %}
+                                {% include 'project/project_owner_table_row.html' %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            <input type="hidden" name="project_id" value="{{ project_id }}">
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</div>
