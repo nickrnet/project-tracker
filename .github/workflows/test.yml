@@ -72,6 +72,8 @@ jobs:
   test:
     needs: docker-migration-test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Check out code
@@ -132,7 +134,10 @@ jobs:
 
   deploy-gh-pages:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [docker-migration-test, test]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Check out code
         uses: actions/checkout@v4
