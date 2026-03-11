@@ -78,6 +78,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          ssh: ${{ secrets.DEPLOY_KEY }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -142,6 +144,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
         with:
+          ssh: ${{ secrets.DEPLOY_KEY }}
           ref: main
           fetch-depth: 0
 
