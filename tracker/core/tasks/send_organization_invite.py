@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 
 
 @shared_task
-def send_organization_invite_email(to_email, organization_name, accept_organization_invite_url):
+def send_organization_invite_email(to_email: str, organization_name: str, accept_organization_invite_url: str):
     """
     Sends an organization invite email to the specified email address.
     """
@@ -24,7 +24,7 @@ def send_organization_invite_email(to_email, organization_name, accept_organizat
 
     # Create a multipart email
     msg = EmailMultiAlternatives(
-        "You've been invited to join" + organization_name + "on Project Tracker!",
+        "You've been invited to join " + organization_name + " on Project Tracker!",
         text_content,
         "invites@project-tracker.dev",
         [to_email],

@@ -6,11 +6,11 @@ from django.utils import timezone
 from core.models.user import CoreUser
 from core.models.organization import Organization, OrganizationData
 from core.models.organization_invites import OrganizationInvite, OrganizationInviteData
-from core.tasks import process_invite_expiration
+from core.tasks.process_organization_invite_expiration import process_organization_invite_expiration
 from project.models.project import Project, ProjectData
 
 
-class TestProcessInviteExpiration(TestCase):
+class TestProcessOrganizationInviteExpiration(TestCase):
     def setUp(self):
         self.member1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password'})
         self.member2 = CoreUser.objects.create_core_user_from_web({'email': 'testuser2@project-tracker.dev', 'password': 'password'})
@@ -45,7 +45,7 @@ class TestProcessInviteExpiration(TestCase):
         self.organization.projects.add(self.project1)
         self.organization.save()
 
-    def test_process_invite_expiration_does_not_expire_valid_invites(self):
+    def test_process_organization_invite_expiration_does_not_expire_valid_invites(self):
         # create an invite for member2
         invite_data1 = {
             'created_by_id': str(self.member1.id),
@@ -60,13 +60,13 @@ class TestProcessInviteExpiration(TestCase):
             created_by_id=self.member1.id,
             current=self.invite_data1,
             )
-        with self.assertLogs(logger=logging.getLogger('core.tasks.process_invite_expiration'), level='INFO') as cm:
-            process_invite_expiration.process_organization_invite_expiration()
+        with self.assertLogs(logger=logging.getLogger('core.tasks.process_organization_invite_expiration'), level='INFO') as cm:
+            process_organization_invite_expiration()
         self.assertIn("No invites to expire.", cm.output[1])
         self.invite1.refresh_from_db()
         self.assertEqual(self.invite1.current.status, 'PENDING')
 
-    def test_process_invite_expiration_expires_invites(self):
+    def test_process_organization_invite_expiration_expires_invites(self):
         # create an expired invite for member2
         invite_data2 = {
             'created_by_id': str(self.member1.id),
@@ -81,8 +81,8 @@ class TestProcessInviteExpiration(TestCase):
             created_by_id=self.member1.id,
             current=self.invite_data2,
             )
-        with self.assertLogs(logger=logging.getLogger('core.tasks.process_invite_expiration'), level='INFO') as cm:
-            process_invite_expiration.process_organization_invite_expiration()
+        with self.assertLogs(logger=logging.getLogger('core.tasks.process_organization_invite_expiration'), level='INFO') as cm:
+            process_organization_invite_expiration()
         self.assertIn("Expired 1 organization invites.", cm.output[1])
         self.invite2.refresh_from_db()
         self.assertEqual(self.invite2.current.status, 'EXPIRED')

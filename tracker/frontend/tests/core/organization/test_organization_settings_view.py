@@ -66,7 +66,7 @@ class TestOrganizationSettingsView(TestCase):
             'timezone': 'EST',
             'is_paid': True,
             'renewal_date': '',
-            'number_users_allowed': 1000
+            'subscription': '',
             }
         organization_form = OrganizationDataForm(new_organization_form_data)
         organization_form.is_valid()
@@ -90,7 +90,7 @@ class TestOrganizationSettingsView(TestCase):
         self.assertEqual(self.organization1.current.timezone, 'EST')
         self.assertEqual(self.organization1.current.is_paid, True)
         self.assertEqual(self.organization1.current.renewal_date, None)
-        self.assertEqual(self.organization1.current.number_users_allowed, 1000)
+        self.assertIsNone(self.organization1.subscription)
         self.assertIn('Your organization was successfully updated!', str(messages))
 
     def test_organization_settings_view_post_without_number_users_allowed(self):
@@ -108,6 +108,7 @@ class TestOrganizationSettingsView(TestCase):
             'timezone': 'EST',
             'is_paid': True,
             'renewal_date': '',
+            'subscription': '',
             }
         organization_form = OrganizationDataForm(new_organization_form_data)
         organization_form.is_valid()
@@ -131,7 +132,7 @@ class TestOrganizationSettingsView(TestCase):
         self.assertEqual(self.organization1.current.timezone, 'EST')
         self.assertEqual(self.organization1.current.is_paid, True)
         self.assertEqual(self.organization1.current.renewal_date, None)
-        self.assertEqual(self.organization1.current.number_users_allowed, 5)
+        self.assertIsNone(self.organization1.subscription)
         self.assertIn('Your organization was successfully updated!', str(messages))
 
     def test_organization_settings_view_post_with_bad_form(self):

@@ -40,6 +40,19 @@
             data-bs-target="#organization-settings-modal"
             class="btn primary"><i class="bi bi-gear"></i></button></h2>
         <p>
+            <label class="form-label">Subscription:</label>
+            {% if organization and organization.subscription %}
+            {{ organization.subscription.current.subscription_type.current.name }}, expires on
+                {% if logged_in_user.current.timezone %}
+                {{ organization.subscription.current.expiration_date|timezone:logged_in_user.current.timezone }}
+                {% else %}
+                {{ organization.subscription.current.expiration_date|timezone:"UTC" }}
+                {% endif %}
+            {% else %}
+            -----
+            {% endif %}
+        </p>
+        <p>
             {% if logged_in_user.current.timezone %}
             Created {{ organization.created_on|timezone:logged_in_user.current.timezone }}
             {% else %}

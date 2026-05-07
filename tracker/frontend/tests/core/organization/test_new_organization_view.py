@@ -45,10 +45,9 @@ class TestNewOrganizationView(TestCase):
             'timezone': 'EST',
             'is_paid': True,
             'renewal_date': '',
-            'number_users_allowed': 1000
             }
         new_organization_form = NewOrganizationDataForm(new_organization_form_data)
-        new_organization_form.is_valid()
+        self.assertTrue(new_organization_form.is_valid())
         form_data = urlencode(new_organization_form.data)
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('new_organization'), form_data, url_encoding)
@@ -69,47 +68,6 @@ class TestNewOrganizationView(TestCase):
         self.assertEqual(organization.current.timezone, 'EST')
         self.assertEqual(organization.current.is_paid, True)
         self.assertEqual(organization.current.renewal_date, None)
-        self.assertEqual(organization.current.number_users_allowed, 1000)
-
-    def test_new_organization_view_post_without_number_users_allowed(self):
-        url_encoding = 'application/x-www-form-urlencoded'
-        new_organization_form_data = {
-            'name': 'Organization 1',
-            'description': 'Organization 1 Description',
-            'responsible_party_email': 'organization1@project-tracker.dev',
-            'responsible_party_phone': '555-555-1111',
-            'address_line_1': '1234 Tomato Ln',
-            'city': 'Anytown',
-            'state': 'NY',
-            'postal_code': 12345,
-            'country': 'US',
-            'timezone': 'EST',
-            'is_paid': True,
-            'renewal_date': ''
-            }
-        new_organization_form = NewOrganizationDataForm(new_organization_form_data)
-        new_organization_form.is_valid()
-        form_data = urlencode(new_organization_form.data)
-        self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('new_organization'), form_data, url_encoding)
-        # Get the organization we just created for checking
-        organization = Organization.objects.get(current__responsible_party_email='organization1@project-tracker.dev')
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/organization/' + str(organization.id) + '/')
-        # Make sure the whole form came through to the database
-        self.assertEqual(organization.current.name, 'Organization 1')
-        self.assertEqual(organization.current.description, 'Organization 1 Description')
-        self.assertEqual(organization.current.responsible_party_email, 'organization1@project-tracker.dev')
-        self.assertEqual(organization.current.responsible_party_phone, '555-555-1111')
-        self.assertEqual(organization.current.address_line_1, '1234 Tomato Ln')
-        self.assertEqual(organization.current.city, 'Anytown')
-        self.assertEqual(organization.current.state, 'NY')
-        self.assertEqual(organization.current.postal_code, '12345')
-        self.assertEqual(organization.current.country, 'US')
-        self.assertEqual(organization.current.timezone, 'EST')
-        self.assertEqual(organization.current.is_paid, True)
-        self.assertEqual(organization.current.renewal_date, None)
-        self.assertEqual(organization.current.number_users_allowed, 5)
 
     def test_new_organization_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

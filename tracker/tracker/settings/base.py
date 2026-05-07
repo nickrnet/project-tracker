@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'frontend.apps.FrontendConfig',
     'project.apps.ProjectConfig',
+    'subscription.apps.SubscriptionConfig',
     ]
 
 MIDDLEWARE = [

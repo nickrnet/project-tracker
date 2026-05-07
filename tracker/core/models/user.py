@@ -15,6 +15,25 @@ TIMEZONE_CHOICES = tuple((tz, tz) for tz in pytz.all_timezones)
 class CoreUserData(core_models.CoreModel):
     """
     Demographic information about a user.
+
+    Parameters:
+        name_prefix (str): The user's name prefix, e.g. "Dr.", "Mr.", "Ms.", etc.
+        first_name (str): The user's first name.
+        middle_name (str): The user's middle name.
+        last_name (str): The user's last name.
+        name_suffix (str): The user's name suffix, e.g. "Jr.", "Sr.", "III", etc.
+        email (str): The user's email address.
+        secondary_email (str): The user's secondary email address.
+        home_phone (str): The user's home phone number.
+        mobile_phone (str): The user's mobile phone number.
+        work_phone (str): The user's work phone number.
+        address_line_1 (str): The first line of the user's address.
+        address_line_2 (str): The second line of the user's address.
+        postal_code (str): The postal code of the user's address.
+        city (str): The city of the user's address.
+        state (str): The state of the user's address.
+        country (str): The country of the user's address.
+        timezone (str): The user's timezone.
     """
 
     name_prefix = models.CharField(max_length=255, blank=True, null=True, default="")
@@ -50,7 +69,7 @@ class CoreUserManager(core_models.CoreModelManager):
     General helper methods for managing CoreUsers, active or deleted.
     """
 
-    def get_or_create_api_user(self):
+    def get_or_create_api_user(self) -> 'CoreUser':
         """
         Creates an API user if it does not exist, primarily for Web tasks.
 
@@ -77,7 +96,6 @@ class CoreUserManager(core_models.CoreModelManager):
                     city='',
                     state='',
                     country='',
-                    postal_code=0,
                     )
                 api_user_data.save()
                 api_user.current = api_user_data
@@ -85,7 +103,7 @@ class CoreUserManager(core_models.CoreModelManager):
 
         return api_user
 
-    def get_or_create_system_user(self):
+    def get_or_create_system_user(self) -> 'CoreUser':
         """
         Creates a system user if it does not exist, primarily for setup and system tasks.
 
@@ -112,7 +130,6 @@ class CoreUserManager(core_models.CoreModelManager):
                     city='',
                     state='',
                     country='',
-                    postal_code=0,
                     )
                 system_user_data.save()
                 system_user.current = system_user_data
@@ -122,10 +139,10 @@ class CoreUserManager(core_models.CoreModelManager):
 
     def create_core_user_from_web(self, request_data: dict) -> 'CoreUser':
         """
-        Takes a flat dictionary and creates a CoreUser and CoreUserData object.
+        Takes a dictionary and creates a CoreUser and CoreUserData object.
 
         Args:
-            request_data (dict): Probably a JSON payload from a POST request.
+            request_data (dictionary): Probably a JSON payload from a POST request.
 
         Returns:
             new_user (CoreUser): The new user that was created.
@@ -176,8 +193,11 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
     """
     A user of the system. The _real_ inforamation about a user is stored in `current` as CoreUserData.
     Every time a user is updated, a new CoreUserData object is created and the `current` field is updated to reflect the new data.
-    The `user` field is a Django User object that is used for authentication and authorization.
-    The `current` field is a ForeignKey to CoreUserData, which contains the user's demographic information.
+
+    Parameters:
+        user (DjangoUser): A Django User object that is used for authentication and authorization.
+        current (CoreUserData): A ForeignKey to CoreUserData, which contains the user's demographic information.
+        subscription (IndividualSubscription): A ForeignKey to an IndividualSubscription, which contains the user's subscription information. This is used to determine what features the user has access to and to enforce limits on the number of projects, git repositories, etc. a user can have based on their subscription.
     """
 
     class Meta:
@@ -187,6 +207,8 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
     objects = CoreUserManager()
 
     current = models.ForeignKey(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
+
+    subscription = models.ForeignKey('subscription.IndividualSubscription', on_delete=models.SET_NULL, blank=True, null=True)
     user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, blank=True, null=True, related_name='django_user')
 
     def deactivate_login(self) -> None:
@@ -196,6 +218,33 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
 
         self.user.is_active = False
         self.user.save()
+
+    def get_subscription(self):
+        """
+        Gets the user's subscription, or the first Organization they are a member of with a subscription if they do not have an individual subscription.
+
+        Returns:
+            subscription (IndividualSubscription or OrganizationSubscription): The user's subscription, either individual or through an organization, or None if they do not have a subscription.
+        """
+
+        if self.subscription:
+            return self.subscription
+        else:
+            return None
+
+    def has_subscription(self) -> bool:
+        """
+        Gets the user's subscription, or the first Organization they are a member of with a subscription if they do not have an individual subscription.
+
+        Returns:
+            bool: True if the user has a subscription, either individual or through an organization, False otherwise.
+        """
+
+        if self.subscription:
+            return True
+
+        organization_membership = self.organizationmembers_set.exclude(subscription__isnull=True).first()
+        return True if organization_membership else False
 
     def list_projects(self):
         """
@@ -207,10 +256,10 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
 
         from project.models.project import Project
 
-        # Get projects from organization memberships
-        project_ids = set(self.organizationmembers_set.values_list('projects', flat=True).exclude(projects__isnull=True))
         # Get projects the user owns
-        project_ids.update(self.project_set.values_list('id', flat=True))
+        project_ids = set(self.project_set.values_list('id', flat=True).exclude(deleted__isnull=False))
+        # Get projects from organization memberships
+        project_ids.update(set(self.organizationmembers_set.values_list('projects', flat=True).exclude(deleted__isnull=False).exclude(projects__isnull=True)))
         # Always query active_objects to exclude deleted items
         projects = Project.active_objects.filter(id__in=project_ids)
 
@@ -227,14 +276,14 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         from project.models.project import Project
         from project.models.git_repository import GitRepository
 
-        # Get repositories from organizations
-        repository_ids = set(self.organizationmembers_set.values_list('git_repositories', flat=True).exclude(git_repositories__isnull=True))
-        # Get repositories from personal projects
-        projects = self.project_set.values_list('id', flat=True)
+        # Get any personal repositories
         # Always query active_objects to exclude deleted items
+        repository_ids = set(GitRepository.active_objects.filter(created_by=self).values_list('id', flat=True).exclude(deleted__isnull=False))
+        # Get repositories from organizations
+        repository_ids.update(set(self.organizationmembers_set.values_list('git_repositories', flat=True).exclude(deleted__isnull=False).exclude(git_repositories__isnull=True)))
+        # Get repositories from projects the user is a member of or owns
+        projects = self.project_set.values_list('id', flat=True).exclude(git_repositories__isnull=True)
         repository_ids.update(Project.active_objects.filter(id__in=projects).values_list('git_repositories', flat=True))
-        # Get any personal repositories not attached to projects or organizations
-        repository_ids.update(GitRepository.active_objects.filter(created_by=self).values_list('id', flat=True))
         repositories = GitRepository.active_objects.filter(id__in=repository_ids)
 
         return repositories
@@ -250,10 +299,10 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         from project.models.issue import Issue
 
         # TODO: Add issues watching, assigned to, etc.
-        issue_ids = set(self.issue_created_by.values_list('id', flat=True))
+        issue_ids = set(self.issue_created_by.values_list('id', flat=True).exclude(deleted__isnull=False))
         user_projects = self.list_projects()
         for project in user_projects:
-            issue_ids.update(project.list_issues().values_list('id', flat=True))
+            issue_ids.update(project.list_issues().values_list('id', flat=True).exclude(deleted__isnull=False))
         # Always query active_objects to exclude deleted items
         issues = Issue.active_objects.filter(id__in=issue_ids)
         return issues
@@ -266,7 +315,7 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
             organizations (list): The organizations the user is a member of, etc.
         """
 
-        return self.organizationmembers_set.all()
+        return self.organizationmembers_set.all().exclude(deleted__isnull=False)
 
     def list_users(self):
         """
@@ -279,10 +328,10 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         users_ids_set = set()
 
         for project in self.list_projects():
-            users_ids_set.update(project.users.all().values_list('id', flat=True))
+            users_ids_set.update(project.users.all().values_list('id', flat=True).exclude(deleted__isnull=False))
 
         for organization in self.list_organizations():
-            users_ids_set.update(organization.members.all().values_list('id', flat=True))
+            users_ids_set.update(organization.members.all().values_list('id', flat=True).exclude(deleted__isnull=False))
 
         # Always query active_objects to exclude deleted items
         return CoreUser.active_objects.filter(id__in=users_ids_set)
@@ -300,6 +349,14 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
 class UserLogin(core_models.CoreModel):
     """
     A record of a user's login to the webapp or API.
+
+    Parameters:
+        user (CoreUser): The user that logged in.
+        login_time (datetime): The time the user logged in.
+        x_forwarded_for (str): The X-Forwarded-For header from the login request, which may contain the user's IP address if they are behind a proxy.
+        remote_addr (str): The remote address of the login request, which may contain the user's IP address.
+        user_agent (str): The user agent of the login request, which may contain information about the user's browser and operating system.
+        session_key (str): The session key of the login request, which can
     """
 
     class Meta:
@@ -316,6 +373,14 @@ class UserLogin(core_models.CoreModel):
 class UserLogout(core_models.CoreModel):
     """
     A record of a user's logout from the webapp or API.
+
+    Parameters:
+        user (CoreUser): The user that logged out.
+        logout_time (datetime): The time the user logged out.
+        x_forwarded_for (str): The X-Forwarded-For header from the logout request, which may contain the user's IP address if they are behind a proxy.
+        remote_addr (str): The remote address of the logout request, which may contain the user's IP address.
+        user_agent (str): The user agent of the logout request, which may contain information about the user's browser and operating system.
+        session_key (str): The session key of the logout request, which can be used to correlate with the session key of the login request for the same session.
     """
 
     class Meta:

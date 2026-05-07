@@ -111,7 +111,7 @@ class IssueObjectManager(models.Manager):
 
 class IssueActiveManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(deleted=None).order_by('-created_on')
+        return super().get_queryset().select_related('current', 'project', 'current__built_in_type', 'current__built_in_priority', 'current__built_in_status', 'current__built_in_severity', 'current__reporter', 'current__assignee', 'current__component', 'current__version').filter(deleted=None).order_by('-created_on')
 
     def list_built_in_types(self):
         """

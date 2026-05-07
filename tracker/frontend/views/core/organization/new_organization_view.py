@@ -8,22 +8,21 @@ from django.utils import timezone
 from frontend.forms.core.organization import new_organization_form as new_organization_form
 from core.models import organization as core_organization_models
 from core.models import user as core_user_models
+from subscription.models import organization as subscription_organization_models
 
 
 def handle_post(request, logged_in_user):
     received_new_organization_data_form = new_organization_form.NewOrganizationDataForm(request.POST, request.FILES)
     if received_new_organization_data_form.is_valid():
-        # TODO: Normal users cannot set this, but leave for now
-        if received_new_organization_data_form.cleaned_data['number_users_allowed'] is None:
-            received_new_organization_data_form.cleaned_data['number_users_allowed'] = received_new_organization_data_form.fields['number_users_allowed'].initial
+        organization_form_data = received_new_organization_data_form.cleaned_data.copy()
 
-        organization_data = core_organization_models.OrganizationData(**received_new_organization_data_form.cleaned_data)
+        organization_data = core_organization_models.OrganizationData(**organization_form_data)
         organization_data.created_by = logged_in_user
         organization_data.created_on = timezone.now()
         organization_data.save()
 
         organization = core_organization_models.Organization.objects.create(created_by=logged_in_user, current=organization_data)
-        organization.created_aon = timezone.now()
+        organization.created_on = timezone.now()
         organization.save()
         organization.members.add(logged_in_user)
         organization.save()
@@ -43,7 +42,8 @@ def new_organization(request):
         return handle_post(request, logged_in_user)
 
     organization_data_form = new_organization_form.NewOrganizationDataForm()
-    organizations = logged_in_user.list_organizations()
+    organization_subscriptions = subscription_organization_models.OrganizationSubscription.active_objects.all()
+
     timezone_choices = core_user_models.TIMEZONE_CHOICES
     with resources.files('tzdata.zoneinfo').joinpath('iso3166.tab').open('r') as f:
         country_names = dict(
@@ -59,7 +59,8 @@ def new_organization(request):
         context={
             'logged_in_user': logged_in_user,
             'new_organization_data_form': organization_data_form,
-            'organizations': organizations,
+            'organization_subscriptions': organization_subscriptions,
+            'organization_id': None,
             'timezone_choices': timezone_choices,
             'country_names': country_names,
             }

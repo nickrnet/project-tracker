@@ -14,11 +14,9 @@ def handle_post(request, logged_in_user, organization_id=None):
     received_organization_data_form = organization_form.OrganizationDataForm(request.POST, request.FILES)
     if received_organization_data_form.is_valid():
         organization = core_organization_models.Organization.active_objects.get(pk=organization_id)
-        # TODO: This isn't allowed by normal users, but leave for now
-        if received_organization_data_form.cleaned_data['number_users_allowed'] is None:
-            received_organization_data_form.cleaned_data.pop('number_users_allowed')
-        organization_data = core_organization_models.OrganizationData(
-            **received_organization_data_form.cleaned_data)
+        organization_form_data = received_organization_data_form.cleaned_data.copy()
+
+        organization_data = core_organization_models.OrganizationData(**organization_form_data)
         organization_data.created_by = logged_in_user
         organization_data.created_on = timezone.now()
         organization_data.save()
@@ -40,6 +38,7 @@ def organization_settings(request, organization_id=None):
         return handle_post(request, logged_in_user, organization_id)
 
     organization = core_organization_models.Organization.active_objects.get(pk=organization_id)
+
     timezone_choices = core_user_models.TIMEZONE_CHOICES
     with resources.files('tzdata.zoneinfo').joinpath('iso3166.tab').open('r') as f:
         country_names = dict(

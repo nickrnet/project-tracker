@@ -7,10 +7,9 @@ from project.models.issue_type import BuiltInIssueType
 from project.models.priority import BuiltInIssuePriority
 from project.models.status import BuiltInIssueStatus
 from project.models.severity import BuiltInIssueSeverity
-from project.models.status import BuiltInIssueStatus
 from project.models.git_repository import GitRepository, GitRepositoryData
 from project.models.project import Project, ProjectData, ProjectLabel, ProjectLabelData
-from project.models.issue import Issue, IssueData
+from project.models.issue import Issue
 
 
 class IssueActiveManagerTests(TestCase):
@@ -148,7 +147,7 @@ class IssueActiveManagerTests(TestCase):
         self.project3_data.save()
         self.project3 = Project.objects.create(created_by=self.system_user, current=self.project3_data)
         self.organization3.projects.add(self.project3.id)
-        
+
         BuiltInIssueType.objects.initialize_built_in_types()
         BuiltInIssuePriority.objects.initialize_built_in_priorities()
         BuiltInIssueStatus.objects.initialize_built_in_statuses()

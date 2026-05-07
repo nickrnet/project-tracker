@@ -1,8 +1,6 @@
 from django import forms
 from django.utils import timezone
 
-from core.models import organization as core_organization_models
-
 
 class OrganizationDataForm(forms.Form):
     name = forms.CharField(max_length=255)
@@ -19,14 +17,3 @@ class OrganizationDataForm(forms.Form):
 
     is_paid = forms.BooleanField(required=False)
     renewal_date = forms.DateField(required=False, widget=forms.SelectDateWidget())
-    number_users_allowed = forms.IntegerField(required=False)
-
-
-class OrganizationForm(forms.ModelForm):
-    current = OrganizationDataForm()
-
-    class Meta:
-        model = core_organization_models.Organization
-        fields = [
-            'current',
-            ]

@@ -6,6 +6,10 @@
             {% for known_project in projects %}
             {% if issue.project.id and issue.project.id|stringformat:"s" == known_project.id|stringformat:"s" %}
             <option value="{{ known_project.id }}" selected>{{ known_project.current.name|safe }}</option>
+            {% elif project_id and project_id|stringformat:"s" == known_project.label.current.label|stringformat:"s" %}
+            <option value="{{ known_project.id }}" selected>{{ known_project.current.name|safe }}</option>
+            {% elif project_id and project_id|stringformat:"s" == known_project.id|stringformat:"s" %}
+            <option value="{{ known_project.id }}" selected>{{ known_project.current.name|safe }}</option>
             {% else %}
             <option value="{{ known_project.id }}">{{ known_project.current.name|safe }}</option>
             {% endif %}

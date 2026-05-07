@@ -5,4 +5,6 @@ Celery's `autodiscover_tasks()` imports `<app>.tasks` for each app in
 `process_invite_expiration`) are imported when `core.tasks` is imported.
 """
 
-from .process_invite_expiration import process_organization_invite_expiration  # noqa: F401
+from .process_organization_invite_expiration import process_organization_invite_expiration  # noqa: F401
+from .process_individual_subscription_expiration import process_individual_subscription_expiration  # noqa: F401
+from .process_organization_subscription_expiration import process_organization_subscription_expiration  # noqa: F401
