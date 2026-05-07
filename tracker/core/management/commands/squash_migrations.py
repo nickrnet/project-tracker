@@ -35,6 +35,11 @@ class Command(BaseCommand):
                 yield migration_path
 
     @staticmethod
+    def _is_data_migration(migration_path: Path) -> bool:
+        content = migration_path.read_text()
+        return "RunPython" in content or "RunSQL" in content
+
+    @staticmethod
     def _delete_pycache_dir(pycache_dir):
         for pycache_file in pycache_dir.rglob("*"):
             if pycache_file.is_file():
@@ -49,6 +54,11 @@ class Command(BaseCommand):
 
         for migration_path in self._iterate_migration_targets():
             if migration_path.is_file():
+                if self._is_data_migration(migration_path):
+                    self.stdout.write(
+                        self.style.WARNING(f"Preserving data migration: {migration_path}")
+                    )
+                    continue
                 if dry_run:
                     self.stdout.write(f"Would delete file: {migration_path}")
                 else:
