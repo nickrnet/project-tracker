@@ -49,14 +49,10 @@ class OrganizationData(core_models.CoreModel):
     country = models.CharField(max_length=255)
     timezone = models.CharField(max_length=255, default=timezone.get_default_timezone_name())
 
-    is_paid = models.BooleanField(default=False)
-    renewal_date = models.DateField(blank=True, null=True)
-    number_users_allowed = models.IntegerField(default=5)
-
 
 class OrganizationActiveManager(models.Manager):
     """
-    Active Organizations are ones that arenot deleted.
+    Active Organizations are ones that are not deleted.
     """
 
     def get_queryset(self):
