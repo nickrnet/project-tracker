@@ -43,8 +43,6 @@ class TestNewOrganizationView(TestCase):
             'postal_code': 12345,
             'country': 'US',
             'timezone': 'EST',
-            'is_paid': True,
-            'renewal_date': '',
             }
         new_organization_form = NewOrganizationDataForm(new_organization_form_data)
         self.assertTrue(new_organization_form.is_valid())
@@ -66,8 +64,6 @@ class TestNewOrganizationView(TestCase):
         self.assertEqual(organization.current.postal_code, '12345')
         self.assertEqual(organization.current.country, 'US')
         self.assertEqual(organization.current.timezone, 'EST')
-        self.assertEqual(organization.current.is_paid, True)
-        self.assertEqual(organization.current.renewal_date, None)
 
     def test_new_organization_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

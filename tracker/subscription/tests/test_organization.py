@@ -50,8 +50,6 @@ class TestOrganizationSubscription(TestCase):
             'city': 'Anytown',
             'state': 'NY',
             'postal_code': '12345',
-            'is_paid': True,
-            'number_users_allowed': 5,
             }
         self.organization_data = OrganizationData.objects.create(**organization_data)
         self.organization = Organization.objects.create(

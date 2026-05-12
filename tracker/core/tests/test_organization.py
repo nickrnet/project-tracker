@@ -22,8 +22,6 @@ class UpdateOrganizationDataTest(TestCase):
             'city': 'Anytown',
             'state': 'NY',
             'postal_code': '12345',
-            'is_paid': True,
-            'number_users_allowed': 5,
             }
         git_repo_data1 = {
             'created_by_id': str(self.member1.id),

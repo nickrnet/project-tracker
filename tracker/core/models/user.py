@@ -246,6 +246,33 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         organization_membership = self.organizationmembers_set.exclude(subscription__isnull=True).first()
         return True if organization_membership else False
 
+    def subscribe_to_trial(self) -> None:
+        """
+        Subscribes a user to a trial subscription.
+
+        Args:
+            user (CoreUser): The user to subscribe to the trial.
+        """
+
+        from subscription.models.individual import IndividualSubscriptionType, IndividualSubscriptionData, IndividualSubscription
+
+        api_user = CoreUser.objects.get_or_create_api_user()
+        trial_subscription_type = IndividualSubscriptionType.objects.get(current__name='Trial')
+        subscription_data = IndividualSubscriptionData.objects.create(
+            created_by_id=api_user.id,
+            subscription_type=trial_subscription_type,
+            expired=False,
+            )
+        subscription = IndividualSubscription.objects.create(
+            created_by_id=self.id,
+            individual=self,
+            current=subscription_data,
+            )
+        subscription.save()
+        subscription.set_expiration_date(user_id=self.id, subscription_type=trial_subscription_type)
+        self.subscription = subscription
+        self.save()
+
     def list_projects(self):
         """
         Get all projects the user is a member of or owns.

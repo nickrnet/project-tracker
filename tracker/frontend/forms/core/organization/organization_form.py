@@ -14,6 +14,3 @@ class OrganizationDataForm(forms.Form):
     state = forms.CharField(max_length=255)
     country = forms.CharField(max_length=255)
     timezone = forms.CharField(max_length=255, required=False, initial=timezone.get_default_timezone_name())
-
-    is_paid = forms.BooleanField(required=False)
-    renewal_date = forms.DateField(required=False, widget=forms.SelectDateWidget())

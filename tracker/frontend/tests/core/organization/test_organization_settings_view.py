@@ -64,9 +64,6 @@ class TestOrganizationSettingsView(TestCase):
             'postal_code': 12346,
             'country': 'US',
             'timezone': 'EST',
-            'is_paid': True,
-            'renewal_date': '',
-            'subscription': '',
             }
         organization_form = OrganizationDataForm(new_organization_form_data)
         organization_form.is_valid()
@@ -88,50 +85,6 @@ class TestOrganizationSettingsView(TestCase):
         self.assertEqual(self.organization1.current.postal_code, '12346')
         self.assertEqual(self.organization1.current.country, 'US')
         self.assertEqual(self.organization1.current.timezone, 'EST')
-        self.assertEqual(self.organization1.current.is_paid, True)
-        self.assertEqual(self.organization1.current.renewal_date, None)
-        self.assertIsNone(self.organization1.subscription)
-        self.assertIn('Your organization was successfully updated!', str(messages))
-
-    def test_organization_settings_view_post_without_number_users_allowed(self):
-        url_encoding = 'application/x-www-form-urlencoded'
-        new_organization_form_data = {
-            'name': 'Organization 1 Modified',
-            'description': 'Organization 1 Modified Description',
-            'responsible_party_email': 'organization1modified@project-tracker.dev',
-            'responsible_party_phone': '555-555-9999',
-            'address_line_1': '12345678 Tomato Ln',
-            'city': 'Anytown Modified',
-            'state': 'NJ',
-            'postal_code': 12346,
-            'country': 'US',
-            'timezone': 'EST',
-            'is_paid': True,
-            'renewal_date': '',
-            'subscription': '',
-            }
-        organization_form = OrganizationDataForm(new_organization_form_data)
-        organization_form.is_valid()
-        form_data = urlencode(organization_form.data)
-        self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('organization_settings', kwargs={'organization_id': str(self.organization1.id)}), form_data, url_encoding)
-        self.organization1.refresh_from_db()
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/organization/' + str(self.organization1.id) + '/')
-        messages = list(get_messages(response.wsgi_request))
-        # Make sure the whole form came through to the database
-        self.assertEqual(self.organization1.current.name, 'Organization 1 Modified')
-        self.assertEqual(self.organization1.current.description, 'Organization 1 Modified Description')
-        self.assertEqual(self.organization1.current.responsible_party_email, 'organization1modified@project-tracker.dev')
-        self.assertEqual(self.organization1.current.responsible_party_phone, '555-555-9999')
-        self.assertEqual(self.organization1.current.address_line_1, '12345678 Tomato Ln')
-        self.assertEqual(self.organization1.current.city, 'Anytown Modified')
-        self.assertEqual(self.organization1.current.state, 'NJ')
-        self.assertEqual(self.organization1.current.postal_code, '12346')
-        self.assertEqual(self.organization1.current.country, 'US')
-        self.assertEqual(self.organization1.current.timezone, 'EST')
-        self.assertEqual(self.organization1.current.is_paid, True)
-        self.assertEqual(self.organization1.current.renewal_date, None)
         self.assertIsNone(self.organization1.subscription)
         self.assertIn('Your organization was successfully updated!', str(messages))
 

@@ -193,6 +193,12 @@ class CoreUserTestCase(TestCase):
         subscription = self.user1.has_subscription()
         self.assertTrue(subscription)
 
+    def test_subscribe_to_trial(self):
+        self.user2.subscribe_to_trial()
+        subscription = self.user2.get_subscription()
+        self.assertIsNotNone(subscription)
+        self.assertEqual(subscription.current.subscription_type.current.name, 'Trial')
+
     def test_list_projects(self):
         user1_projects = self.user1.list_projects()
         user2_projects = self.user2.list_projects()

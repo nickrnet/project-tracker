@@ -12,7 +12,8 @@ def handle_post(request, timezone_choices, country_names):
     new_user_data_form = SignupForm(request.POST, request.FILES)
     next_url = request.GET.get('next')
     if new_user_data_form.is_valid():
-        core_user_models.CoreUser.objects.create_core_user_from_web(new_user_data_form.cleaned_data)
+        new_user = core_user_models.CoreUser.objects.create_core_user_from_web(new_user_data_form.cleaned_data)
+        new_user.subscribe_to_trial()
         messages.success(request, ('Your signup was successful!'))
         if next_url and url_has_allowed_host_and_scheme(url=next_url, allowed_hosts=request.get_host()):
             return redirect(next_url)

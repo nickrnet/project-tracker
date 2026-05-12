@@ -70,8 +70,6 @@ class TestOrganizationView(TestCase):
             'postal_code': 12346,
             'country': 'US',
             'timezone': 'EST',
-            'is_paid': True,
-            'renewal_date': '',
             }
         organization_form = OrganizationDataForm(new_organization_form_data)
         organization_form.is_valid()
@@ -94,8 +92,6 @@ class TestOrganizationView(TestCase):
             'postal_code': 12346,
             'country': 'US',
             'timezone': 'EST',
-            'is_paid': True,
-            'renewal_date': '',
             'subscription': '',
             }
         organization_form = OrganizationDataForm(new_organization_form_data)
@@ -118,8 +114,6 @@ class TestOrganizationView(TestCase):
         self.assertEqual(self.organization1.current.postal_code, '12346')
         self.assertEqual(self.organization1.current.country, 'US')
         self.assertEqual(self.organization1.current.timezone, 'EST')
-        self.assertEqual(self.organization1.current.is_paid, True)
-        self.assertEqual(self.organization1.current.renewal_date, None)
         self.assertIsNone(self.organization1.subscription)
         self.assertIn('Organization successfully updated!', str(messages))
 
