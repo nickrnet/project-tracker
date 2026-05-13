@@ -2,7 +2,10 @@
   - [Overview](#overview)
   - [Sign Up Flow](#sign-up-flow)
   - [Individual Subscription Types](#individual-subscription-types)
+  - [Organization Subscription Types](#organization-subscription-types)
+  - [Individual Subscriptions](#individual-subscriptions)
   - [Organization Subscriptions](#organization-subscriptions)
+  - [History Tracking](#history-tracking)
   - [Background Processing](#background-processing)
 
 # Subscriptions
@@ -47,7 +50,7 @@ The current sign up flow is:
 - A user can create an Organization
   - It is automatically put into a Trial subscription with expiration date set (not implemented)
 
-There is currently no way to actually subscribe, as payment methods (banking) and management need to be fleshed out.
+There is currently no way to actually subscribe, as pricing, payment methods (banking), and subscription management need to be fleshed out.
 
 ## Individual Subscription Types
 
@@ -58,11 +61,15 @@ There are currently 4 Individual Subscription Types:
 - `Standard`: lasts for 30 days and allows up to 5 users
 - `Premium`: lasts for 30 days and allows for up to 10 users
 
+The idea behind "Free" is if a user is just a part of an Organization, and doesn't have any personal projects, etc. If they are in an Organization and their "Free" subscription is expired and they try to do something on a personal item, we may want to block it, for example.
+
 Currently, none of these subscription types lock any features yet, either functionally or when expired, this is just getting bootstrapped.
 
 Individual Subscription expiration dates are set at Sign Up (or extension by admin (or when paid/subscribed once implemented)).
 
-## Organization Subscriptions
+Individual Subscription Types are bootstrapped by `IndividualSubscriptionType.objects.initialize_subscriptions()`. Going forward, if a subscription type is modified in any way (a whole new subscription type, renamed, term length, etc.), we manage them there until such time as a payment processor is involved.
+
+## Organization Subscription Types
 
 There are currently 6 Organization Subscription Types:
 
@@ -75,12 +82,36 @@ There are currently 6 Organization Subscription Types:
 
 The idea behind "Enterprise" is a separate, single-tenant instance of Project Tracker hosted by us, vs. the "Trial", "Free", "Standard", and "Premium" subscriptions are hosted in our multi-tenant instance, shared with other Project Tracker users.
 
-The idea behind "On Premise" is that if a customer buys Project Tracker to host themselves, vs. the other Organization Subscription types that are hosted by us.
+The idea behind "On Premise" is if a customer buys Project Tracker to host themselves, vs. the other Organization Subscription types that are hosted by us.
+
+Organization Subscription Types are bootstrapped by `OrganizationSubscriptionType.objects.initialize_subscriptions()`. Going forward, if a subscription type is modified in any way (a whole new subscription type, renamed, term length, etc.), we manage them there until such time as a payment processor is involved.
 
 Again, none of the subscription types actually disable any functionality if expired at this time, until we can figure out what to feature-flag.
 
+## Individual Subscriptions
+
+Individual Subscriptions track:
+
+- `individual`: typically the signed up user
+- `subscription_type`: the Individual Subscription Type
+- `expiration_date`: the date the subscription expires
+- `expired`: whether the current subscription is expired or not
+
+## Organization Subscriptions
+
+Organization Subscriptions track:
+
+- `organization`: the Organization
+- `subscription_type`: the Organization Subscription Type
+- `expiration_date`: the date the subscription expires
+- `expired`: whether the current subscription is expired or not
+
+## History Tracking
+
+To track history, we create a new subscription and link it to the user. We can then query the IndividualSubscription table for the individual's subscription history or OrganizationSubscription table for the organization's subscription history. See `subscribe_to_trial()` on the CoreUser class for details.
+
 ## Background Processing
 
-In order to let background processes parse and set expiration per individual subscription and per organization subscription, we use Celery so that every web request isn't validating subscriptions and to avoid database issues.
+we use Celery to let background processes parse and set expiration per individual subscription and per organization subscription, so that every web request isn't validating subscriptions and to avoid database issues.
 
 The background processes are set up to run once a day, and only on unexpired subscriptions that have an expiration prior to the day the job is executed. This does mean potentially someone/org gets a free extra day, but that's OK. For now.

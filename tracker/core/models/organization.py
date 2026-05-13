@@ -129,9 +129,6 @@ class Organization(core_models.CoreModel):
 
         return self
 
-    def __str__(self) -> str:
-        return self.current.name
-
     def get_subscription(self):
         """
         Gets the subscription that the organization is currently on.
@@ -141,3 +138,6 @@ class Organization(core_models.CoreModel):
         """
 
         return self.subscription
+
+    def __str__(self) -> str:
+        return self.current.name
