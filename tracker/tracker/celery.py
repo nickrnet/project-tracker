@@ -28,7 +28,15 @@ app.autodiscover_tasks()
 # `CELERY_BEAT_SCHEDULE` in your Django settings (e.g. `local.py`).
 app.conf.beat_schedule = {
     'process-organization-invite-expiration': {
-        'task': 'core.tasks.process_invite_expiration.process_organization_invite_expiration',
+        'task': 'core.tasks.process_organization_invite_expiration.process_organization_invite_expiration',
         'schedule': crontab(minute=1, hour=9),
+        },
+    'process-individual-subscription-expiration': {
+        'task': 'core.tasks.process_individual_subscription_expiration.process_individual_subscription_expiration',
+        'schedule': crontab(minute=10, hour=9),
+        },
+    'process-organization-subscription-expiration': {
+        'task': 'core.tasks.process_organization_subscription_expiration.process_organization_subscription_expiration',
+        'schedule': crontab(minute=20, hour=9),
         },
     }

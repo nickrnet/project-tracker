@@ -34,7 +34,7 @@ class ProjectData(core_models.CoreModel):
 
 class ProjectActiveManager(models.Manager):
     def get_queryset(self) -> models.QuerySet:
-        return super().get_queryset().filter(deleted=None).filter(current__is_active=True)
+        return super().get_queryset().select_related('current', 'label').filter(deleted=None).filter(current__is_active=True)
 
 
 class Project(core_models.CoreModel):

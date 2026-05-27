@@ -11,10 +11,8 @@ from core.models import organization as core_organization_models
 def handle_post(request, logged_in_user, organization=None):
     received_organization_data_form = organization_form.OrganizationDataForm(request.POST, request.FILES)
     if received_organization_data_form.is_valid():
-        # TODO: Normal users can't set this, but leave for now
-        if received_organization_data_form.cleaned_data['number_users_allowed'] is None:
-            received_organization_data_form.cleaned_data.pop('number_users_allowed')
-        organization_data = core_organization_models.OrganizationData(**received_organization_data_form.cleaned_data)
+        organization_form_data = received_organization_data_form.cleaned_data.copy()
+        organization_data = core_organization_models.OrganizationData(**organization_form_data)
         organization_data.created_by = logged_in_user
         organization_data.created_on = timezone.now()
         organization_data.save()

@@ -39,7 +39,13 @@ class OrganizationInvite(core_models.CoreModel):
 
     current = models.ForeignKey(OrganizationInviteData, on_delete=models.CASCADE)
 
-    def send_invite_email(self, accept_organization_invite_url):
+    def send_invite_email(self, accept_organization_invite_url: str):
+        """
+        Sends an invite email.
+
+        Args:
+            accept_organization_invite_url (str): The URL for accepting the organization invite.
+        """
         to_email = self.current.email
         organization = self.current.organization
 
@@ -50,5 +56,5 @@ class OrganizationInvite(core_models.CoreModel):
             )
 
     def __str__(self):
-        # return f"{self.current.status} invite URL for {self.current.email} to join {self.current.organization.current.name} from {self.current.invited_by.user.username}: {request.build_absolute_uri( f'/accept_organization_invite/{invite.id}/')}"
-        return f"{self.current.status} Invite for {self.current.email} to join {self.current.organization.current.name} from {self.current.invited_by.user.username}"
+        # return f"{self.current.status} invite URL for {self.current.email} to join {self.current.organization.current.name} from {self.current.invited_by.user.username}: {request.build_absolute_uri(f'/accept_organization_invite/{invite.id}/')}"
+        return f"{self.current.status} invite for {self.current.email} to join {self.current.organization.current.name} from {self.current.invited_by.user.username}"

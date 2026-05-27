@@ -8,6 +8,7 @@ from phone_field import PhoneField
 
 from core.models import core as core_models
 from core.models import user as core_user_models
+from subscription.models import organization as subscription_organization_models
 from project.models import git_repository as git_repository_models
 from project.models import project as project_models
 
@@ -17,7 +18,20 @@ from project.models import project as project_models
 
 class OrganizationData(core_models.CoreModel):
     """
-    Information about an Organization, both past and present.
+    Information about an Organization.
+
+    Parameters:
+        name (str): The name of the organization.
+        description (str): Optional: A description of the organization.
+        responsible_party_email (str): The email of the responsible party for the organization.
+        responsible_party_phone (str): The phone number of the responsible party for the organization.
+        address_line_1 (str): The first line of the organization's address.
+        address_line_2 (str): Optional: The second line of the organization's address.
+        postal_code (str): The postal code of the organization's address.
+        city (str): The city of the organization's address.
+        state (str): The state of the organization's address.
+        country (str): The country of the organization's address.
+        timezone (str): Optional: The timezone of the organization.
     """
 
     class Meta:
@@ -35,18 +49,14 @@ class OrganizationData(core_models.CoreModel):
     country = models.CharField(max_length=255)
     timezone = models.CharField(max_length=255, default=timezone.get_default_timezone_name())
 
-    is_paid = models.BooleanField(default=False)
-    renewal_date = models.DateField(blank=True, null=True)
-    number_users_allowed = models.IntegerField(default=5)
-
 
 class OrganizationActiveManager(models.Manager):
     """
-    Active Organizations are not deleted.
+    Active Organizations are ones that are not deleted.
     """
 
     def get_queryset(self):
-        return super().get_queryset().filter(deleted=None)
+        return super().get_queryset().select_related('current', 'subscription').filter(deleted=None)
 
 
 class Organization(core_models.CoreModel):
@@ -54,6 +64,14 @@ class Organization(core_models.CoreModel):
     An organization. The _real_ inforomation about an Organization is stored in `current` as OrganizationData.
 
     Every time a user updates information about an organization, a new OrganizationData object is created and the `current` field is updated to reflect the new data.
+
+    Parameters:
+        current (OrganizationData): The current data for the organization. This is a foreign key to the OrganizationData model, which contains all of the information about the organization. This allows us to keep a history of changes to the organization's data without actually deleting any data.
+        subscription (OrganizationSubscription): Optional:The subscription that the organization is currently on. This is a foreign key to the OrganizationSubscription model, which contains information about the subscription that the organization is currently on.
+        members (list[CoreUser]): The users that are members of this organization. This is a many-to-many relationship with the CoreUser model, which allows us to easily manage the users that are members of this organization.
+        member_invites (list[OrganizationInvite]): The invites that have been sent to users to join this organization. This is a many-to-many relationship with the OrganizationInvite model, which allows us to easily manage the invites that have been sent to users to join this organization.
+        git_repositories (list[GitRepository]): The git repositories that are associated with this organization. This is a many-to-many relationship with the GitRepository model, which allows us to easily manage the git repositories that are associated with this organization.
+        projects (list[Project]): The projects that are associated with this organization. This is a many-to-many relationship with the Project model, which allows us to easily manage the projects that are associated with this organization.
     """
 
     class Meta:
@@ -64,6 +82,7 @@ class Organization(core_models.CoreModel):
     current = models.ForeignKey(OrganizationData, on_delete=models.CASCADE)
 
     # TODO: Activity Tracking for tracking changes to these things
+    subscription = models.ForeignKey(subscription_organization_models.OrganizationSubscription, on_delete=models.SET_NULL, blank=True, null=True)
     members = models.ManyToManyField(core_user_models.CoreUser, related_name='organizationmembers_set')
     member_invites = models.ManyToManyField('OrganizationInvite', related_name='organizationmemberinvite_set')
     git_repositories = models.ManyToManyField(git_repository_models.GitRepository, related_name='organizationgitrepositories_set')
@@ -98,7 +117,7 @@ class Organization(core_models.CoreModel):
         A helper method to update the users that have access to this organization.
 
         Args:
-            user_ids (list[str]): A list of UUIDs of users to be shown with this organization.
+            user_ids (list[str]): A list of UUIDs of users to be associated with this organization.
 
         Returns:
             Organization: The updated organization.
@@ -109,6 +128,16 @@ class Organization(core_models.CoreModel):
             self.save()
 
         return self
+
+    def get_subscription(self):
+        """
+        Gets the subscription that the organization is currently on.
+
+        Returns:
+            OrganizationSubscription: The subscription that the organization is currently on.
+        """
+
+        return self.subscription
 
     def __str__(self) -> str:
         return self.current.name

@@ -1,3 +1,18 @@
+{% load tz %}
+<div class="row align-items-center">
+    <p>
+        <label class="form-label">Subscription:</label>
+        {% if user and user.subscription %}{{ user.subscription.current.subscription_type.current.name }}, expires on
+            {% if logged_in_user.current.timezone %}
+            {{ user.subscription.current.expiration_date|timezone:logged_in_user.current.timezone }}
+            {% else %}
+            {{ user.subscription.current.expiration_date|timezone:"UTC" }}
+            {% endif %}
+        {% else %}
+        -----
+        {% endif %}
+    </p>
+</div>
 <div class="row g-3">
     <div class="col-md-6">
         <label for="id_email" class="form-label">{% if "new_user" not in requestget_full_path %}* {% endif %}* Email address:</label>

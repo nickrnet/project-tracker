@@ -26,9 +26,6 @@ class OrganizationDataSerializer(serializers.HyperlinkedModelSerializer):
             'state',
             'country',
             'timezone',
-            'is_paid',
-            'renewal_date',
-            'number_users_allowed',
             ]
 
     created_by = CoreUserSerializer()

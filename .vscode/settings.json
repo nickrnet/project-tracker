@@ -5,4 +5,5 @@
         "tracker/."
     ],
     "python.useEnvironmentsExtension": false,
+    "python.envFile": "${workspaceFolder}/tracker/.env",
 }

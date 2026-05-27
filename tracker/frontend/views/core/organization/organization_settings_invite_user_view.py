@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -75,7 +77,7 @@ def handle_post(request, logged_in_user, organization):
 
 
 @login_required
-def invite_user(request, organization_id):
+def invite_user(request, organization_id: uuid.UUID):
     """
     Displays the Invite User Modal when a user clicks it in the Organization Settings modal.
     """

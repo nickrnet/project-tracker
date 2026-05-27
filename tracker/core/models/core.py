@@ -6,7 +6,7 @@ from django.utils import timezone
 
 class DeletedModel(models.Model):
     """
-        Flags a record as deleted. Soft delete is the default behavior that allows the user to restore the item, hard delete cannot be undone by the user, but by administrators only.
+    Flags a record as deleted. Soft delete is the default behavior that allows the user to restore the item, hard delete cannot be undone by the user, but by administrators only.
     """
 
     deleted_by = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE, editable=False)
@@ -17,7 +17,7 @@ class DeletedModel(models.Model):
 
 class CoreModelActiveManager(models.Manager):
     """
-        Active instances of a CoreModel are not deleted.
+    Active instances of a CoreModel are not deleted.
     """
 
     def get_queryset(self):
@@ -43,6 +43,9 @@ class CoreModelManager(models.Manager):
 
 
 class CoreModel(models.Model):
+    """
+    The Project Tracker Core Model. Handles record id, created by, created on, archived, and deleted.
+    """
     class Meta:
         abstract = True
 
@@ -57,14 +60,14 @@ class CoreModel(models.Model):
 
     def delete(self, person_id):
         """
-            Flags a record as deleted. Soft delete is the default behavior that allows the user to restore the item, hard delete cannot be undone by the user, but by administrators only.
+        Flags a record as deleted. Soft delete is the default behavior that allows the user to restore the item, hard delete cannot be undone by the user, but by administrators only.
         """
 
         self.soft_delete(person_id)
 
     def hard_delete(self, person_id):
         """
-            Flags a record as hard-deleted. Hard delete means only an administrator can restore the item.
+        Flags a record as hard-deleted. Hard delete means only an administrator can restore the item.
         """
 
         self.deleted = DeletedModel.objects.create(
@@ -76,7 +79,7 @@ class CoreModel(models.Model):
 
     def soft_delete(self, person_id):
         """
-            Flags a record as deleted. Soft delete is the default behavior that allows the user to restore the item, hard delete cannot be undone by the user, but by administrators only.
+        Flags a record as deleted. Soft delete is the default behavior that allows the user to restore the item, hard delete cannot be undone by the user, but by administrators only.
         """
 
         self.deleted = DeletedModel.objects.create(
@@ -88,7 +91,7 @@ class CoreModel(models.Model):
 
     def undo_hard_delete(self, person_id):
         """
-            Resets a record as soft-deleted. Hard-deletes can only be reset by an administrator.
+        Resets a record as soft-deleted. Hard-deletes can only be reset by an administrator.
         """
 
         self.deleted = DeletedModel.objects.create(
@@ -100,7 +103,7 @@ class CoreModel(models.Model):
 
     def undo_soft_delete(self, person_id):
         """
-            Restores a record that was deleted. A user can restore a soft-deleted record.
+        Restores a record that was deleted. A user can restore a soft-deleted record.
         """
 
         self.deleted = None

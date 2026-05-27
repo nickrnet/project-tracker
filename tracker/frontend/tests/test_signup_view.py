@@ -7,6 +7,7 @@ from django.utils.http import urlencode
 from core.models.user import CoreUser, UserLogin
 
 from frontend.forms.signup_form import SignupForm
+from subscription.models.individual import IndividualSubscriptionType
 
 
 class TestSignupView(TestCase):
@@ -16,6 +17,7 @@ class TestSignupView(TestCase):
         """
 
         self.http_client = Client(headers={"user-agent": 'Mozilla/5.0'})
+        IndividualSubscriptionType.objects.initialize_subscriptions()
 
     def test_signup_view_get(self):
         response = self.http_client.get(reverse('signup'))
@@ -51,7 +53,7 @@ class TestSignupView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, reverse('login'))
         self.assertIn('Your signup was successful!', str(messages))
-        self.assertEqual(2, CoreUser.objects.count())  # API System User also exists
+        self.assertEqual(3, CoreUser.objects.count())  # API & System users also exist
         # Make sure the whole form came through to the database
         user = CoreUser.objects.get(current__email='testuser1@project-tracker.dev')
         self.assertEqual(user.current.name_prefix, 'Prefix')
@@ -68,6 +70,7 @@ class TestSignupView(TestCase):
         self.assertEqual(user.current.state, 'NY')
         self.assertEqual(user.current.country, 'US')
         self.assertEqual(user.current.timezone, 'EST')
+        self.assertEqual(user.subscription.current.subscription_type.current.name, 'Trial')
 
     def test_signup_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'
