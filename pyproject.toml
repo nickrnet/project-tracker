@@ -1,5 +1,5 @@
 [project]
-name = ""
+name = "project-tracker"
 version = "1.0.0"
 requires-python = ">=3.12.0, <3.13"
 dependencies = [
