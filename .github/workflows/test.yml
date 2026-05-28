@@ -109,14 +109,9 @@ jobs:
           genbadge coverage -i ../doc/coverage/coverage.xml -o ../doc/coverage/coverage.svg
           popd
 
-      - name: Verify Changed files
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
-        id: verify-changed-files
-        with:
-          files: ./doc/coverage/coverage.svg
-
       - name: Commit test result files and coverage badge
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.verify-changed-files.outputs.files_changed == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: commit-coverage
         run: |
           if [ -e ./doc/coverage/html/.gitignore ]
           then
@@ -125,10 +120,16 @@ jobs:
           git config --local user.email "${{ github.actor }}@users.noreply.github.com"
           git config --local user.name "${{ github.actor }}"
           git add doc/coverage
-          git commit -m "Updated coverage.svg"
+          if git diff --cached --quiet; then
+            echo "No coverage changes to commit"
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Updated coverage reports"
+            echo "committed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Push test results and coverage changes back to repo
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.verify-changed-files.outputs.files_changed == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.commit-coverage.outputs.committed == 'true'
         uses: ad-m/github-push-action@v1.1.0
         with:
           ssh: true
