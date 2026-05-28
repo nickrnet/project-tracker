@@ -89,7 +89,7 @@ jobs:
         run: |
           docker compose down -v
 
-  test:
+  python-tests:
     needs: detect-migration-changes
     runs-on: ubuntu-latest
     permissions:
