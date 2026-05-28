@@ -78,8 +78,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v6.0.2
-        with:
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Set up Python
         uses: actions/setup-python@v6.2.0
@@ -100,7 +98,6 @@ jobs:
           pushd tracker
           uv run pytest --cov --cov-report term --cov-report=html --cov-report=json --cov-report=xml
           popd
-        continue-on-error: true
 
       - name: Generate coverage badge
         run: |
@@ -109,52 +106,15 @@ jobs:
           genbadge coverage -i ../doc/coverage/coverage.xml -o ../doc/coverage/coverage.svg
           popd
 
-      - name: Commit coverage badge to main
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-          git config --local user.name "${{ github.actor }}"
-          git add doc/coverage/coverage.svg
-          if git diff --cached --quiet; then
-            echo "No coverage badge changes to commit"
-          else
-            git commit -m "Updated coverage badge [skip ci]"
-            git push origin HEAD:main
-          fi
-
       - name: Copy pages index to coverage dir
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: cp index.html doc/coverage/index.html
 
-      - name: Upload coverage report artifact
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: coverage-report
-          path: ./doc/coverage
-
-  deploy-gh-pages:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [docker-migration-test, test]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v6.0.2
-        with:
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-          ref: main
-          fetch-depth: 0
-
-      - name: Download coverage report artifact
-        uses: actions/download-artifact@v8.0.1
-        with:
-          name: coverage-report
-          path: ./doc/coverage
-
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4.1.0
         with:
-          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./doc/coverage
           publish_branch: coverage
           force_orphan: true

@@ -1,6 +1,6 @@
 # project-tracker
 
-[![Tests](https://github.com/nickrnet/project-tracker/actions/workflows/test.yml/badge.svg)](https://github.com/nickrnet/project-tracker/actions/workflows/test.yml) [![Coverage](doc/coverage/coverage.svg)](https://nickrnet.github.io/project-tracker/html/index.html)
+[![Tests](https://github.com/nickrnet/project-tracker/actions/workflows/test.yml/badge.svg)](https://github.com/nickrnet/project-tracker/actions/workflows/test.yml) [![Coverage](https://nickrnet.github.io/project-tracker/coverage.svg)](https://nickrnet.github.io/project-tracker/html/index.html)
 
 # A Project Tracker for Developers
 
