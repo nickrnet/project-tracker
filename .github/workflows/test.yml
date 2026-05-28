@@ -9,7 +9,27 @@ on:
       - main
 
 jobs:
+  detect-migration-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      migrations_changed: ${{ steps.filter.outputs.migrations }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Detect migration changes
+        id: filter
+        uses: dorny/paths-filter@v4.0.1
+        with:
+          filters: |
+            migrations:
+              - 'tracker/**/migrations/**/*.py'
+
   docker-migration-test:
+    if: needs.detect-migration-changes.outputs.migrations_changed == 'true'
+    needs: detect-migration-changes
     runs-on: ubuntu-latest
 
     steps:
@@ -70,7 +90,7 @@ jobs:
           docker compose down -v
 
   test:
-    needs: docker-migration-test
+    needs: detect-migration-changes
     runs-on: ubuntu-latest
     permissions:
       contents: write
