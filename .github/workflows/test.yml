@@ -122,6 +122,9 @@ jobs:
             git push origin HEAD:main
           fi
 
+      - name: Copy pages index to coverage dir
+        run: cp index.html doc/coverage/index.html
+
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v7.0.1
         with:
