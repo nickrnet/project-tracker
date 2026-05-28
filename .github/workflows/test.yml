@@ -149,7 +149,7 @@ jobs:
           path: ./doc/coverage
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v4.1.0
         with:
           deploy_key: ${{ secrets.DEPLOY_KEY }}
           publish_dir: ./doc/coverage
