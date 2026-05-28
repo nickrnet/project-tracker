@@ -109,31 +109,11 @@ jobs:
           genbadge coverage -i ../doc/coverage/coverage.xml -o ../doc/coverage/coverage.svg
           popd
 
-      - name: Commit test result files and coverage badge
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        id: commit-coverage
-        run: |
-          if [ -e ./doc/coverage/html/.gitignore ]
-          then
-              rm ./doc/coverage/html/.gitignore
-          fi
-          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-          git config --local user.name "${{ github.actor }}"
-          git add doc/coverage
-          if git diff --cached --quiet; then
-            echo "No coverage changes to commit"
-            echo "committed=false" >> "$GITHUB_OUTPUT"
-          else
-            git commit -m "Updated coverage reports"
-            echo "committed=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Push test results and coverage changes back to repo
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.commit-coverage.outputs.committed == 'true'
-        uses: ad-m/github-push-action@v1.1.0
+      - name: Upload coverage report artifact
+        uses: actions/upload-artifact@v7.0.1
         with:
-          ssh: true
-          branch: ${{ github.ref }}
+          name: coverage-report
+          path: ./doc/coverage
 
   deploy-gh-pages:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -149,14 +129,16 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Pull latest changes (including coverage)
-        run: |
-          git pull origin main
+      - name: Download coverage report artifact
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: coverage-report
+          path: ./doc/coverage
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           deploy_key: ${{ secrets.DEPLOY_KEY }}
-          publish_dir: .
+          publish_dir: ./doc/coverage
           publish_branch: coverage
           force_orphan: true
