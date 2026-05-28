@@ -109,6 +109,19 @@ jobs:
           genbadge coverage -i ../doc/coverage/coverage.xml -o ../doc/coverage/coverage.svg
           popd
 
+      - name: Commit coverage badge to main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git add doc/coverage/coverage.svg
+          if git diff --cached --quiet; then
+            echo "No coverage badge changes to commit"
+          else
+            git commit -m "Updated coverage badge [skip ci]"
+            git push origin HEAD:main
+          fi
+
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v7.0.1
         with:
