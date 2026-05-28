@@ -27,7 +27,7 @@ jobs:
             migrations:
               - 'tracker/**/migrations/**/*.py'
 
-  docker-migration-test:
+  postgresql-migration-test:
     if: needs.detect-migration-changes.outputs.migrations_changed == 'true'
     needs: detect-migration-changes
     runs-on: ubuntu-latest
