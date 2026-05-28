@@ -95,16 +95,12 @@ jobs:
         run: |
           source .venv/bin/activate
           cp .env.sample tracker/.env
-          pushd tracker
-          uv run pytest --cov --cov-report term --cov-report=html --cov-report=json --cov-report=xml
-          popd
+          uv run pytest -c ./pytest.ini ./tracker/. --cov --cov-config=./.coveragerc --cov-report term --cov-report=html --cov-report=json --cov-report=xml
 
       - name: Generate coverage badge
         run: |
           source .venv/bin/activate
-          pushd tracker
-          genbadge coverage -i ../doc/coverage/coverage.xml -o ../doc/coverage/coverage.svg
-          popd
+          genbadge coverage -i doc/coverage/coverage.xml -o doc/coverage/coverage.svg
 
       - name: Copy pages index to coverage dir
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

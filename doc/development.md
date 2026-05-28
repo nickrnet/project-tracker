@@ -507,8 +507,13 @@ In the `tracker/tracker` settings directory, there is a set of settings files: a
 Tests are run via Github Actions with `pytest` at merge to the main branch (including code coverage), and on Pull Request branches. Test your code locally the way the GitHub Action would before merging to the `main` branch with
 
 ```shell
-cd tracker
-uv run pytest --cov --cov-report term
+uv run pytest -c pytest.ini tracker/. --cov --cov-config=.coveragerc --cov-report term
+```
+
+If you are already inside `tracker/`, run:
+
+```shell
+uv run pytest -c ../pytest.ini . --cov --cov-config=../.coveragerc --cov-report term
 ```
 
 The Django way is with
@@ -574,6 +579,4 @@ When committing changes to these files, be sure to callout changes in Pull Reque
 Postgres DB config for testing and production.
 
 A guide (.md file) for development with Postgres instead of SQLite.
-
-Figure out how to consolidate the `.coveragerc` files. The one in `tracker` is the one the GitHub action uses, so it is the source of truth for now, but the one at the top level of the directory is for VSCode's TestExplorer. It is a copy and should just be stomped over as the main one in `tracker` changes. Maybe the GH Action can be modified with a `--cov-config` argument to point at it, will take testing and commits.
 
