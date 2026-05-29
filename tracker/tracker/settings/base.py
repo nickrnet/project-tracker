@@ -48,10 +48,6 @@ INSTALLED_APPS = [
     'django_extensions',
     "django_htmx",
     'health_check',
-    'health_check.db',
-    'health_check.cache',
-    'health_check.storage',
-    'health_check.contrib.migrations',
     'phone_field',
     'rest_framework',
     # Applications in this project
@@ -195,8 +191,8 @@ LOGIN_URL = reverse_lazy('login')
 
 HEALTH_CHECK = {
     "SUBSETS": {
-        "startup-probe": ["MigrationsHealthCheck", "DatabaseHealthCheck"],
-        "liveness-probe": ["DatabaseBackend"],
+        "startup-probe": ["Database"],
+        "liveness-probe": ["Database"],
         },
     }
 
