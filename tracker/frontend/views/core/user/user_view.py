@@ -17,6 +17,7 @@ def handle_post(request, logged_in_user, user_id):
         user_data = core_user_models.CoreUserData(
             created_by=logged_in_user,
             created_on=timezone.now(),
+            core_user=user,
             name_prefix=user_data_form.cleaned_data.get('name_prefix', ''),
             first_name=user_data_form.cleaned_data.get('first_name', ''),
             middle_name=user_data_form.cleaned_data.get('middle_name', ''),

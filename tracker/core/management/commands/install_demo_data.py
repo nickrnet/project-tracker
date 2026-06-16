@@ -62,13 +62,14 @@ def create_organization(num, organizations):
             postal_code=user.current.postal_code,
             country=user.current.country,
             timezone=user.current.timezone,
-            is_paid=True,
             )
         organization = Organization.objects.create(
             created_by_id=user.id,
             current=organization_data,
             )
         organization.members.add(user)
+        organization_data.organization = organization
+        organization_data.save()
 
         organizations.append(organization.id)
 
@@ -90,11 +91,12 @@ def create_project(num, organization_id, user_id, projects):
             description=f'This is a test project, number {str(num).zfill(2)}.',
             is_active=True,
             )
-        project_data.save()
         project = Project.objects.create(
             created_by_id=user.id,
             current=project_data,
             )
+        project_data.project = project
+        project_data.save()
         project_label_data = ProjectLabelData.objects.create(
             created_by_id=user.id,
             label=project.generate_label(),
@@ -102,7 +104,10 @@ def create_project(num, organization_id, user_id, projects):
         project_label = ProjectLabel.objects.create(
             created_by_id=user.id,
             current=project_label_data,
+            project=project,
             )
+        project_label_data.project_label = project_label
+        project_label_data.save()
         project.users.add(user)
         project.label = project_label
         project.save()
@@ -131,6 +136,8 @@ def create_git_repository(project_id, repository_name=None, git_repositories=[])
             created_by_id=project.created_by_id,
             current=git_repository_data,
             )
+        git_repository_data.git_repository = git_repository
+        git_repository_data.save()
 
         project.git_repositories.add(git_repository)
         project.save()
@@ -145,9 +152,8 @@ def create_git_repository(project_id, repository_name=None, git_repositories=[])
 
 
 class Command(BaseCommand):
-    # TODO: Refactor this to make is simpler, ditch the noqa bit
     @timed_function
-    def handle(self, *args, **options):  # noqa
+    def install_demo_data(self, *args, **options):  # noqa):
         total_users = 50
         total_organizations = 30
         user_id = None
@@ -215,3 +221,6 @@ class Command(BaseCommand):
         for user_id in users:
             user = CoreUser.objects.get(id=user_id)
             self.stdout.write(f"- {user.current.email} has {user.list_projects().count()} projects.")
+
+    def handle(self, *args, **options):  # noqa
+        self.install_demo_data(args, options)

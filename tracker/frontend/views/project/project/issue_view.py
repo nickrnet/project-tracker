@@ -12,6 +12,8 @@ from frontend.forms.project.issue import issue_form
 
 def handle_post(request, logged_in_user, issue=None):
     received_issue_form = issue_form.IssueForm(request.POST, request.FILES)
+    selected_components = request.POST.getlist('component')
+    selected_versions = request.POST.getlist('version')
 
     if received_issue_form.is_valid():
         # Check if user can access project
@@ -23,6 +25,7 @@ def handle_post(request, logged_in_user, issue=None):
         issue_data = issue_models.IssueData.objects.create(
             created_by=logged_in_user,
             created_on=timezone.now(),
+            issue=issue,
             project_id=received_issue_form.cleaned_data.get("project", ''),
             summary=received_issue_form.cleaned_data.get("summary"),
             description=received_issue_form.cleaned_data.get("description", ''),
@@ -32,11 +35,14 @@ def handle_post(request, logged_in_user, issue=None):
             built_in_priority_id=received_issue_form.cleaned_data.get("built_in_priority", ''),
             built_in_status_id=received_issue_form.cleaned_data.get("built_in_status", ''),
             built_in_severity_id=received_issue_form.cleaned_data.get("built_in_severity", ''),
-            version_id=received_issue_form.cleaned_data.get("version", ''),
-            component_id=received_issue_form.cleaned_data.get("component", ''),
             )
+        issue_data.component.set(selected_components)
+        issue_data.version.set(selected_versions)
         issue.current = issue_data
         issue.save()
+        messages.success(request, 'Issue updated!')
+    else:
+        messages.error(request, 'Error saving issue.')
 
     return render(
         request=request,

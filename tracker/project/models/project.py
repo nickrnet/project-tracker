@@ -7,23 +7,57 @@ from django.utils import timezone
 from core.models import core as core_models
 from core.models import user as core_user_models
 from . import git_repository as git_repository_models
-from . import issue as issue_models
 
 
 class ProjectLabelData(core_models.CoreModel):
+    """
+    Data about a project label.
+
+    Parameters:
+        project_label (ProjectLabel): The project label this data is about.
+        label (str): The label of the project label.
+        description (str): The description of the project label.
+        color (str): The color for the project label.
+    """
+
+    project_label = models.ForeignKey('ProjectLabel', on_delete=models.CASCADE, blank=True, null=True)
+
     label = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True, default="")
     color = models.CharField(max_length=7, default="#000000")
 
 
 class ProjectLabel(core_models.CoreModel):
-    current = models.ForeignKey(ProjectLabelData, on_delete=models.CASCADE)
+    """
+    A project label.
+
+    Parameters:
+        current (ProjectLabelData): The data for this project label.
+    """
+
+    current = models.OneToOneField(ProjectLabelData, on_delete=models.CASCADE)
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.current.label
 
 
 class ProjectData(core_models.CoreModel):
+    """
+    Contains data about a project.
+
+    Parameters:
+        project (Project): The project this data is about.
+        name (str): The name of the project.
+        description (str): The description of the project.
+        start_date (date): The start date of the project.
+        end_date (date): The end date of the project.
+        is_active (bool): Whether the project is active.
+        is_private (bool): Whether the project is private.
+    """
+
+    project = models.ForeignKey('Project', on_delete=models.CASCADE, blank=True, null=True)
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True, default="")
     start_date = models.DateField(default=timezone.now)
@@ -38,14 +72,24 @@ class ProjectActiveManager(models.Manager):
 
 
 class Project(core_models.CoreModel):
+    """
+    A Project.
+
+    Parameters:
+        current (ProjectData): The current data of the project.
+        label (ProjectLabel): The label of the project.
+        git_repositories (list[GitRepository]): The Git repositories associated with the project.
+        users (list[CoreUser]): The users associated with the project.
+    """
+
     class Meta:
         ordering = ['current__name']
 
     active_objects = ProjectActiveManager()
 
-    current = models.ForeignKey(ProjectData, on_delete=models.CASCADE)
+    current = models.OneToOneField(ProjectData, on_delete=models.CASCADE, related_name='project_data')
 
-    label = models.ForeignKey(ProjectLabel, on_delete=models.CASCADE, blank=True, null=True)
+    label = models.OneToOneField(ProjectLabel, on_delete=models.CASCADE, blank=True, null=True, related_name='projects_by_label')
     git_repositories = models.ManyToManyField(git_repository_models.GitRepository)
     users = models.ManyToManyField('core.CoreUser')
 
@@ -128,17 +172,17 @@ class Project(core_models.CoreModel):
 
         Args:
             user_id (uuid.UUID): The logged in user that is updating the label.
-            new_project_label (ProjectLabel): The new project label, containing ProjectLabelData.
+            new_project_label (ProjectLabel): The new project label data.
 
         Returns:
             project (Project): The updated project.
         """
 
-        new_project_label_data = ProjectLabelData(created_by_id=user_id, **new_project_label.get('current'))
+        new_project_label_data = ProjectLabelData.objects.create(created_by_id=user_id, **new_project_label.get('current'))
+        new_project_label = ProjectLabel.objects.create(created_by_id=user_id, current=new_project_label_data, project=self)
+        new_project_label_data.project_label = new_project_label
         new_project_label_data.save()
-        new_label = ProjectLabel(created_by_id=user_id, current=new_project_label_data)
-        new_label.save()
-        self.label = new_label
+        self.label = new_project_label
         self.save()
 
         return self
@@ -170,11 +214,8 @@ class Project(core_models.CoreModel):
             issues (list): The list of issues for the project.
         """
 
-        # Get the issues from the issue data for the project - there could be a lot of issue data for a single issue so we have to pare it down with a set, could try distinct here for performance when needed.
-        issue_ids = set()
-        issue_datas = self.issuedata_set.values_list('issue', flat=True).filter(project=self)
-        issue_ids.update(issue_datas)
-        return issue_models.Issue.active_objects.filter(id__in=issue_ids)
+        issues = self.issue_set.all()
+        return issues
 
     def __str__(self):
         potential_names = []

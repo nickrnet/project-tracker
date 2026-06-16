@@ -28,7 +28,6 @@ class TestProjectSettingsComponentView(TestCase):
             label='project01',
             description='Project 01 Label'
             )
-        self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data)
 
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
@@ -37,7 +36,11 @@ class TestProjectSettingsComponentView(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_label)
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data)
+        self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data, project=self.project1)
+        self.project1_label_data.project_label = self.project1_label
+        self.project1_label_data.save()
+        self.project1.label = self.project1_label
         self.project1.users.add(self.user1)
         self.project1.save()
 
@@ -54,6 +57,8 @@ class TestProjectSettingsComponentView(TestCase):
             current=self.component1_data,
             project=self.project1
             )
+        self.component1_data.component = self.component1
+        self.component1_data.save()
 
         # TODO - Delete project2 if reworking get_project() method, this is only used in test_project_settings_component_view_post_project_id_is_label()
         # Also if deleted, adjust assertions to 1 component in component_models.Component.objects
@@ -64,7 +69,6 @@ class TestProjectSettingsComponentView(TestCase):
             label='project02',
             description='Project 02 Label'
             )
-        self.project2_label = ProjectLabel.objects.create(created_by=self.user2, current=self.project2_label_data)
 
         self.project2_data = ProjectData.objects.create(
             created_by=self.user2,
@@ -73,7 +77,11 @@ class TestProjectSettingsComponentView(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data, label=self.project2_label)
+        self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data)
+        self.project2_label = ProjectLabel.objects.create(created_by=self.user2, current=self.project2_label_data, project=self.project2)
+        self.project2_label_data.project_label = self.project2_label
+        self.project2_label_data.save()
+        self.project2.label = self.project2_label
         self.project2.users.add(self.user2)
         self.project2.save()
 
@@ -90,6 +98,8 @@ class TestProjectSettingsComponentView(TestCase):
             current=self.component2_data,
             project=self.project2
             )
+        self.component2_data.component = self.component2
+        self.component2_data.save()
 
         # Create Client
         self.http_client = Client()

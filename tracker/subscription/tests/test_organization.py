@@ -58,16 +58,20 @@ class TestOrganizationSubscription(TestCase):
             )
 
     def test_create_organization_subscription(self):
-        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
-        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, org=self.organization, current=organization_subscription_data)
+        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, organization=self.organization, organization_subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
+        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, current=organization_subscription_data)
+        organization_subscription_data.organization_subscription = organization_subscription
+        organization_subscription_data.save()
         organization_subscription.set_expiration_date(self.system_user.id, self.subscription_type)
         self.assertIsNotNone(organization_subscription.current.expiration_date)
         expected_expiration_date = organization_subscription.created_on + timezone.timedelta(days=self.subscription_type.current.term_length_days)
         self.assertEqual(organization_subscription.current.expiration_date.date(), expected_expiration_date.date())
 
     def test_create_organization_subscription_no_user_no_subscription_type(self):
-        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
-        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, org=self.organization, current=organization_subscription_data)
+        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, organization=self.organization, organization_subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
+        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, current=organization_subscription_data)
+        organization_subscription_data.organization_subscription = organization_subscription
+        organization_subscription_data.save()
         organization_subscription.set_expiration_date()
         self.assertIsNotNone(organization_subscription.current.expiration_date)
         expected_expiration_date = organization_subscription.created_on + timezone.timedelta(days=self.subscription_type.current.term_length_days)
@@ -75,14 +79,18 @@ class TestOrganizationSubscription(TestCase):
 
     def test_organization_subscription_enterprise(self):
         enterprise_subscription_type = OrganizationSubscriptionType.objects.get(current__name='Enterprise')
-        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, subscription_type=enterprise_subscription_type, expiration_date=None, expired=False)
-        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, org=self.organization, current=organization_subscription_data)
+        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, organization=self.organization, organization_subscription_type=enterprise_subscription_type, expiration_date=None, expired=False)
+        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, current=organization_subscription_data)
+        organization_subscription_data.organization_subscription = organization_subscription
+        organization_subscription_data.save()
         organization_subscription.set_expiration_date(self.system_user.id, enterprise_subscription_type)
         self.assertIsNone(organization_subscription.current.expiration_date)
 
     def test_expire_organization_subscription(self):
-        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
-        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, org=self.organization, current=organization_subscription_data)
+        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, organization=self.organization, organization_subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
+        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, current=organization_subscription_data)
+        organization_subscription_data.organization_subscription = organization_subscription
+        organization_subscription_data.save()
         organization_subscription.set_expiration_date(self.system_user.id, self.subscription_type)
         organization_subscription.expire_subscription(self.system_user.id, self.subscription_type)
         organization_subscription.refresh_from_db()
@@ -90,8 +98,10 @@ class TestOrganizationSubscription(TestCase):
         self.assertIsNotNone(organization_subscription.current.expiration_date)
 
     def test_expire_organization_subscription_no_user_no_subscription_type(self):
-        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
-        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, org=self.organization, current=organization_subscription_data)
+        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, organization=self.organization, organization_subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
+        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, current=organization_subscription_data)
+        organization_subscription_data.organization_subscription = organization_subscription
+        organization_subscription_data.save()
         organization_subscription.set_expiration_date()
         organization_subscription.expire_subscription()
         organization_subscription.refresh_from_db()
@@ -99,8 +109,10 @@ class TestOrganizationSubscription(TestCase):
         self.assertIsNotNone(organization_subscription.current.expiration_date)
 
     def test_expire_organization_subscription_already_expired(self):
-        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=True)
-        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, org=self.organization, current=organization_subscription_data)
+        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, organization=self.organization, organization_subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=True)
+        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, current=organization_subscription_data)
+        organization_subscription_data.organization_subscription = organization_subscription
+        organization_subscription_data.save()
         self.assertTrue(organization_subscription.current.expired)
         organization_subscription.expire_subscription()
         organization_subscription.refresh_from_db()
@@ -108,8 +120,10 @@ class TestOrganizationSubscription(TestCase):
         self.assertIsNotNone(organization_subscription.current.expiration_date)
 
     def test_get_organization_subscription(self):
-        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
-        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, org=self.organization, current=organization_subscription_data)
+        organization_subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.system_user, organization=self.organization, organization_subscription_type=self.subscription_type, expiration_date=timezone.now() + timezone.timedelta(days=self.subscription_type.current.term_length_days), expired=False)
+        organization_subscription = OrganizationSubscription.objects.create(created_by=self.system_user, current=organization_subscription_data)
+        organization_subscription_data.organization_subscription = organization_subscription
+        organization_subscription_data.save()
         organization_subscription.set_expiration_date(self.system_user.id, self.subscription_type)
         self.assertFalse(organization_subscription.current.expired)
         subscriptions = OrganizationSubscription.active_objects.all()

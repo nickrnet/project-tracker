@@ -21,12 +21,14 @@ def handle_post(request, logged_in_user, project):
             label=received_new_component_form.cleaned_data.get('label', ''),
             is_active=received_new_component_form.cleaned_data.get('is_active', True)
             )
-        component_models.Component.objects.create(
+        component = component_models.Component.objects.create(
             created_by=logged_in_user,
             created_on=timezone.now(),
             current=component_data,
             project=project
             )
+        component_data.component = component
+        component_data.save()
 
         messages.success(request, ('Your component was successfully added!'))
     else:

@@ -44,8 +44,8 @@ def handle_post(request, logged_in_user, organization):
         created_by=logged_in_user,
         created_on=timezone.now(),
         email=email,
-        invited_by=logged_in_user,
         organization=organization,
+        invited_by=logged_in_user,
         status='PENDING',
         expires_on=timezone.now() + timezone.timedelta(days=7),
         )
@@ -54,6 +54,8 @@ def handle_post(request, logged_in_user, organization):
         created_on=timezone.now(),
         current=invite_data,
         )
+    invite_data.organization_invite = invite
+    invite_data.save()
     organization.member_invites.add(invite)
     organization.save()
 

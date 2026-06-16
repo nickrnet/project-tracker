@@ -8,7 +8,7 @@ from project.models.git_repository import GitRepository, GitRepositoryData
 from project.models.project import Project, ProjectData
 
 
-class UpdateOrganizationDataTest(TestCase):
+class TestOrganization(TestCase):
     def setUp(self):
         OrganizationSubscriptionType.objects.initialize_subscriptions()
         self.member1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password'})
@@ -52,26 +52,47 @@ class UpdateOrganizationDataTest(TestCase):
             created_by_id=self.member1.id,
             current=self.git_repo_data1,
             )
+        self.git_repo_data1.git_repository = self.git_repo1
+        self.git_repo_data1.save()
         self.git_repo_data2 = GitRepositoryData.objects.create(**git_repo_data2)
         self.git_repo2 = GitRepository.objects.create(
             created_by_id=self.member2.id,
             current=self.git_repo_data2,
             )
+        self.git_repo_data2.git_repository = self.git_repo2
+        self.git_repo_data2.save()
         self.project_data1 = ProjectData.objects.create(**project_data1)
         self.project1 = Project.objects.create(
             created_by_id=self.member1.id,
             current=self.project_data1,
             )
+        self.project_data1.project = self.project1
+        self.project_data1.save()
         self.project_data2 = ProjectData.objects.create(**project_data2)
         self.project2 = Project.objects.create(
             created_by_id=self.member1.id,
             current=self.project_data2,
             )
+        self.project_data2.project = self.project2
+        self.project_data2.save()
 
         self.organization.git_repositories.add(self.git_repo1)
         self.organization.members.add(self.member1)
         self.organization.projects.add(self.project1)
         self.organization.save()
+        self.organization_data.organization = self.organization
+        self.organization_data.save()
+
+        self.organization.refresh_from_db()
+        self.organization_data.refresh_from_db()
+        self.project_data1.refresh_from_db()
+        self.project1.refresh_from_db()
+        self.project_data2.refresh_from_db()
+        self.project2.refresh_from_db()
+        self.git_repo_data1.refresh_from_db()
+        self.git_repo1.refresh_from_db()
+        self.git_repo_data2.refresh_from_db()
+        self.git_repo2.refresh_from_db()
 
     def test_update_organization_data(self):
         new_organization_data = {
@@ -99,8 +120,21 @@ class UpdateOrganizationDataTest(TestCase):
     def test_get_subscription(self):
         subscription = self.organization.get_subscription()
         self.assertIsNone(subscription)
-        subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.member1, subscription_type=OrganizationSubscriptionType.active_objects.get(current__name='Trial'), expiration_date=timezone.now() + timezone.timedelta(days=7), expired=False)
-        self.organization.subscription = OrganizationSubscription.objects.create(created_by=self.member1, org=self.organization, current=subscription_data)
+        subscription_data = OrganizationSubscriptionData.objects.create(
+            created_by=self.member1,
+            organization_subscription_type=OrganizationSubscriptionType.active_objects.get(current__name='Trial'),
+            organization=self.organization,
+            expiration_date=timezone.now() + timezone.timedelta(days=7),
+            expired=False
+            )
+        self.organization.subscription = OrganizationSubscription.objects.create(
+            created_by=self.member1,
+            current=subscription_data
+            )
+        self.organization.subscription.current.organization_subscription = self.organization.subscription
+        self.organization.subscription.current.save()
         self.organization.save()
+        self.organization.refresh_from_db()
+
         subscription = self.organization.get_subscription()
         self.assertEqual(subscription, OrganizationSubscription.active_objects.first())

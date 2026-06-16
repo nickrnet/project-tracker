@@ -61,18 +61,20 @@ class TestOrganizationAcceptInviteView(TestCase):
     def test_organization_accept_invite_view_get(self):
         self.client.force_login(user=self.member2.user)
         response = self.client.get(reverse('accept_organization_invite', kwargs={'invite_id': str(self.invite.id)}))
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/organization/accept_organization_invite.html')
 
     def test_organization_accept_invite_view_get_not_logged_in(self):
         response = self.client.get(reverse('accept_organization_invite', kwargs={'invite_id': str(self.invite.id)}))
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/organization/accept_organization_invite.html')
 
     def test_organization_accept_invite_view_get_invalid_invite_when_logged_in(self):
-        # breakpoint()
         self.client.force_login(user=self.member2.user)
         response = self.client.get(reverse('accept_organization_invite', kwargs={'invite_id': '4b3117ea-d53c-456a-a0e3-b36b0c298224'}))
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/organizations')
         messages = list(get_messages(response.wsgi_request))
@@ -80,6 +82,7 @@ class TestOrganizationAcceptInviteView(TestCase):
 
     def test_organization_accept_invite_view_get_invalid_invite_when_not_logged_in(self):
         response = self.client.get(reverse('accept_organization_invite', kwargs={'invite_id': '4b3117ea-d53c-456a-a0e3-b36b0c298224'}))
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/login')
         messages = list(get_messages(response.wsgi_request))
@@ -88,6 +91,7 @@ class TestOrganizationAcceptInviteView(TestCase):
     def test_organization_accept_invite_view_get_logged_in_user_was_not_recipient(self):
         self.client.force_login(user=self.member1.user)
         response = self.client.get(reverse('accept_organization_invite', kwargs={'invite_id': str(self.invite.id)}))
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/organizations')
         messages = list(get_messages(response.wsgi_request))
@@ -98,6 +102,7 @@ class TestOrganizationAcceptInviteView(TestCase):
         self.invite.current.save()
         self.client.force_login(user=self.member2.user)
         response = self.client.get(reverse('accept_organization_invite', kwargs={'invite_id': str(self.invite.id)}))
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/organizations')
         messages = list(get_messages(response.wsgi_request))
@@ -107,6 +112,7 @@ class TestOrganizationAcceptInviteView(TestCase):
         self.invite.current.status = 'EXPIRED'
         self.invite.current.save()
         response = self.client.get(reverse('accept_organization_invite', kwargs={'invite_id': str(self.invite.id)}))
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/login')
         messages = list(get_messages(response.wsgi_request))
@@ -115,6 +121,7 @@ class TestOrganizationAcceptInviteView(TestCase):
     def test_organization_accept_invite_view_post(self):
         self.client.force_login(user=self.member2.user)
         response = self.client.post(reverse('accept_organization_invite', kwargs={'invite_id': str(self.invite.id)}), {'response': 'accepted'})
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
         messages = list(get_messages(response.wsgi_request))
@@ -127,6 +134,7 @@ class TestOrganizationAcceptInviteView(TestCase):
     def test_organization_accept_invite_view_post_decline(self):
         self.client.force_login(user=self.member2.user)
         response = self.client.post(reverse('accept_organization_invite', kwargs={'invite_id': str(self.invite.id)}), {'response': 'declined'})
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
         messages = list(get_messages(response.wsgi_request))
@@ -141,6 +149,7 @@ class TestOrganizationAcceptInviteView(TestCase):
         self.invite.current.save()
         self.client.force_login(user=self.member1.user)
         response = self.client.post(reverse('accept_organization_invite', kwargs={'invite_id': str(self.invite.id)}), {'response': 'accepted'})
+        self.invite.refresh_from_db()
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
         messages = list(get_messages(response.wsgi_request))

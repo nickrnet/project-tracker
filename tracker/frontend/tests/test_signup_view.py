@@ -70,7 +70,7 @@ class TestSignupView(TestCase):
         self.assertEqual(user.current.state, 'NY')
         self.assertEqual(user.current.country, 'US')
         self.assertEqual(user.current.timezone, 'EST')
-        self.assertEqual(user.subscription.current.subscription_type.current.name, 'Trial')
+        self.assertEqual(user.subscription.current.individual_subscription_type.current.name, 'Trial')
 
     def test_signup_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

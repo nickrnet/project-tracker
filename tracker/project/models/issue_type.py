@@ -1,13 +1,32 @@
+import uuid
+
 from django.db import models
 
 from core.models import core as core_models
 from core.models import user as core_user_models
 
 
+class BuiltInIssueTypeData(core_models.CoreModel):
+    """
+    Data about a built-in issue type.
+
+    Parameters:
+        type (str): The type of the built-in issue type.
+        description (str): A description of the built-in issue type.
+    """
+
+    built_in_issue_type = models.ForeignKey('BuiltInIssueType', on_delete=models.CASCADE, blank=True, null=True)
+
+    type = models.CharField(max_length=255, blank=True, null=True, default="")
+    description = models.TextField(blank=True, null=True, default="")
+
+
 class BuiltInIssueTypeManager(models.Manager):
-    def initialize_built_in_types(self):
-        # Keep this synchronized with the BuiltInIssueType.IssueTypeChoices class.
-        # We force specific UUIDs here to ensure consistency across all installations.
+    def initialize_built_in_issue_types(self):
+        """
+        Initializes the built-in issue types.
+        """
+
         built_in_types = [
             ('c166c9dc-f058-4fb7-99c3-eb2bc14a46ee', 'CHANGE_REQUEST', 'Change Request'),
             ('94e3841b-3c88-4273-9dd0-190aa5e7c8ea', 'PROBLEM', 'Problem'),
@@ -29,39 +48,34 @@ class BuiltInIssueTypeManager(models.Manager):
             ]
         system_user = core_user_models.CoreUser.objects.get_or_create_system_user()
 
+        existing_built_in_issue_types = self.all().values_list('id', flat=True)
         for id, type, description in built_in_types:
-            self.create(id=id, created_by=system_user, type=type, description=description)
+            if uuid.UUID(id) not in existing_built_in_issue_types:
+                built_in_issue_type_data = BuiltInIssueTypeData.objects.create(created_by=system_user, type=type, description=description)
+                built_in_issue_type = self.create(id=id, created_by=system_user, current=built_in_issue_type_data)
+                built_in_issue_type_data.built_in_issue_type = built_in_issue_type
+                built_in_issue_type_data.save()
+            else:
+                built_in_issue_type = self.get(id=id)
+                built_in_issue_type_data = BuiltInIssueTypeData.objects.create(created_by=system_user, built_in_issue_type=built_in_issue_type, type=type, description=description)
+                built_in_issue_type.current = built_in_issue_type_data
+                built_in_issue_type.save()
 
 
 class BuiltInIssueType(core_models.CoreModel):
-    class Meta:
-        ordering = ['type']
-        unique_together = ['type', 'description']
+    """
+    Built-in issue type.
 
-    class IssueTypeChoices(models.TextChoices):
-        # Keep this synchronized with the BuiltInIssueTypeManager.initialize_built_in_types method.
-        CHANGE_REQUEST = 'CHANGE_REQUEST', 'Change Request'
-        PROBLEM = 'PROBLEM', 'Problem'
-        INCIDENT = 'INCIDENT', 'Incident'
-        SERVICE_REQUEST = 'SERVICE_REQUEST', 'Service Request'
-        TEST = 'TEST', 'Test'
-        IMPROVEMENT = 'IMPROVEMENT', 'Improvement'
-        ENHANCEMENT = 'ENHANCEMENT', 'Enhancement'
-        QUESTION = 'QUESTION', 'Question'
-        PROPOSAL = 'PROPOSAL', 'Proposal'
-        SPIKE = 'SPIKE', 'Spike'
-        SUB_TASK = 'SUB_TASK', 'Sub-task'
-        TASK = 'TASK', 'Task'
-        FEATURE = 'FEATURE', 'Feature'
-        STORY = 'STORY', 'Story'
-        EPIC = 'EPIC', 'Epic'
-        DOCUMENTATION = 'DOCUMENTATION', 'Documentation'
-        BUG = 'BUG', 'Bug'
+    Parameters:
+        current (BuiltInIssueTypeData): Data about the built-in issue type.
+    """
+
+    class Meta:
+        ordering = ['current__type']
 
     objects = BuiltInIssueTypeManager()
 
-    type = models.CharField(max_length=255, choices=IssueTypeChoices.choices)
-    description = models.TextField(blank=True, null=True, default="")
+    current = models.OneToOneField(BuiltInIssueTypeData, on_delete=models.CASCADE)
 
 
 class CustomIssueTypeActiveManager(models.Manager):
@@ -70,19 +84,32 @@ class CustomIssueTypeActiveManager(models.Manager):
 
 
 class CustomIssueTypeData(core_models.CoreModel):
-    class Meta:
-        ordering = ['name']
+    """
+    A custom issue type.
 
-    active_objects = CustomIssueTypeActiveManager()
+    Parameters:
+        custom_issue_type (CustomIssueTypeData): Data about the custom issue type.
+        name (str): The name of the custom issue type.
+        description (str): The description of the custom issue type.
+    """
+
+    custom_issue_type = models.ForeignKey(to='CustomIssueType', on_delete=models.CASCADE, blank=True, null=True)
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True, default="")
 
 
 class CustomIssueType(core_models.CoreModel):
+    """
+    A custom issue type.
+
+    Parameters:
+        current (CustomIssueTypeData): Data about the custom issue type.
+    """
+
     class Meta:
         ordering = ['current__name']
 
     active_objects = CustomIssueTypeActiveManager()
 
-    current = models.ForeignKey(CustomIssueTypeData, on_delete=models.CASCADE)
+    current = models.OneToOneField(CustomIssueTypeData, on_delete=models.CASCADE)

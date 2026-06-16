@@ -32,7 +32,7 @@ class CoreUserTestCase(TestCase):
         self.user3 = CoreUser.objects.create_core_user_from_web(
             {'email': 'testuser3@project-tracker.dev', 'password': 'password'})
 
-        self.organization1_data = OrganizationData(
+        self.organization1_data = OrganizationData.objects.create(
             created_by_id=self.user1.id,
             name='Test Organization 1',
             address_line_1='123 Main St',
@@ -45,19 +45,29 @@ class CoreUserTestCase(TestCase):
             responsible_party_email=self.user1.current.email,
             responsible_party_phone=self.user1.current.work_phone,
             )
-        self.organization1_data.save()
-        self.organization1_data.save()
-        self.organization1 = Organization(
+        self.organization1 = Organization.objects.create(
             created_by_id=self.user1.id,
             current=self.organization1_data,
             )
-        self.organization1.save()
-        subscription_data = OrganizationSubscriptionData.objects.create(created_by=self.user1, subscription_type=OrganizationSubscriptionType.active_objects.get(current__name='Trial'), expiration_date=timezone.now() + timezone.timedelta(days=7), expired=False)
-        self.organization1.subscription = OrganizationSubscription.objects.create(created_by=self.user1, org=self.organization1, current=subscription_data)
+        self.organization1_data.organization = self.organization1
+        self.organization1_data.save()
+        subscription_data = OrganizationSubscriptionData.objects.create(
+            created_by=self.user1,
+            organization_subscription_type=OrganizationSubscriptionType.active_objects.get(current__name='Trial'),
+            organization=self.organization1,
+            expiration_date=timezone.now() + timezone.timedelta(days=7),
+            expired=False
+            )
+        self.organization1.subscription = OrganizationSubscription.objects.create(
+            created_by=self.user1,
+            current=subscription_data
+            )
+        subscription_data.organization_subscription = self.organization1.subscription
+        subscription_data.save()
         self.organization1.members.add(self.user1)
         self.organization1.save()
 
-        self.organization2_data = OrganizationData(
+        self.organization2_data = OrganizationData.objects.create(
             created_by_id=self.user2.id,
             name='Test Organization 2',
             address_line_1='123 Main St',
@@ -70,13 +80,11 @@ class CoreUserTestCase(TestCase):
             responsible_party_email=self.user2.current.email,
             responsible_party_phone=self.user2.current.work_phone,
             )
-        self.organization2_data.save()
-        self.organization2_data.save()
-        self.organization2 = Organization(
+        self.organization2 = Organization.objects.create(
             created_by_id=self.user2.id,
             current=self.organization2_data,
             )
-        self.organization2.save()
+        self.organization2_data.save()
         self.organization2.members.add(self.user1, self.user2)
         self.organization2.save()
 
@@ -113,17 +121,6 @@ class CoreUserTestCase(TestCase):
         self.git_repository1 = GitRepository.objects.create(
             created_by=self.user1, current=self.git_repository1_data)
 
-        self.project1_data_label_data = ProjectLabelData(
-            created_by=self.user1,
-            label='project01',
-            description='Project 01 Label'
-        )
-        self.project1_data_label_data.save()
-        self.project1_data_label = ProjectLabel(
-            created_by=self.user1,
-            current=self.project1_data_label_data
-        )
-        self.project1_data_label.save()
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
             name="Initial Project 1",
@@ -133,9 +130,24 @@ class CoreUserTestCase(TestCase):
             )
         self.project1_data.save()
         self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data)
-        self.project1.label = self.project1_data_label
+        self.project1_data.project = self.project1
+        self.project1_data.save()
+        self.project1_label_data = ProjectLabelData.objects.create(
+            created_by=self.user1,
+            label='project01',
+            description='Project 01 Label'
+        )
+        self.project1_label = ProjectLabel.objects.create(
+            created_by=self.user1,
+            current=self.project1_label_data,
+            project=self.project1
+        )
+        self.project1_label_data.project_label = self.project1_label
+        self.project1_label_data.save()
+        self.project1.label = self.project1_label
         self.project1.git_repositories.add(self.git_repository1)
         self.project1.users.add(self.user1)
+        self.project1.save()
 
         self.project2_data = ProjectData.objects.create(
             created_by=self.user2,
@@ -168,36 +180,53 @@ class CoreUserTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_get_subscription(self):
-        subscription_data = IndividualSubscriptionData.objects.create(created_by=self.user1, subscription_type=IndividualSubscriptionType.active_objects.get(current__name='Trial'), expiration_date=timezone.now() + timezone.timedelta(days=7), expired=False)
-        self.user1.subscription = IndividualSubscription.objects.create(created_by=self.user1, individual=self.user1, current=subscription_data)
+        subscription_data = IndividualSubscriptionData.objects.create(
+            created_by=self.user1,
+            core_user=self.user1,
+            individual_subscription_type=IndividualSubscriptionType.active_objects.get(current__name='Trial'),
+            expiration_date=timezone.now() + timezone.timedelta(days=7),
+            expired=False
+            )
+        self.user1.subscription = IndividualSubscription.objects.create(
+            created_by=self.user1,
+            current=subscription_data
+            )
         subscription_data.subscription = self.user1.subscription
         subscription_data.save()
         self.user1.save()
         self.user1.refresh_from_db()
         subscription = self.user1.get_subscription()
         self.assertIsNotNone(subscription)
-        self.assertEqual(subscription.current.subscription_type.current.name, 'Trial')
+        self.assertEqual(subscription.current.individual_subscription_type.current.name, 'Trial')
         self.assertIsNone(self.user2.get_subscription())
 
     def test_has_subscription(self):
-        subscription = self.user1.has_subscription()
+        subscription = self.user1.has_subscription()  # user1 is in an organization with a subscription
         self.assertTrue(subscription)
-        subscription = self.user2.has_subscription()
+        subscription = self.user2.has_subscription()  # user2 is in an organization without a subscription and does not have an individual subscription
         self.assertFalse(subscription)
-        subscription_data = IndividualSubscriptionData.objects.create(created_by=self.user1, subscription_type=IndividualSubscriptionType.active_objects.get(current__name='Free'), expiration_date=timezone.now() + timezone.timedelta(days=7), expired=False)
-        self.user1.subscription = IndividualSubscription.objects.create(created_by=self.user1, individual=self.user1, current=subscription_data)
-        self.user1.save()
-        subscription_data.subscription = self.user1.subscription
+        subscription_data = IndividualSubscriptionData.objects.create(
+            created_by=self.user3,
+            core_user=self.user3,
+            individual_subscription_type=IndividualSubscriptionType.active_objects.get(current__name='Trial'),
+            expiration_date=timezone.now() + timezone.timedelta(days=7),
+            expired=False
+            )
+        self.user3.subscription = IndividualSubscription.objects.create(
+            created_by=self.user3,
+            current=subscription_data
+            )
+        self.user3.save()
+        subscription_data.individual_subscription = self.user3.subscription
         subscription_data.save()
-        self.user1.refresh_from_db()
-        subscription = self.user1.has_subscription()
-        self.assertTrue(subscription)
+        self.user3.refresh_from_db()  # user3 just signed up
+        self.assertTrue(self.user3.has_subscription())
 
     def test_subscribe_to_trial(self):
         self.user2.subscribe_to_trial()
         subscription = self.user2.get_subscription()
         self.assertIsNotNone(subscription)
-        self.assertEqual(subscription.current.subscription_type.current.name, 'Trial')
+        self.assertEqual(subscription.current.individual_subscription_type.current.name, 'Trial')
 
     def test_list_projects(self):
         user1_projects = self.user1.list_projects()
@@ -229,48 +258,48 @@ class CoreUserTestCase(TestCase):
 
     def test_list_issues(self):
         # TODO
-        issue1_data = IssueData(
+        issue1_data = IssueData.objects.create(
             created_by=self.user1,
             summary="Test Issue 1",
             project=self.project1,
             reporter=self.user1
             )
-        issue1_data.save()
-        issue1 = Issue(
+        issue1 = Issue.objects.create(
             created_by=self.user1,
             current=issue1_data,
             sequence=Issue.objects.get_next_sequence_number(self.project1.id),
             project=self.project1
         )
-        issue1.save()
-        issue2_data = IssueData(
+        issue1_data.issue = issue1
+        issue1_data.save()
+        issue2_data = IssueData.objects.create(
             created_by=self.user2,
             summary="Test Issue 2",
             project=self.project2,
             reporter=self.user2
             )
-        issue2_data.save()
         issue2 = Issue(
             created_by=self.user2,
             current=issue2_data,
             sequence=Issue.objects.get_next_sequence_number(self.project2.id),
             project=self.project1
         )
+        issue2_data.issue = issue2
         issue2.save()
-        issue3_data = IssueData(
+        issue3_data = IssueData.objects.create(
             created_by=self.user3,
             summary="Test Issue 3",
             project=self.project3,
             reporter=self.user3
             )
-        issue3_data.save()
-        issue3 = Issue(
+        issue3 = Issue.objects.create(
             created_by=self.user3,
             current=issue3_data,
             sequence=Issue.objects.get_next_sequence_number(self.project3.id),
             project=self.project1
         )
-        issue3.save()
+        issue3_data.issue = issue3
+        issue3_data.save
 
         user1_issues = self.user1.list_issues()
         user2_issues = self.user2.list_issues()

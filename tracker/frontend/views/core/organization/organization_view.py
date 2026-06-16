@@ -15,6 +15,7 @@ def handle_post(request, logged_in_user, organization=None):
         organization_data = core_organization_models.OrganizationData(**organization_form_data)
         organization_data.created_by = logged_in_user
         organization_data.created_on = timezone.now()
+        organization_data.organization = organization
         organization_data.save()
 
         organization.current = organization_data

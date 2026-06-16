@@ -28,6 +28,7 @@ def handle_post(request, logged_in_user, git_repository):
         git_repository_data = git_repository_models.GitRepositoryData(
             created_by=logged_in_user,
             created_on=timezone.now(),
+            git_repository=git_repository,
             name=received_git_repository_form.cleaned_data.get('name'),
             description=received_git_repository_form.cleaned_data.get('description'),
             url=received_git_repository_form.cleaned_data.get('url'),

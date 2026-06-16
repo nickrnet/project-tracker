@@ -11,6 +11,8 @@ from project.models import issue as issue_models
 
 def handle_post(request, logged_in_user):
     received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
+    selected_components = request.POST.getlist('component')
+    selected_versions = request.POST.getlist('version')
 
     if received_new_issue_form.is_valid():
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, received_new_issue_form.cleaned_data.get("project", ''))
@@ -31,18 +33,20 @@ def handle_post(request, logged_in_user):
             built_in_priority_id=received_new_issue_form.cleaned_data.get("built_in_priority", ''),
             built_in_status_id=received_new_issue_form.cleaned_data.get("built_in_status", ''),
             built_in_severity_id=received_new_issue_form.cleaned_data.get("built_in_severity", ''),
-            version_id=received_new_issue_form.cleaned_data.get("version", ''),
-            component_id=received_new_issue_form.cleaned_data.get("component", ''),
             )
-        issue_models.Issue.objects.create(
+        issue = issue_models.Issue.objects.create(
+            sequence=issue_models.Issue.objects.get_next_sequence_number(project.id),
             created_by=logged_in_user,
             created_on=timezone.now(),
             current=issue_data,
             project=project,
-            sequence=issue_models.Issue.objects.get_next_sequence_number(project.id)
             )
+        issue_data.issue = issue
+        issue_data.component.set(selected_components)
+        issue_data.version.set(selected_versions)
+        issue_data.save()
 
-        messages.success(request, ('Your issue was successfully added!'))
+        messages.success(request, ('Issue added!'))
     else:
         messages.error(request, 'Error saving issue.')
 

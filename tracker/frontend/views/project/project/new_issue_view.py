@@ -11,6 +11,8 @@ from project.models import issue as issue_models
 
 def handle_post(request, logged_in_user, project):
     received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
+    selected_components = request.POST.getlist('component')
+    selected_versions = request.POST.getlist('version')
 
     if received_new_issue_form.is_valid():
         issue_data = issue_models.IssueData.objects.create(
@@ -25,16 +27,18 @@ def handle_post(request, logged_in_user, project):
             built_in_priority_id=received_new_issue_form.cleaned_data.get("built_in_priority"),
             built_in_status_id=received_new_issue_form.cleaned_data.get("built_in_status"),
             built_in_severity_id=received_new_issue_form.cleaned_data.get("built_in_severity"),
-            version_id=received_new_issue_form.cleaned_data.get("version"),
-            component_id=received_new_issue_form.cleaned_data.get("component"),
             )
-        issue_models.Issue.objects.create(
+        issue = issue_models.Issue.objects.create(
             created_by=logged_in_user,
             created_on=timezone.now(),
             current=issue_data,
             project=project,
             sequence=issue_models.Issue.objects.get_next_sequence_number(project.id)
             )
+        issue_data.issue = issue
+        issue_data.component.set(selected_components)
+        issue_data.version.set(selected_versions)
+        issue_data.save()
 
         messages.success(request, ('Your issue was successfully added!'))
     else:
