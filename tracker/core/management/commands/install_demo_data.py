@@ -153,7 +153,7 @@ def create_git_repository(project_id, repository_name=None, git_repositories=[])
 
 class Command(BaseCommand):
     @timed_function
-    def install_demo_data(self, *args, **options):  # noqa):
+    def install_demo_data(self, *args, **options):  # noqa
         total_users = 50
         total_organizations = 30
         user_id = None
