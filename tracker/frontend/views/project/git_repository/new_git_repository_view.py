@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.utils import timezone
 
 from frontend.forms.project.git_repository import new_git_repository_form as new_git_repository_form
@@ -24,13 +24,30 @@ def handle_post(request, logged_in_user):
             created_on=timezone.now(),
             current=git_repository_data
             )
+        git_repository_data.git_repository = git_repository
+        git_repository_data.save()
+
         messages.success(request, ('Your git repository was successfully added!'))
-
-        return redirect("git_repository", git_repository_id=git_repository.id)
+        repositories = logged_in_user.list_git_repositories()
+        return render(
+            request=request,
+            template_name="project/git_repository/git_repositories_table.html",
+            context={
+                'logged_in_user': logged_in_user,
+                'git_repositories': repositories
+                }
+            )
     else:
-        messages.error(request, 'Error saving git repository.')
-
-        return redirect("new_git_repository")
+        messages.error(request, ('Error saving git repository.'))
+        repositories = logged_in_user.list_git_repositories()
+        return render(
+            request=request,
+            template_name="project/git_repository/git_repositories_table.html",
+            context={
+                'logged_in_user': logged_in_user,
+                'git_repositories': repositories
+                }
+            )
 
 
 @login_required

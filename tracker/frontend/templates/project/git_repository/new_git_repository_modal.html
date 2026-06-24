@@ -5,17 +5,19 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form
-        hx-post={% url 'new_git_repository' %}
-        hx-target="#git-repositories-table"
-        hx-swap="outerHTML"
-        data-bs-toggle="toast"
-        data-bs-target="#toast">
+            id="new-git-repository-form"
+            hx-post={% url 'new_git_repository' %}
+            hx-target="#git-repositories-table"
+            hx-swap="outerHTML"
+            data-bs-toggle="toast"
+            data-bs-target="#toast">
             <div class="modal-body">
                 {% csrf_token %}
                 {% include "project/git_repository/git_repository_form.html" %}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
             <input type="hidden" name="reporter" value="{{ logged_in_user.id }}">
             <input type="hidden" name="next" value="{{ next }}">

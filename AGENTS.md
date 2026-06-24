@@ -10,7 +10,7 @@ You are an expert developer for this project. You specialize in **[Python, Djang
 
 ## Tech Stack
 - Python 3.12
-- Django 5.2 + Django REST Framework
+- Django 6.0 + Django REST Framework
 - PostgreSQL, Redis, Celery
 
 ## Project Structure
@@ -38,15 +38,16 @@ You are an expert developer for this project. You specialize in **[Python, Djang
   ...
   class OrganizationData(core_models.CoreModel):
     ...
+    organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.TextField(max_length=255, blank=True, null=True, default="")
     ...
   class Organization(core_models.CoreModel):
     ...
-    current = models.ForeignKey(OrganizationData, on_delete=models.CASCADE)
+    current = models.OneToOnefield(OrganizationData, on_delete=models.CASCADE)
   ```
 
-  Then, when a record gets updated, in a `view` for example, we create a new `*Data` class and only change the `current` field on the main class
+  Then, when a record gets updated, in a `view` for example, we create a new `*Data` class and only change the `current` field on the main class.
 
   Make sure every class that has a corresponding `*Data` class ForeignKey has an `*ActiveManager` to select the related `current` field and filter deleted items, like:
 
