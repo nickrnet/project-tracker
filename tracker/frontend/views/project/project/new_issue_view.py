@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -11,6 +13,24 @@ from project.models import issue as issue_models
 
 def handle_post(request, logged_in_user, project):
     received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
+    selected_component_ids = request.POST.getlist('component')
+    selected_version_ids = request.POST.getlist('version')
+
+    # Convert lists of id strings to UUIDs
+    selected_components = []
+    project_components = project.component_set.all().values_list('id', flat=True)
+    for component_id in selected_component_ids:
+        # Validate requested component is part of the project
+        component_id = uuid.UUID(component_id)
+        if component_id in project_components:
+            selected_components.append(component_id)
+    selected_versions = []
+    project_versions = project.version_set.all().values_list('id', flat=True)
+    for version_id in selected_version_ids:
+        version_id = uuid.UUID(version_id)
+        # Validate requested version is part of the project
+        if version_id in project_versions:
+            selected_versions.append(version_id)
 
     if received_new_issue_form.is_valid():
         issue_data = issue_models.IssueData.objects.create(
@@ -25,16 +45,18 @@ def handle_post(request, logged_in_user, project):
             built_in_priority_id=received_new_issue_form.cleaned_data.get("built_in_priority"),
             built_in_status_id=received_new_issue_form.cleaned_data.get("built_in_status"),
             built_in_severity_id=received_new_issue_form.cleaned_data.get("built_in_severity"),
-            version_id=received_new_issue_form.cleaned_data.get("version"),
-            component_id=received_new_issue_form.cleaned_data.get("component"),
             )
-        issue_models.Issue.objects.create(
+        issue = issue_models.Issue.objects.create(
             created_by=logged_in_user,
             created_on=timezone.now(),
             current=issue_data,
             project=project,
             sequence=issue_models.Issue.objects.get_next_sequence_number(project.id)
             )
+        issue_data.issue = issue
+        issue_data.component.set(selected_components)
+        issue_data.version.set(selected_versions)
+        issue_data.save()
 
         messages.success(request, ('Your issue was successfully added!'))
     else:

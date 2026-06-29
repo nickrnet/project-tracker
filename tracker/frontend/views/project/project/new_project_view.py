@@ -32,27 +32,29 @@ def handle_post(request, logged_in_user):
             start_date=start_date,
             end_date=new_project_data.get("end_date"),
             )
-        project_data.save()
         project = project_models.Project.objects.create(
             created_by=logged_in_user,
             created_on=timezone.now(),
             current=project_data,
             )
+        project_data.project = project
+        project_data.save()
 
         if new_project_data.get("label", None):
             project_label_name = new_project_data.pop("label")
-            project_label_data = project_models.ProjectLabelData(
+            project_label_data = project_models.ProjectLabelData.objects.create(
                 created_by_id=logged_in_user.id,
                 created_on=timezone.now(),
                 label=project_label_name,
                 )
-            project_label_data.save()
-            project_label = project_models.ProjectLabel(
+            project_label = project_models.ProjectLabel.objects.create(
                 created_by_id=logged_in_user.id,
                 created_on=timezone.now(),
                 current=project_label_data,
+                project=project
                 )
-            project_label.save()
+            project_label_data.project_label = project_label
+            project_label_data.save()
         else:
             project_label = None
 
@@ -64,7 +66,6 @@ def handle_post(request, logged_in_user):
                 project.git_repositories.add(repository)
 
         project.users.add(logged_in_user)
-        project.current.save()
         project.save()
         messages.success(request, ('Your project was successfully added!'))
     else:

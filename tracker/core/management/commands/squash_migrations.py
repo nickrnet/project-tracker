@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
+from core.util import timed_function
+
 
 class Command(BaseCommand):
     help = "Delete local app migration files and regenerate migrations."
@@ -46,7 +48,8 @@ class Command(BaseCommand):
                 pycache_file.unlink()
         pycache_dir.rmdir()
 
-    def handle(self, *args, **options):
+    @timed_function
+    def squash_migrations(self, *args, **options):
         dry_run = options["dry_run"]
 
         deleted_files = 0
@@ -90,3 +93,6 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE("Running makemigrations..."))
         call_command("makemigrations")
         self.stdout.write(self.style.SUCCESS("Done."))
+
+    def handle(self, *args, **options):
+        self.squash_migrations(args, options)

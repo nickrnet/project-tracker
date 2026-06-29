@@ -39,9 +39,18 @@ class TestProcessOrganizationInviteExpiration(TestCase):
             created_by_id=self.member1.id,
             current=self.project_data1,
             )
+        self.organization_data.organization = self.organization
+        self.organization_data.save()
         self.organization.members.add(self.member1)
         self.organization.projects.add(self.project1)
         self.organization.save()
+        self.project_data1.project = self.project1
+        self.project_data1.save()
+
+        self.organization_data.refresh_from_db()
+        self.organization.refresh_from_db()
+        self.project_data1.refresh_from_db()
+        self.project1.refresh_from_db()
 
     def test_process_organization_invite_expiration_does_not_expire_valid_invites(self):
         # create an invite for member2

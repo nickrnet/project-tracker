@@ -19,6 +19,7 @@ def handle_post(request, logged_in_user, version_id):
         version_data = version_models.VersionData.objects.create(
             created_by=logged_in_user,
             created_on=timezone.now(),
+            version=version,
             name=received_version_form.cleaned_data.get('name', ''),
             description=received_version_form.cleaned_data.get('description', ''),
             label=received_version_form.cleaned_data.get('label', ''),

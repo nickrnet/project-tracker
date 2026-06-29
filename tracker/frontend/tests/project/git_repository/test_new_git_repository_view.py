@@ -46,7 +46,8 @@ class TestNewGitRepositoryView(TestCase):
         response = self.http_client.post(reverse('new_git_repository'), form_data, url_encoding)
         git_repository = GitRepository.objects.first()
         messages = list(get_messages(response.wsgi_request))
-        self.assertRedirects(response, '/git_repository/' + str(git_repository.id) + '/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/git_repository/git_repositories_table.html')
         # Make sure the whole form came through to the database
         self.assertEqual(git_repository.current.name, 'Git Repository 1')
         self.assertEqual(git_repository.current.description, 'Initial Repo 1 Description')
@@ -58,8 +59,9 @@ class TestNewGitRepositoryView(TestCase):
         form_data = 'foo=1'
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('new_git_repository'), form_data, url_encoding)
-        self.assertRedirects(response, reverse('new_git_repository'))
         messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/git_repository/git_repositories_table.html')
         # Make sure the form did not update the database
         self.assertEqual(GitRepository.objects.count(), 0)
         self.assertIn('Error saving git repository.', str(messages))

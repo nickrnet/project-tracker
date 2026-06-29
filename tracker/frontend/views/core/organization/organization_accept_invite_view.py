@@ -7,8 +7,16 @@ from core.models import organization_invites as core_organization_invites_models
 
 def handle_post(request, logged_in_user, invite):
     if request.POST.get('response') == 'declined':
-        invite.current.status = 'DECLINED'
-        invite.current.save()
+        invite_data = core_organization_invites_models.OrganizationInviteData.objects.create(
+            created_by=logged_in_user,
+            organization=invite.current.organization,
+            organization_invite=invite,
+            invited_by=invite.current.invited_by,
+            email=invite.current.email,
+            status='DECLINED',
+        )
+        invite.current = invite_data
+        invite.save()
         messages.info(request, "You have declined the organization invite.")
         return redirect("projects")
     else:
@@ -16,8 +24,16 @@ def handle_post(request, logged_in_user, invite):
         if logged_in_user not in organization.members.all():
             organization.members.add(logged_in_user)
             organization.save()
-            invite.current.status = 'ACCEPTED'
-            invite.current.save()
+            invite_data = core_organization_invites_models.OrganizationInviteData.objects.create(
+                created_by=logged_in_user,
+                organization=invite.current.organization,
+                organization_invite=invite,
+                invited_by=invite.current.invited_by,
+                email=invite.current.email,
+                status='ACCEPTED',
+            )
+            invite.current = invite_data
+            invite.save()
             messages.success(request, f"You have successfully joined the organization {organization.current.name}!")
         else:
             messages.info(request, "You are already a member of this organization.")

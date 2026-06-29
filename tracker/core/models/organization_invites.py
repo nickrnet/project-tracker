@@ -22,9 +22,11 @@ class OrganizationInviteData(core_models.CoreModel):
         DECLINED = 'DECLINED', 'Declined'
         EXPIRED = 'EXPIRED', 'Expired'
 
-    email = models.EmailField(max_length=255)
-    invited_by = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE)
+    organization_invite = models.ForeignKey('OrganizationInvite', on_delete=models.CASCADE, blank=True, null=True)
     organization = models.ForeignKey('core.Organization', on_delete=models.CASCADE)
+    invited_by = models.ForeignKey('core.CoreUser', on_delete=models.CASCADE)
+
+    email = models.EmailField(max_length=255)
     status = models.CharField(max_length=255, choices=InviteStatusChoices.choices, default=InviteStatusChoices.PENDING)
     expires_on = models.DateTimeField(blank=True, null=True)
 
@@ -37,7 +39,7 @@ class OrganizationInvite(core_models.CoreModel):
     @param send_invite_email: A method to send the invite email to the user.
     """
 
-    current = models.ForeignKey(OrganizationInviteData, on_delete=models.CASCADE)
+    current = models.OneToOneField(OrganizationInviteData, on_delete=models.CASCADE)
 
     def send_invite_email(self, accept_organization_invite_url: str):
         """

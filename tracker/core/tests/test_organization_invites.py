@@ -36,9 +36,18 @@ class TestOrganizationInvites(TestCase):
             created_by_id=self.member1.id,
             current=self.project_data1,
             )
+        self.project_data1.project = self.project1
+        self.project_data1.save()
         self.organization.members.add(self.member1)
         self.organization.projects.add(self.project1)
         self.organization.save()
+        self.organization_data.organization = self.organization
+        self.organization_data.save()
+
+        self.organization.refresh_from_db()
+        self.organization_data.refresh_from_db()
+        self.project_data1.refresh_from_db()
+        self.project1.refresh_from_db()
 
     def test_send_invite_email(self):
         invite_data = OrganizationInviteData.objects.create(
@@ -57,6 +66,7 @@ class TestOrganizationInvites(TestCase):
             )
         self.organization.member_invites.add(invite)
         self.organization.save()
+        self.organization.refresh_from_db()
 
         accept_organization_invite_url = f"/accept_organization_invite/{invite.id}/"
         invite.send_invite_email(accept_organization_invite_url)

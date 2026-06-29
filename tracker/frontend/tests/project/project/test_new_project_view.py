@@ -41,6 +41,8 @@ class TestNewProjectView(TestCase):
             created_by_id=self.user1.id,
             current=self.organization1_data,
             )
+        self.organization1_data.organization = self.organization1
+        self.organization1_data.save()
         self.organization1.members.add(self.user1)
         self.organization1.save()
 
@@ -50,8 +52,9 @@ class TestNewProjectView(TestCase):
             description="Initial Repo 1 Description",
             url="https://github.com/example/repo1"
             )
-        self.git_repository1_data.save()
         self.git_repository1 = GitRepository.objects.create(created_by=self.user1, current=self.git_repository1_data)
+        self.git_repository1_data.git_repository = self.git_repository1
+        self.git_repository1_data.save()
 
         self.http_client = Client()
 
@@ -105,16 +108,12 @@ class TestNewProjectView(TestCase):
     def test_new_project_post_without_git_repository(self):
         url_encoding = 'application/x-www-form-urlencoded'
         start_date = timezone.now().strftime("%m/%d/%Y")
-        end_date = timezone.now().strftime("%m/%d/%Y")
         new_project_form_data = {
             'name': 'Test Project 1',
             'description': 'Test Project Description 1',
             'label': 'test-project-1',
             'is_active': True,
             'is_private': False,
-            # 'start_date': start_date,
-            # 'end_date': end_date,
-            # 'organization': str(self.organization1.id),  # TODO: BUG: This is not handled in the view
             }
         new_project_form = NewProjectForm(new_project_form_data)
         new_project_form.is_valid()
@@ -140,15 +139,11 @@ class TestNewProjectView(TestCase):
     def test_new_project_post_without_project_label(self):
         url_encoding = 'application/x-www-form-urlencoded'
         start_date = timezone.now().strftime("%m/%d/%Y")
-        end_date = timezone.now().strftime("%m/%d/%Y")
         new_project_form_data = {
             'name': 'Test Project 1',
             'description': 'Test Project Description 1',
             'is_active': True,
             'is_private': False,
-            # 'start_date': start_date,
-            # 'end_date': end_date,
-            # 'organization': str(self.organization1.id),  # TODO: BUG: This is not handled in the view
             }
         new_project_form = NewProjectForm(new_project_form_data)
         new_project_form.is_valid()

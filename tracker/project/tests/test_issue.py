@@ -21,6 +21,11 @@ class IssueActiveManagerTests(TestCase):
         User3 is in organization 3.
         """
 
+        BuiltInIssueType.objects.initialize_built_in_issue_types()
+        BuiltInIssuePriority.objects.initialize_built_in_issue_priorities()
+        BuiltInIssueStatus.objects.initialize_built_in_issue_statuses()
+        BuiltInIssueSeverity.objects.initialize_built_in_issue_severities()
+
         self.system_user = CoreUser.objects.get_or_create_system_user()
 
         self.user1 = CoreUser.objects.create_core_user_from_web(
@@ -30,7 +35,7 @@ class IssueActiveManagerTests(TestCase):
         self.user3 = CoreUser.objects.create_core_user_from_web(
             {'email': 'testuser3@project-tracker.dev', 'password': 'password'})
 
-        self.organization1_data = OrganizationData(
+        self.organization1_data = OrganizationData.objects.create(
             created_by_id=self.user1.id,
             name='Test Organization 1',
             address_line_1='123 Main St',
@@ -43,15 +48,15 @@ class IssueActiveManagerTests(TestCase):
             responsible_party_email=self.user1.current.email,
             responsible_party_phone=self.user1.current.work_phone,
             )
-        self.organization1_data.save()
-        self.organization1 = Organization(
+        self.organization1 = Organization.objects.create(
             created_by_id=self.user1.id,
             current=self.organization1_data,
             )
-        self.organization1.save()
+        self.organization1_data.organization = self.organization1
+        self.organization1_data.save()
         self.organization1.members.add(self.user1)
 
-        self.organization2_data = OrganizationData(
+        self.organization2_data = OrganizationData.objects.create(
             created_by_id=self.user2.id,
             name='Test Organization 2',
             address_line_1='123 Main St',
@@ -64,15 +69,15 @@ class IssueActiveManagerTests(TestCase):
             responsible_party_email=self.user2.current.email,
             responsible_party_phone=self.user2.current.work_phone,
             )
-        self.organization2_data.save()
-        self.organization2 = Organization(
+        self.organization2 = Organization.objects.create(
             created_by_id=self.user2.id,
             current=self.organization2_data,
             )
-        self.organization2.save()
+        self.organization2_data.organization = self.organization2
+        self.organization2_data.save()
         self.organization2.members.add(self.user1, self.user2)
 
-        self.organization3_data = OrganizationData(
+        self.organization3_data = OrganizationData.objects.create(
             created_by_id=self.user3.id,
             name='Test Organization 3',
             address_line_1='123 Main St',
@@ -85,12 +90,12 @@ class IssueActiveManagerTests(TestCase):
             responsible_party_email=self.user3.current.email,
             responsible_party_phone=self.user3.current.work_phone,
             )
-        self.organization3_data.save()
-        self.organization3 = Organization(
+        self.organization3 = Organization.objects.create(
             created_by_id=self.user3.id,
             current=self.organization3_data,
             )
-        self.organization3.save()
+        self.organization3_data.organization = self.organization3
+        self.organization3_data.save()
         self.organization3.members.add(self.user1, self.user3)
 
         self.git_repository1_data = GitRepositoryData.objects.create(
@@ -102,18 +107,9 @@ class IssueActiveManagerTests(TestCase):
         self.git_repository1_data.save()
         self.git_repository1 = GitRepository.objects.create(
             created_by=self.user1, current=self.git_repository1_data)
+        self.git_repository1_data.git_repository = self.git_repository1
+        self.git_repository1_data.save()
 
-        self.project1_data_label_data = ProjectLabelData(
-            created_by=self.user1,
-            label='project01',
-            description='Project 01 Label'
-        )
-        self.project1_data_label_data.save()
-        self.project1_data_label = ProjectLabel(
-            created_by=self.user1,
-            current=self.project1_data_label_data
-        )
-        self.project1_data_label.save()
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
             name="Initial Project 1",
@@ -121,10 +117,25 @@ class IssueActiveManagerTests(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data)
+        self.project1_data.project = self.project1
         self.project1_data.save()
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_data_label)
+        self.project1_label_data = ProjectLabelData.objects.create(
+            created_by=self.user1,
+            label='project01',
+            description='Project 01 Label'
+        )
+        self.project1_label = ProjectLabel.objects.create(
+            created_by=self.user1,
+            current=self.project1_label_data,
+            project=self.project1
+        )
+        self.project1_label_data.project_label = self.project1_label
+        self.project1_label_data.save()
+        self.project1.label = self.project1_label
         self.project1.git_repositories.add(self.git_repository1)
         self.project1.users.add(self.user1)
+        self.project1.save()
 
         self.project2_data = ProjectData.objects.create(
             created_by=self.user2,
@@ -133,8 +144,9 @@ class IssueActiveManagerTests(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project2_data.save()
         self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data)
+        self.project2_data.project = self.project2
+        self.project2_data.save()
         self.project2.users.add(self.user1, self.user2)
 
         self.project3_data = ProjectData.objects.create(
@@ -144,14 +156,27 @@ class IssueActiveManagerTests(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project3_data.save()
         self.project3 = Project.objects.create(created_by=self.system_user, current=self.project3_data)
+        self.project3_data.project = self.project3
+        self.project3_data.save()
         self.organization3.projects.add(self.project3.id)
 
-        BuiltInIssueType.objects.initialize_built_in_types()
-        BuiltInIssuePriority.objects.initialize_built_in_priorities()
-        BuiltInIssueStatus.objects.initialize_built_in_statuses()
-        BuiltInIssueSeverity.objects.initialize_built_in_severities()
+        self.organization1_data.refresh_from_db()
+        self.organization1.refresh_from_db()
+        self.organization2_data.refresh_from_db()
+        self.organization2.refresh_from_db()
+        self.organization3_data.refresh_from_db()
+        self.organization3.refresh_from_db()
+        self.git_repository1_data.refresh_from_db()
+        self.git_repository1.refresh_from_db()
+        self.project1_data.refresh_from_db()
+        self.project1.refresh_from_db()
+        self.project1_label.refresh_from_db()
+        self.project1_label_data.refresh_from_db()
+        self.project2_data.refresh_from_db()
+        self.project2.refresh_from_db()
+        self.project3_data.refresh_from_db()
+        self.project3.refresh_from_db()
 
     def test_list_built_in_types(self):
         built_in_types = Issue.objects.list_built_in_types()

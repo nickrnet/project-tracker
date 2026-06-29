@@ -10,49 +10,49 @@
         <div class="row">
             <div class="col-sm-1 text-center">
                 <h5 class="modal-title text-truncate">
-                    {% if issue.current.built_in_type and issue.current.built_in_type.type == "CHANGE_REQUEST" %}
-                    <i class="bi bi-alarm" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "PROBLEM" %}
-                    <i class="bi bi-exclamation-square" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "INCIDENT" %}
-                    <i class="bi bi-building-exclamation" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "SERVICE_REQUEST" %}
-                    <i class="bi bi-basket" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "TEST" %}
-                    <i class="bi bi-bookmark-check" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "IMPROVEMENT" %}
-                    <i class="bi bi-clipboard-data" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "ENHANCEMENT" %}
-                    <i class="bi bi-crosshair" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "QUESTION" %}
-                    <i class="bi bi-question-circle" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "PROPOSAL" %}
-                    <i class="bi bi-envelope-paper" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "SPIKE" %}
-                    <i class="bi bi-activity" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "SUBTASK" %}
-                    <i class="bi bi-check2-square" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "TASK" %}
-                    <i class="bi bi-check-square" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "FEATURE" %}
-                    <i class="bi bi-lightning-charge" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "STORY" %}
-                    <i class="bi bi-journal-text" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "EPIC" %}
-                    <i class="bi bi-collection" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "DOCUMENTATION" %}
-                    <i class="bi bi-file-text" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
-                    {% elif issue.current.built_in_type and issue.current.built_in_type.type == "BUG" %}
-                    <i class="bi bi-bug" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
+                    {% if issue.current.built_in_type and issue.current.built_in_type.current.type == "CHANGE_REQUEST" %}
+                    <i class="bi bi-alarm" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "PROBLEM" %}
+                    <i class="bi bi-exclamation-square" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "INCIDENT" %}
+                    <i class="bi bi-building-exclamation" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "SERVICE_REQUEST" %}
+                    <i class="bi bi-basket" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "TEST" %}
+                    <i class="bi bi-bookmark-check" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "IMPROVEMENT" %}
+                    <i class="bi bi-clipboard-data" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "ENHANCEMENT" %}
+                    <i class="bi bi-crosshair" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "QUESTION" %}
+                    <i class="bi bi-question-circle" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "PROPOSAL" %}
+                    <i class="bi bi-envelope-paper" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "SPIKE" %}
+                    <i class="bi bi-activity" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "SUBTASK" %}
+                    <i class="bi bi-check2-square" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "TASK" %}
+                    <i class="bi bi-check-square" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "FEATURE" %}
+                    <i class="bi bi-lightning-charge" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "STORY" %}
+                    <i class="bi bi-journal-text" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "EPIC" %}
+                    <i class="bi bi-collection" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "DOCUMENTATION" %}
+                    <i class="bi bi-file-text" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
+                    {% elif issue.current.built_in_type and issue.current.built_in_type.current.type == "BUG" %}
+                    <i class="bi bi-bug" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
                     {% else %}
-                    <i class="bi bi-question-octagon" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}"></i>
+                    <i class="bi bi-question-octagon" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}"></i>
                     {% endif %}
                 </h5>
             </div>
             <div class="col-sm overflow-hidden">
                 <h5 class="modal-title text-truncate">
                     {% if issue.current.built_in_status %}
-                    <p data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_status.description|safe }}">{{ issue.current.built_in_status.description|safe }}</p>
+                    <p data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_status.current.description|safe }}">{{ issue.current.built_in_status.current.description|safe }}</p>
                     {% endif %}
                 </h5>
             </div>

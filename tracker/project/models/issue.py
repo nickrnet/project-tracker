@@ -11,7 +11,23 @@ from . import project as project_models
 
 
 class IssueData(core_models.CoreModel):
+    """
+    Data about an issue.
+
+    Parameters:
+        issue (Issue): The issue this data is about.
+        summary (str): The summary of the issue.
+        description (str): A description of the issue.
+        project (Project): The project the issue belongs to.
+        reporter (CoreUser): The user who reported the issue.
+        assignee (CoreUser): The user assigned to the issue.
+        watchers (list of CoreUser): The users watching the issue.
+        built_in_issue_type (BuiltInIssueType):
+    """
+
     # TODO: Make a create override function to validate the reporter and created_by are project members
+
+    issue = models.ForeignKey('Issue', on_delete=models.CASCADE, blank=True, null=True)
 
     summary = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True, default="")
@@ -30,8 +46,8 @@ class IssueData(core_models.CoreModel):
     custom_severity = models.ForeignKey(severity_models.CustomIssueSeverity, on_delete=models.CASCADE, blank=True, null=True)
     custom_status = models.ForeignKey(status_models.CustomIssueStatus, on_delete=models.CASCADE, blank=True, null=True)
     # TODO: Should these be ManyToManyFields?
-    component = models.ForeignKey(component_models.Component, on_delete=models.CASCADE, blank=True, null=True)
-    version = models.ForeignKey(version_models.Version, on_delete=models.CASCADE, blank=True, null=True)
+    component = models.ManyToManyField(to=component_models.Component, blank=True)
+    version = models.ManyToManyField(to=version_models.Version, blank=True)
     # TODO: attachments, other things a bug/story/epic/test needs
 
 
@@ -111,7 +127,7 @@ class IssueObjectManager(models.Manager):
 
 class IssueActiveManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().select_related('current', 'project', 'current__built_in_type', 'current__built_in_priority', 'current__built_in_status', 'current__built_in_severity', 'current__reporter', 'current__assignee', 'current__component', 'current__version').filter(deleted=None).order_by('-created_on')
+        return super().get_queryset().select_related('current', 'project', 'current__built_in_type', 'current__built_in_priority', 'current__built_in_status', 'current__built_in_severity', 'current__reporter', 'current__assignee').filter(deleted=None).order_by('-created_on')
 
     def list_built_in_types(self):
         """
@@ -181,13 +197,21 @@ class IssueActiveManager(models.Manager):
 
 
 class Issue(core_models.Sequenced):
+    """
+    An issue.
+
+    Parameters:
+        current (IssueData): The current data for this issue.
+        project (Project): The project this issue is associated with.
+    """
+
     class Meta:
         ordering = ['-created_on']
 
     active_objects = IssueActiveManager()
     objects = IssueObjectManager()
 
-    current = models.ForeignKey(IssueData, on_delete=models.CASCADE)
+    current = models.OneToOneField(IssueData, on_delete=models.CASCADE, related_name='current')
     project = models.ForeignKey(project_models.Project, on_delete=models.CASCADE)
 
     # TODO: Links to other issues

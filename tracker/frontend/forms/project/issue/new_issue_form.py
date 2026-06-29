@@ -12,5 +12,3 @@ class NewIssueForm(forms.Form):
     built_in_priority = forms.UUIDField(required=False)
     built_in_status = forms.UUIDField(required=False)
     built_in_severity = forms.UUIDField(required=False)
-    version = forms.UUIDField(required=False)
-    component = forms.UUIDField(required=False)

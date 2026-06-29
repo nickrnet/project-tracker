@@ -22,7 +22,6 @@ class TestProjectSettingsUserSelectView(TestCase):
             label='project01',
             description='Project 01 Label'
             )
-        self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data)
 
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
@@ -32,7 +31,11 @@ class TestProjectSettingsUserSelectView(TestCase):
             is_active=True,
             is_private=False
             )
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_label)
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data)
+        self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data, project=self.project1)
+        self.project1_label_data.project_label = self.project1_label
+        self.project1_label_data.save()
+        self.project1.label = self.project1_label
         self.project1.users.add(self.user1)
         self.project1.users.add(self.user2)
         self.project1.save()

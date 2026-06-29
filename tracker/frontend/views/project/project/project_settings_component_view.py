@@ -18,6 +18,7 @@ def handle_post(request, logged_in_user, project, component):
         component_data = component_models.ComponentData.objects.create(
             created_by=logged_in_user,
             created_on=timezone.now(),
+            component=component,
             name=received_component_form.cleaned_data.get('name', ''),
             description=received_component_form.cleaned_data.get('description', ''),
             label=received_component_form.cleaned_data.get('label', ''),

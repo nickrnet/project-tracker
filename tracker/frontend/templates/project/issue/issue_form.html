@@ -50,9 +50,9 @@
             <option value="">-----</option>
             {% for type in issue_types %}
             {% if issue.current.built_in_type and issue.current.built_in_type.id|stringformat:"s" == type.id|stringformat:"s" %}
-            <option value="{{ type.id|stringformat:"s" }}" selected>{{ type.description|safe }}</option>
+            <option value="{{ type.id|stringformat:"s" }}" selected>{{ type.current.description|safe }}</option>
             {% else %}
-            <option value="{{ type.id|stringformat:"s" }}">{{ type.description|safe }}</option>
+            <option value="{{ type.id|stringformat:"s" }}">{{ type.current.description|safe }}</option>
             {% endif %}
             {% endfor %}
         </select>
@@ -63,9 +63,9 @@
             <option value="">-----</option>
             {% for priority in issue_priorities %}
             {% if issue.current.built_in_priority and issue.current.built_in_priority.id|stringformat:"s" == priority.id|stringformat:"s" %}
-            <option value="{{ priority.id|stringformat:"s" }}" selected>{{ priority.description|safe }}</option>
+            <option value="{{ priority.id|stringformat:"s" }}" selected>{{ priority.current.description|safe }}</option>
             {% else %}
-            <option value="{{ priority.id|stringformat:"s" }}">{{ priority.description|safe }}</option>
+            <option value="{{ priority.id|stringformat:"s" }}">{{ priority.current.description|safe }}</option>
             {% endif %}
             {% endfor %}
         </select>
@@ -76,9 +76,9 @@
             <option value="">-----</option>
             {% for severity in issue_severities %}
             {% if issue.current.built_in_severity and issue.current.built_in_severity.id|stringformat:"s" == severity.id|stringformat:"s" %}
-            <option value="{{ severity.id|stringformat:"s" }}" selected>{{ severity.description|safe }}</option>
+            <option value="{{ severity.id|stringformat:"s" }}" selected>{{ severity.current.description|safe }}</option>
             {% else %}
-            <option value="{{ severity.id|stringformat:"s" }}">{{ severity.description|safe }}</option>
+            <option value="{{ severity.id|stringformat:"s" }}">{{ severity.current.description|safe }}</option>
             {% endif %}
             {% endfor %}
         </select>
@@ -89,9 +89,9 @@
             <option value="">-----</option>
             {% for status in issue_statuses %}
             {% if issue.current.built_in_status and issue.current.built_in_status.id|stringformat:"s" == status.id|stringformat:"s" %}
-            <option value="{{ status.id|stringformat:"s" }}" selected>{{ status.description|safe }}</option>
+            <option value="{{ status.id|stringformat:"s" }}" selected>{{ status.current.description|safe }}</option>
             {% else %}
-            <option value="{{ status.id|stringformat:"s" }}">{{ status.description|safe }}</option>
+            <option value="{{ status.id|stringformat:"s" }}">{{ status.current.description|safe }}</option>
             {% endif %}
             {% endfor %}
         </select>

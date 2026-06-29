@@ -37,6 +37,8 @@ class OrganizationData(core_models.CoreModel):
     class Meta:
         ordering = ['-created_on', 'name']
 
+    organization = models.ForeignKey('Organization', on_delete=models.CASCADE, blank=True, null=True)
+
     name = models.CharField(max_length=255)
     description = models.TextField(max_length=255, blank=True, null=True, default="")
     responsible_party_email = models.EmailField(max_length=255)
@@ -79,7 +81,7 @@ class Organization(core_models.CoreModel):
 
     active_objects = OrganizationActiveManager()
 
-    current = models.ForeignKey(OrganizationData, on_delete=models.CASCADE)
+    current = models.OneToOneField(OrganizationData, on_delete=models.CASCADE, related_name='organization_dataset')
 
     # TODO: Activity Tracking for tracking changes to these things
     subscription = models.ForeignKey(subscription_organization_models.OrganizationSubscription, on_delete=models.SET_NULL, blank=True, null=True)
@@ -105,6 +107,7 @@ class Organization(core_models.CoreModel):
             current_organization_data.update(new_organization_data)
             current_organization_data['created_by_id'] = user_id
             current_organization_data['created_on'] = timezone.now()
+            current_organization_data['organization'] = self
             new_organization_data = OrganizationData.objects.create(**current_organization_data)
             new_organization_data.save()
             self.current = new_organization_data

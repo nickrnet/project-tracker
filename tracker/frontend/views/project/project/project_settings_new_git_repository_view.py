@@ -27,6 +27,8 @@ def handle_post(request, logged_in_user, project):
             created_on=timezone.now(),
             current=git_repository_data
             )
+        git_repository_data.git_repository = git_repository
+        git_repository_data.save()
 
         project.git_repositories.add(git_repository)
 

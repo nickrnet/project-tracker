@@ -170,3 +170,6 @@ cython_debug/
 
 # Mac things
 .DS_Store
+
+# Continue Extension
+.continue

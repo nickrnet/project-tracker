@@ -15,6 +15,7 @@ from project.models import project as project_models
 def handle_post(request, logged_in_user: core_user_models.CoreUser, project_id: str, project: project_models.Project):
     received_project_data_form = project_form.ProjectDataForm(request.POST, request.FILES)
     if received_project_data_form.is_valid():
+        project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         project_data_form = received_project_data_form.cleaned_data.copy()
         project_label = project_data_form.pop("label")
 
@@ -28,7 +29,10 @@ def handle_post(request, logged_in_user: core_user_models.CoreUser, project_id: 
                 created_by=logged_in_user,
                 created_on=timezone.now(),
                 current=new_project_label_data,
+                project=project
                 )
+            new_project_label_data.project_label = new_project_label
+            new_project_label_data.save()
             project.label = new_project_label
             # If the project label changed, and it was in the url used to get here, we need to alter the url to give back to the user
             try:

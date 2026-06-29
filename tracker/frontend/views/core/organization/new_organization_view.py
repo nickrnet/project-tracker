@@ -3,7 +3,6 @@ from importlib import resources
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.utils import timezone
 
 from frontend.forms.core.organization import new_organization_form as new_organization_form
 from core.models import organization as core_organization_models
@@ -18,14 +17,13 @@ def handle_post(request, logged_in_user):
 
         organization_data = core_organization_models.OrganizationData(**organization_form_data)
         organization_data.created_by = logged_in_user
-        organization_data.created_on = timezone.now()
         organization_data.save()
 
         organization = core_organization_models.Organization.objects.create(created_by=logged_in_user, current=organization_data)
-        organization.created_on = timezone.now()
-        organization.save()
         organization.members.add(logged_in_user)
         organization.save()
+        organization_data.organization = organization
+        organization_data.save()
 
         messages.success(request, ('Your organization was successfully added!'))
         return redirect("organization", organization_id=organization.id)

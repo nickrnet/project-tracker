@@ -30,14 +30,14 @@ class TestProjectSettingsView(TestCase):
             )
         self.git_repository1_data.save()
         self.git_repository1 = GitRepository.objects.create(created_by=self.user1, current=self.git_repository1_data)
+        self.git_repository1_data.git_repository = self.git_repository1
+        self.git_repository1_data.save()
 
         self.project1_label_data = ProjectLabelData.objects.create(
             created_by=self.user1,
             label='project01',
             description='Project 01 Label'
             )
-        self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data)
-
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
             name="Initial Project 1",
@@ -46,10 +46,22 @@ class TestProjectSettingsView(TestCase):
             is_active=True,
             is_private=False
             )
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_label)
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data)
+        self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data, project=self.project1)
+        self.project1_label.save()
+        self.project1_data.project = self.project1
+        self.project1_data.save()
+        self.project1.label = self.project1_label
         self.project1.git_repositories.add(self.git_repository1)
         self.project1.users.add(self.user1)
         self.project1.save()
+
+        self.git_repository1_data.refresh_from_db()
+        self.git_repository1.refresh_from_db()
+        self.project1_label_data.refresh_from_db()
+        self.project1_label.refresh_from_db()
+        self.project1_data.refresh_from_db()
+        self.project1.refresh_from_db()
 
         self.http_client = Client()
 

@@ -36,6 +36,8 @@ class CoreUserData(core_models.CoreModel):
         timezone (str): The user's timezone.
     """
 
+    core_user = models.ForeignKey('CoreUser', on_delete=models.CASCADE, blank=True, null=True)
+
     name_prefix = models.CharField(max_length=255, blank=True, null=True, default="")
     first_name = models.CharField(max_length=255, blank=True, null=True, default="")
     middle_name = models.CharField(max_length=255, blank=True, null=True, default="")
@@ -81,12 +83,7 @@ class CoreUserManager(core_models.CoreModelManager):
             api_user = CoreUser.objects.get(pk='75af4764-0f94-49f2-a6dc-3dbfe1b577f9')
         except CoreUser.DoesNotExist:
             with transaction.atomic():
-                api_user = CoreUser(
-                    id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
-                    created_by_id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
-                    )
-                api_user.save()
-                api_user_data = CoreUserData(
+                api_user_data = CoreUserData.objects.create(
                     id='373f414f-9692-4e5c-92f2-5781dbad5c04',
                     created_by_id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
                     first_name='API',
@@ -97,9 +94,13 @@ class CoreUserManager(core_models.CoreModelManager):
                     state='',
                     country='',
                     )
+                api_user = CoreUser.objects.create(
+                    id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
+                    created_by_id='75af4764-0f94-49f2-a6dc-3dbfe1b577f9',
+                    current=api_user_data
+                    )
+                api_user_data.core_user = api_user
                 api_user_data.save()
-                api_user.current = api_user_data
-                api_user.save()
 
         return api_user
 
@@ -115,12 +116,7 @@ class CoreUserManager(core_models.CoreModelManager):
             system_user = CoreUser.objects.get(pk='45407f07-21e9-42ba-8c39-03b57767fe76')
         except CoreUser.DoesNotExist:
             with transaction.atomic():
-                system_user = CoreUser(
-                    id='45407f07-21e9-42ba-8c39-03b57767fe76',
-                    created_by_id='45407f07-21e9-42ba-8c39-03b57767fe76',
-                    )
-                system_user.save()
-                system_user_data = CoreUserData(
+                system_user_data = CoreUserData.objects.create(
                     id='02e94188-5b8e-494a-922c-bc6ed2ffcfc4',
                     created_by_id='45407f07-21e9-42ba-8c39-03b57767fe76',
                     first_name='SYSTEM',
@@ -131,9 +127,13 @@ class CoreUserManager(core_models.CoreModelManager):
                     state='',
                     country='',
                     )
+                system_user = CoreUser.objects.create(
+                    id='45407f07-21e9-42ba-8c39-03b57767fe76',
+                    created_by_id='45407f07-21e9-42ba-8c39-03b57767fe76',
+                    current=system_user_data
+                    )
+                system_user_data.core_user = system_user
                 system_user_data.save()
-                system_user.current = system_user_data
-                system_user.save()
 
         return system_user
 
@@ -157,7 +157,7 @@ class CoreUserManager(core_models.CoreModelManager):
                 password=request_data.get('password')
                 )
 
-            core_user_data = CoreUserData(
+            core_user_data = CoreUserData.objects.create(
                 created_by_id=api_user.id,
                 name_prefix=request_data.get('name_prefix', ''),
                 first_name=request_data.get('first_name', ''),
@@ -177,14 +177,13 @@ class CoreUserManager(core_models.CoreModelManager):
                 country=request_data.get('country', ''),
                 timezone=request_data.get('timezone', ''),
                 )
-            core_user_data.save()
-
-            new_user = CoreUser(
+            new_user = CoreUser.objects.create(
                 created_by_id=api_user.id,
                 current=core_user_data,
                 user=django_user
                 )
-            new_user.save()
+            core_user_data.core_user = new_user
+            core_user_data.save()
 
             return new_user
 
@@ -206,9 +205,9 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
     active_objects = CoreUserActiveManager()
     objects = CoreUserManager()
 
-    current = models.ForeignKey(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
+    current = models.OneToOneField(CoreUserData, on_delete=models.CASCADE, blank=True, null=True)
 
-    subscription = models.ForeignKey('subscription.IndividualSubscription', on_delete=models.SET_NULL, blank=True, null=True)
+    subscription = models.OneToOneField('subscription.IndividualSubscription', on_delete=models.SET_NULL, blank=True, null=True)
     user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, blank=True, null=True, related_name='django_user')
 
     def deactivate_login(self) -> None:
@@ -260,15 +259,16 @@ class CoreUser(core_models.CoreModel, core_models.CoreModelActiveManager, core_m
         trial_subscription_type = IndividualSubscriptionType.objects.get(current__name='Trial')
         subscription_data = IndividualSubscriptionData.objects.create(
             created_by_id=api_user.id,
-            subscription_type=trial_subscription_type,
+            core_user=self,
+            individual_subscription_type=trial_subscription_type,
             expired=False,
             )
         subscription = IndividualSubscription.objects.create(
             created_by_id=self.id,
-            individual=self,
             current=subscription_data,
             )
-        subscription.save()
+        subscription_data.individual_subscription = subscription
+        subscription_data.save()
         subscription.set_expiration_date(user_id=self.id, subscription_type=trial_subscription_type)
         self.subscription = subscription
         self.save()

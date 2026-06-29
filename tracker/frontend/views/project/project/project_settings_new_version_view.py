@@ -24,12 +24,14 @@ def handle_post(request, logged_in_user, project):
             release_date=received_new_version_form.cleaned_data.get('release_date', ''),
             is_active=received_new_version_form.cleaned_data.get('is_active', True)
             )
-        version_models.Version.objects.create(
+        version = version_models.Version.objects.create(
             created_by=logged_in_user,
             created_on=timezone.now(),
             current=version_data,
             project=project
             )
+        version_data.version = version
+        version_data.save()
         messages.success(request, ('Your version was successfully added!'))
     else:
         messages.error(request, 'Invalid data received. Please try again.')

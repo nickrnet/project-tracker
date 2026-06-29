@@ -1,3 +1,4 @@
+from django.contrib.messages import get_messages
 from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
@@ -20,22 +21,21 @@ class TestProjectIssueView(TestCase):
 
         self.system_user = CoreUser.objects.get_or_create_system_user()
         self.user1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
-        BuiltInIssueType.objects.initialize_built_in_types()
-        BuiltInIssuePriority.objects.initialize_built_in_priorities()
-        BuiltInIssueStatus.objects.initialize_built_in_statuses()
-        BuiltInIssueSeverity.objects.initialize_built_in_severities()
+        BuiltInIssueType.objects.initialize_built_in_issue_types()
+        BuiltInIssuePriority.objects.initialize_built_in_issue_priorities()
+        BuiltInIssueStatus.objects.initialize_built_in_issue_statuses()
+        BuiltInIssueSeverity.objects.initialize_built_in_issue_severities()
 
-        self.issue_type_bug = BuiltInIssueType.objects.get(type='BUG')
-        self.issue_type_priority = BuiltInIssuePriority.objects.get(name='LOW')
-        self.issue_type_status = BuiltInIssueStatus.objects.get(name='TRIAGE')
-        self.issue_type_severity = BuiltInIssueSeverity.objects.get(name='MINOR')
+        self.issue_type_bug = BuiltInIssueType.objects.get(current__type='BUG')
+        self.issue_type_priority = BuiltInIssuePriority.objects.get(current__name='LOW')
+        self.issue_type_status = BuiltInIssueStatus.objects.get(current__name='TRIAGE')
+        self.issue_type_severity = BuiltInIssueSeverity.objects.get(current__name='MINOR')
 
         self.project1_label_data = ProjectLabelData.objects.create(
             created_by=self.user1,
             label='project01',
             description='Project 01 Label'
             )
-        self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data)
 
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
@@ -44,10 +44,14 @@ class TestProjectIssueView(TestCase):
             start_date=timezone.now(),
             is_active=True
             )
-        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data, label=self.project1_label)
+        self.project1 = Project.objects.create(created_by=self.user1, current=self.project1_data)
+        self.project1_label = ProjectLabel.objects.create(created_by=self.user1, current=self.project1_label_data, project=self.project1)
+        self.project1_label_data.project_label = self.project1_label
+        self.project1_label_data.save()
+        self.project1.label = self.project1_label
         self.project1.users.add(self.user1)
         self.project1.save()
-        self.issue_data1 = IssueData.objects.create(
+        self.issue1_data = IssueData.objects.create(
             created_by=self.user1,
             reporter=self.user1,
             summary="Issue 1",
@@ -67,9 +71,11 @@ class TestProjectIssueView(TestCase):
         self.issue1 = Issue.objects.create(
             created_by=self.user1,
             sequence=1,
-            current=self.issue_data1,
+            current=self.issue1_data,
             project=self.project1
             )
+        self.issue1_data.issue = self.issue1
+        self.issue1_data.save()
 
         self.http_client = Client()
 
@@ -98,15 +104,15 @@ class TestProjectIssueView(TestCase):
                 'built_in_priority': str(self.issue_type_priority.id),
                 'built_in_status': str(self.issue_type_status.id),
                 'built_in_severity': str(self.issue_type_severity.id),
-                'version': '',
-                'component': '',
                 }
             )
+        messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/issues_table.html')
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
         self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
+        self.assertIn('Issue updated!', str(messages))
 
     def test_issue_view_post_with_bad_form(self):
         self.http_client.force_login(user=self.user1.user)
@@ -121,15 +127,15 @@ class TestProjectIssueView(TestCase):
                 'built_in_priority': str(self.issue_type_priority.id),
                 'built_in_status': str(self.issue_type_status.id),
                 'built_in_severity': str(self.issue_type_severity.id),
-                'version': '',
-                'component': '',
                 }
             )
+        messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/issues_table.html')
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+        self.assertIn('Error saving issue.', str(messages))
 
     def test_issue_view_post_with_project_that_does_not_exist(self):
         self.http_client.force_login(user=self.user1.user)
@@ -145,12 +151,12 @@ class TestProjectIssueView(TestCase):
                 'built_in_priority': str(self.issue_type_priority.id),
                 'built_in_status': str(self.issue_type_status.id),
                 'built_in_severity': str(self.issue_type_severity.id),
-                'version': '',
-                'component': '',
                 }
             )
+        messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
