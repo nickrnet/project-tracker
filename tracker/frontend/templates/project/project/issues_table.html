@@ -40,10 +40,10 @@
                 <th class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}" scope="row">{{ project.label.current.label|safe|upper }}-{{ issue.sequence|stringformat:"s" }}</th>
                 <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.summary|safe }}">{{ issue.current.summary|safe }}</th>
                 <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.description|safe }}">{{ issue.current.description|safe }}</td>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.description|safe }}">{{ issue.current.built_in_type.description|safe }}</td>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_priority.description|safe }}">{{ issue.current.built_in_priority.description|safe }}</td>
-                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_severity.description|safe }}">{{ issue.current.built_in_severity.description|safe }}</td>
-                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_status.description|safe }}">{{ issue.current.built_in_status.description|safe }}</td>
+                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_type.current.description|safe }}">{{ issue.current.built_in_type.current.description|safe }}</td>
+                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_priority.current.description|safe }}">{{ issue.current.built_in_priority.current.description|safe }}</td>
+                <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_severity.current.description|safe }}">{{ issue.current.built_in_severity.current.description|safe }}</td>
+                <td class="text-truncate" style="max-width: 75px;" data-bs-toggle="tooltip" data-bs-title="{{ issue.current.built_in_status.current.description|safe }}">{{ issue.current.built_in_status.current.description|safe }}</td>
                 {% if logged_in_user.current.timezone %}
                 <td class="text-truncate" data-bs-toggle="tooltip" data-bs-title="{{ issue.created_on|timezone:logged_in_user.current.timezone }}">{{ issue.created_on|timezone:logged_in_user.current.timezone }}</td>
                 {% else %}
