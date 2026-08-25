@@ -104,7 +104,7 @@ class TestNewIssueView(TestCase):
     def test_new_issue_view_redirects_when_not_logged_in(self):
         response = self.http_client.get(reverse('new_project_issue', kwargs={'project_id': str(self.project1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/project/new_issue/' + str(self.project1.id) + '/')
+        self.assertRedirects(response, '/login?next=/project/' + str(self.project1.id) + '/new_issue/')
 
     def test_new_issue_view_get(self):
         self.http_client.force_login(user=self.user1.user)
@@ -123,7 +123,7 @@ class TestNewIssueView(TestCase):
         response = self.http_client.get(reverse('new_project_issue', kwargs={'project_id': 'this_project_does_not_exist'}))
         messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, reverse('projects'))
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
 
     def test_new_issue_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -163,6 +163,32 @@ class TestNewIssueView(TestCase):
         self.assertIn(self.version1, issue.current.version.all())
         self.assertIn(self.component1, issue.current.component.all())
         self.assertIn('Your issue was successfully added!', str(messages))
+
+    def test_new_issue_view_post_with_project_label_that_does_not_exist(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        new_issue_form_data = {
+            'summary': 'Issue Summary 1',
+            'description': 'Issue Description 1',
+            'project': str(self.project1.id),
+            'reporter': str(self.user1.id),
+            'assignee': str(self.user1.id),
+            'watchers': '',
+            'built_in_type': str(self.issue_type_bug.id),
+            'built_in_priority': str(self.issue_priority_low.id),
+            'built_in_status': str(self.issue_status_triage.id),
+            'built_in_severity': str(self.issue_severity_minor.id),
+            'version': self.version1.id,
+            'component': str(self.component1.id)
+            }
+        new_issue_form = NewIssueForm(new_issue_form_data)
+        new_issue_form.is_valid()
+        form_data = urlencode(new_issue_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('new_project_issue', kwargs={'project_id': '05cd8c38-adee-4670-995f-82eceaf3865b'}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
 
     def test_new_issue_post_with_bad_component(self):
         url_encoding = 'application/x-www-form-urlencoded'

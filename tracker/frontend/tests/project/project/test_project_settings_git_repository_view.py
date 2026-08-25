@@ -57,19 +57,19 @@ class TestProjectSettingsGitRepositoryView(TestCase):
         self.http_client = Client()
 
     def test_project_settings_git_repository_view_redirects_when_not_logged_in(self):
-        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}))
+        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'project_id': str(self.project1.id), 'git_repository_id': str(self.git_repository1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/project-settings/git-repository/' + str(self.git_repository1.id) + '/')
+        self.assertRedirects(response, '/login?next=/project/' + str(self.project1.id) + '/project-settings/git-repository/' + str(self.git_repository1.id) + '/')
 
     def test_project_settings_git_repository_view_get(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}))
+        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'project_id': str(self.project1.id), 'git_repository_id': str(self.git_repository1.id)}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_git_repository_modal.html')
 
     def test_project_settings_git_repository_view_get_user_cannot_access_git_repository(self):
         self.http_client.force_login(user=self.user2.user)
-        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}))
+        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'project_id': str(self.project1.id), 'git_repository_id': str(self.git_repository1.id)}))
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
@@ -79,7 +79,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
         self.project1.users.remove(self.user1)
         self.project1.save()
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}))
+        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'project_id': str(self.project1.id), 'git_repository_id': str(self.git_repository1.id)}))
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
@@ -96,7 +96,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
         git_repository_form.is_valid()
         form_data = urlencode(git_repository_form.data)
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}), form_data, url_encoding)
+        response = self.http_client.post(reverse('project_settings_git_repository', kwargs={'project_id': str(self.project1.id), 'git_repository_id': str(self.git_repository1.id)}), form_data, url_encoding)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_modal.html')
         messages = list(get_messages(response.wsgi_request))
@@ -120,7 +120,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
         git_repository_form.is_valid()
         form_data = urlencode(git_repository_form.data)
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}), form_data, url_encoding)
+        response = self.http_client.post(reverse('project_settings_git_repository', kwargs={'project_id': str(self.project1.id), 'git_repository_id': str(self.git_repository1.id)}), form_data, url_encoding)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_modal.html')
         messages = list(get_messages(response.wsgi_request))
@@ -135,7 +135,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
         url_encoding = 'application/x-www-form-urlencoded'
         form_data = 'foo=1'
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}), form_data, url_encoding)
+        response = self.http_client.post(reverse('project_settings_git_repository', kwargs={'project_id': str(self.project1.id), 'git_repository_id': str(self.git_repository1.id)}), form_data, url_encoding)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_modal.html')
         messages = list(get_messages(response.wsgi_request))
@@ -150,7 +150,7 @@ class TestProjectSettingsGitRepositoryView(TestCase):
         self.http_client.force_login(user=self.user1.user)
         self.git_repository1.current.url = "aaa:/b}}}"
         self.git_repository1.current.save()
-        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'git_repository_id': str(self.git_repository1.id)}))
+        response = self.http_client.get(reverse('project_settings_git_repository', kwargs={'project_id': str(self.project1.id), 'git_repository_id': str(self.git_repository1.id)}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_git_repository_modal.html')
         self.assertFalse(response.context.get('valid_url'))

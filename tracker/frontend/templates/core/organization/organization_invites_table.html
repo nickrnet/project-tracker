@@ -27,7 +27,7 @@
                 <td style="vertical-align: middle;"><a href="{% url 'user' invite.current.invited_by.id %}">{{ invite.current.invited_by.current.last_name|safe }}, {{ invite.current.invited_by.current.first_name|safe }}</a></td>
                 <td style="vertical-align: middle;">
                     <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" class="form-control" readonly id="invite-link-{{ invite.id }}" value="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'accept_organization_invite' invite.id %}" onclick="copyToClipboard('invite-link-{{ invite.id }}')">
+                        <input type="text" class="form-control" readonly id="invite-link-{{ invite.id }}" value="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'accept_organization_invite' organization.id invite.id %}" onclick="copyToClipboard('invite-link-{{ invite.id }}')">
                         <button class="btn primary" onclick="copyToClipboard('invite-link-{{ invite.id }}')">
                             <i class="bi bi-clipboard-plus" data-bs-toggle="tooltip" data-bs-title="Copy to clipboard"></i>
                         </button>

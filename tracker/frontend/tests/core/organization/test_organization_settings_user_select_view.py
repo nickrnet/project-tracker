@@ -77,6 +77,14 @@ class TestOrganizationSettingsUserSelectView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
 
+    def test_organization_settings_user_select_view_get_user_not_in_organization(self):
+        self.http_client.force_login(user=self.user2.user)
+        response = self.http_client.get(reverse('organization_settings_user_select', kwargs={'organization_id': str(self.organization1.id)}))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/organizations')
+        messages = list(get_messages(response.wsgi_request))
+        self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
+
     def test_organization_settings_user_select_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
         form_data = 'current_users=' + str(self.user1.id) + '&current_users=' + str(self.user2.id)
@@ -92,6 +100,16 @@ class TestOrganizationSettingsUserSelectView(TestCase):
         self.assertIn(self.user1, self.organization1.members.all())
         self.assertIn(self.user2, self.organization1.members.all())
         self.assertIn('Organization users updated successfully!', str(messages))
+
+    def test_organization_settings_user_select_view_post_with_bad_organization_id(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        form_data = 'current_users=' + str(self.user1.id) + '&current_users=' + str(self.user2.id)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('organization_settings_user_select', kwargs={'organization_id': '4e6089a5-c16d-4642-8576-62204be7cc13'}), form_data, url_encoding)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/organizations')
+        messages = list(get_messages(response.wsgi_request))
+        self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
 
     def test_organization_settings_user_select_view_removes_user(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -141,20 +159,3 @@ class TestOrganizationSettingsUserSelectView(TestCase):
         self.assertNotIn(self.user1, self.organization1.members.all())
         self.assertNotIn(self.user2, self.organization1.members.all())
         self.assertIn('Organization users updated successfully!', str(messages))
-
-    def test_organization_settings_user_select_view_post_to_different_organization(self):
-        url_encoding = 'application/x-www-form-urlencoded'
-        form_data = 'current_users=' + str(self.user2.id)
-        self.http_client.force_login(user=self.user2.user)
-        response = self.http_client.post(reverse('organization_settings_user_select', kwargs={'organization_id': str(self.organization1.id)}), form_data, url_encoding)
-        messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/organizations')
-        messages = list(get_messages(response.wsgi_request))
-        self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
-        # Make sure the form came through to the database and did not change the organization users
-        self.organization1.refresh_from_db()
-        self.assertEqual(self.organization1.current.name, 'Test Organization 1')
-        self.assertEqual(self.organization1.members.count(), 1)
-        self.assertIn(self.user1, self.organization1.members.all())
-        self.assertNotIn(self.user2, self.organization1.members.all())

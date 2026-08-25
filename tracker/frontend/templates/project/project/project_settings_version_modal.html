@@ -23,7 +23,7 @@
             class="version-form"
             id="version-form"
             novalidate
-            hx-post="{% url 'project_settings_version' version_id %}"
+            hx-post="{% url 'project_settings_version' version.project.id version_id %}"
             hx-target="#project-settings-modal"
             data-bs-toggle="mdoal"
             data-bs-target="#project-settings-modal">

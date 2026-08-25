@@ -1,0 +1,28 @@
+<script>
+    function showToast() {
+        const toast = new bootstrap.Toast(document.getElementById('main-toast'));
+        toast.show();
+    };
+</script>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container">
+    {% for message in messages %}
+    {% if 'error' in message.tags %}
+    <div class="toast" id="main-toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="12000">
+    {% else %}
+    <div class="toast" id="main-toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
+    {% endif %}
+        <div class="toast-header">
+            <strong class="me-auto">{{ message.tags|safe|capfirst }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-body">
+            {{ message|safe }}
+        </div>
+    </div>
+    {% endfor %}
+    {% comment %} {% if messages %}
+    <script>
+        showToast();
+    </script>
+    {% endif %} {% endcomment %}
+</div>

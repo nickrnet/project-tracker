@@ -8,7 +8,6 @@
     };
 </script>
 <div class="row" id="issues-table">
-    {% include "messages.html" %}
     <div id="issue-modal"
         class="modal modal-blur fade"
         style="display: none"
@@ -18,7 +17,6 @@
             <div class="modal-content"></div>
         </div>
     </div>
-    {% include "project/project/issue_toast.html" %}
     <table class="table table-striped table-hover" id="project-issues-table-data">
         <thead>
             <tr>
@@ -76,5 +74,8 @@
                 loadTooltips();
             },
         });
+    {% if messages %}
+        showToast();
+    {% endif %}
     </script>
 </div>

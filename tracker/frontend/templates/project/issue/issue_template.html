@@ -27,5 +27,10 @@
         <button class="btn btn-primary my-4" type="submit">Submit</button>
     </form>
     </div>
+    {% if messages %}
+    <script>
+        showToast();
+    </script>
+    {% endif %}
   </div>
 {% endblock %}

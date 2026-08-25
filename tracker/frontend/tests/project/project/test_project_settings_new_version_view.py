@@ -20,7 +20,6 @@ class TestProjectSettingsNewVersionView(TestCase):
         """
         # Create Users
         self.user1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
-
         self.user2 = CoreUser.objects.create_core_user_from_web({'email': 'testuser2@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
 
         # Create Project
@@ -45,25 +44,47 @@ class TestProjectSettingsNewVersionView(TestCase):
         self.project1.users.add(self.user1)
         self.project1.save()
 
+        # Create Project2
+        self.project2_label_data = ProjectLabelData.objects.create(
+            created_by=self.user2,
+            label='project02',
+            description='Project 02 Label'
+            )
+
+        self.project2_data = ProjectData.objects.create(
+            created_by=self.user2,
+            name="Initial Project 2",
+            description="Initial Project 2 Description",
+            start_date=timezone.now(),
+            is_active=True
+            )
+        self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data)
+        self.project2_label = ProjectLabel.objects.create(created_by=self.user2, current=self.project2_label_data, project=self.project2)
+        self.project2_label_data.project_label = self.project2_label
+        self.project2_label_data.save()
+        self.project2.label = self.project2_label
+        self.project2.save()
+
         # Create Client
         self.http_client = Client()
 
     def test_project_settings_new_version_redirects_if_not_logged_in(self):
-        response = self.http_client.get(reverse('project_settings_new_version'))
+        response = self.http_client.get(reverse('project_settings_new_version', kwargs={'project_id': self.project1.id}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/project-settings/new-version/')
-
-    def test_project_settings_new_version_view_get_if_no_project_id(self):
-        self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('project_settings_new_version'))
-        self.assertEqual(response.status_code, 302)
-        # TODO Does this redirect somewhere?
+        self.assertRedirects(response, '/login?next=/project/' + str(self.project1.id) + '/project-settings/new-version/')
 
     def test_project_settings_new_version_view_get(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.get(reverse('project_settings_new_version', kwargs={'project_id': self.project1.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_new_version_modal.html')
+
+    def test_project_settings_new_version_view_get_user_has_no_permission(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('project_settings_new_version', kwargs={'project_id': self.project2.id}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
 
     def test_project_settings_new_version_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'

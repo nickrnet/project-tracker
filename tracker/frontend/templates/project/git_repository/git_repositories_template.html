@@ -12,5 +12,10 @@
             class="btn primary"><i class="bi bi-plus-circle"></i></button></h2>
     </div>
     {% include "project/git_repository/git_repositories_table.html" %}
+    {% if messages %}
+    <script>
+        showToast();
+    </script>
+    {% endif %}
 </div>
 {% endblock %}

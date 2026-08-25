@@ -45,7 +45,7 @@ class TestProjectSettingsUserSelectView(TestCase):
     def test_project_settings_user_select_view_redirects_when_not_logged_in(self):
         response = self.http_client.get(reverse('project_settings_user_select', kwargs={'project_id': str(self.project1.label)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/' + str(self.project1.label) + '/project-settings/user-select/')
+        self.assertRedirects(response, '/login?next=/project/' + str(self.project1.label) + '/project-settings/user-select/')
 
     def test_project_settings_user_select_view_get(self):
         self.http_client.force_login(user=self.user1.user)

@@ -79,7 +79,7 @@ class TestSignupView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'signup_template.html')
-        self.assertIn('Error saving user. Double check your data and try again.', str(messages))
+        self.assertIn('Error saving user. Double check your information and try again.', str(messages))
         self.assertEqual(0, UserLogin.objects.count())
 
     def test_signup_view_post_with_next_url(self):

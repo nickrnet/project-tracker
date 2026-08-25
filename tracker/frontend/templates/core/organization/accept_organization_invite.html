@@ -9,7 +9,7 @@
     <div class="row">
         <p>You have been invited to join the organization "{{ organization.current.name|safe }}".</p>
         <p>Please click the button below to accept or decline the invitation:</p>
-        <form method="post" action="{% url 'accept_organization_invite' invite.id %}">
+        <form method="post" action="{% url 'accept_organization_invite' organization.id invite.id %}">
             {% csrf_token %}
             <select name="response" class="form-select mb-3" required>
                 <option value="accept">Accept</option>
@@ -33,6 +33,11 @@
             </div>
         </p>
     </div>
+    {% if messages %}
+    <script>
+        showToast();
+    </script>
+    {% endif %}
 </div>
 {% endif %}
 {% endblock %}

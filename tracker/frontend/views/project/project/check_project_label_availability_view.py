@@ -1,15 +1,26 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
+from django.views import View
+
 from core.models import user as core_user_models
 from frontend.forms.project.project.check_project_label_availability_form import ProjectLabelAvailabilityForm
 from project.models import project as project_models
 
 
-@login_required
-def check_project_label_availability(request):
-    logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
+class CheckProjectLabelAvailabilityView(LoginRequiredMixin, View):
+    def get(self, request):
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
+        return render(
+            request=request,
+            template_name="project/project/project_check_project_label_availability.html",
+            context={
+                'logged_in_user': logged_in_user,
+                'available': False,
+                }
+            )
 
-    if request.method == "POST":
+    def post(self, request):
+        logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
         project_label_availability_form = ProjectLabelAvailabilityForm(request.POST)
         if project_label_availability_form.is_valid():
             project_label_to_try = project_label_availability_form.cleaned_data.get('label')
@@ -42,12 +53,3 @@ def check_project_label_availability(request):
                     'available': False,
                     }
                 )
-
-    return render(
-        request=request,
-        template_name="project/project/project_check_project_label_availability.html",
-        context={
-            'logged_in_user': logged_in_user,
-            'available': False,
-            }
-        )

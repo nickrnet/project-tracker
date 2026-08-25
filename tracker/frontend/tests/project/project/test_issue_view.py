@@ -21,6 +21,7 @@ class TestProjectIssueView(TestCase):
 
         self.system_user = CoreUser.objects.get_or_create_system_user()
         self.user1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
+        self.user2 = CoreUser.objects.create_core_user_from_web({'email': 'testuser2@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
         BuiltInIssueType.objects.initialize_built_in_issue_types()
         BuiltInIssuePriority.objects.initialize_built_in_issue_priorities()
         BuiltInIssueStatus.objects.initialize_built_in_issue_statuses()
@@ -36,7 +37,6 @@ class TestProjectIssueView(TestCase):
             label='project01',
             description='Project 01 Label'
             )
-
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
             name="Initial Project 1",
@@ -51,6 +51,7 @@ class TestProjectIssueView(TestCase):
         self.project1.label = self.project1_label
         self.project1.users.add(self.user1)
         self.project1.save()
+
         self.issue1_data = IssueData.objects.create(
             created_by=self.user1,
             reporter=self.user1,
@@ -80,20 +81,31 @@ class TestProjectIssueView(TestCase):
         self.http_client = Client()
 
     def test_issue_view_redirects_when_not_logged_in(self):
-        response = self.http_client.get(reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}))
+        response = self.http_client.get(reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/project/issue/' + str(self.issue1.id) + '/')
+        self.assertRedirects(response, '/login?next=/project/' + str(self.project1.id) + '/issue/' + str(self.issue1.id) + '/')
 
     def test_issue_view_get(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}))
+        response = self.http_client.get(reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/issue_modal.html')
+
+    def test_issue_view_get_invalid_project(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('project_issue', kwargs={'project_id': 'ebeb9a79-3dc4-492a-bf00-37bb3fdfb823', 'issue_id': str(self.issue1.id)}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Issue 1')
+        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+        self.assertIn('The specified Issue does not exist or you do not have permission to see it.', str(messages))
 
     def test_issue_view_post(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}),
+            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
             data={
                 'project': str(self.project1.id),
                 'summary': 'Updated Issue 1 Summary',
@@ -117,7 +129,7 @@ class TestProjectIssueView(TestCase):
     def test_issue_view_post_with_bad_form(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}),
+            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
             data={
                 'summary': 'Updated Issue 1 Summary',
                 'description': 'Updated description for issue 1',
@@ -137,12 +149,12 @@ class TestProjectIssueView(TestCase):
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
         self.assertIn('Error saving issue.', str(messages))
 
-    def test_issue_view_post_with_project_that_does_not_exist(self):
+    def test_issue_view_post_move_issue_to_invalid_project(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('project_issue', kwargs={'issue_id': str(self.issue1.id)}),
+            reverse('project_issue', kwargs={'project_id': 'cb780030-1d9a-4b8a-a113-3235f79ae373', 'issue_id': str(self.issue1.id)}),
             data={
-                'project': '6cd54a2e-8a4e-47ff-b02c-4ecd6b92578f',
+                'project': 'cb780030-1d9a-4b8a-a113-3235f79ae373',
                 'summary': 'Updated Issue 1 Summary',
                 'description': 'Updated description for issue 1',
                 'reporter': str(self.user1.id),
@@ -159,4 +171,28 @@ class TestProjectIssueView(TestCase):
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified Issue does not exist or you do not have permission to see it.', str(messages))
+
+    def test_issue_view_post_no_project_permission(self):
+        self.http_client.force_login(user=self.user2.user)
+        response = self.http_client.post(
+            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Issue 1')
+        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+        self.assertIn('The specified Issue does not exist or you do not have permission to see it.', str(messages))

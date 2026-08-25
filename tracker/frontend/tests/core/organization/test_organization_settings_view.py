@@ -43,7 +43,7 @@ class TestOrganizationSettingsView(TestCase):
     def test_organization_settings_view_redirects_when_not_logged_in(self):
         response = self.http_client.get(reverse('organization_settings', kwargs={'organization_id': str(self.organization1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/organization-settings/' + str(self.organization1.id) + '/')
+        self.assertRedirects(response, '/login?next=/organization/' + str(self.organization1.id) + '/organization-settings/')
 
     def test_organization_settings_view_get(self):
         self.http_client.force_login(user=self.user1.user)

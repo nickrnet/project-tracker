@@ -47,7 +47,7 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
     def test_project_settings_new_git_repository_view_redirects_when_not_logged_in(self):
         response = self.http_client.get(reverse('project_settings_new_git_repository', kwargs={'project_id': str(self.project1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/project-settings/new-git-repository/' + str(self.project1.id) + '/')
+        self.assertRedirects(response, '/login?next=/project/' + str(self.project1.id) + '/project-settings/new-git-repository/')
 
     def test_project_settings_new_git_repository_view_get(self):
         self.http_client.force_login(user=self.user1.user)
@@ -58,8 +58,10 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
     def test_project_settings_new_git_repository_view_get_user_does_not_have_permission_to_project(self):
         self.http_client.force_login(user=self.user2.user)
         response = self.http_client.get(reverse('project_settings_new_git_repository', kwargs={'project_id': str(self.project1.id)}))
+        messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
+        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
 
     def test_project_settings_new_git_repository_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -74,8 +76,8 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
         form_data = urlencode(git_repository_form.data)
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('project_settings_new_git_repository', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
-        git_repository = GitRepository.objects.first()
         messages = list(get_messages(response.wsgi_request))
+        git_repository = GitRepository.objects.first()
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_modal.html')
         # Make sure the whole form came through to the database
@@ -84,6 +86,24 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
         self.assertEqual(git_repository.current.url, 'https://github.com/nickrnet/project-tracker')
         self.assertEqual(git_repository.project_set.first(), self.project1)
         self.assertIn('Your git repository was successfully added!', str(messages))
+
+    def test_project_settings_new_git_repository_view_post_user_does_not_have_permission_to_project(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        git_repository_form_data = {
+            'name': 'Git Repository 1',
+            'description': 'Initial Repo 1 Description',
+            'url': 'https://github.com/nickrnet/project-tracker',
+            'project_id': str(self.project1.id)
+            }
+        git_repository_form = NewGitRepositoryForm(git_repository_form_data)
+        git_repository_form.is_valid()
+        form_data = urlencode(git_repository_form.data)
+        self.http_client.force_login(user=self.user2.user)
+        response = self.http_client.post(reverse('project_settings_new_git_repository', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
 
     def test_project_settings_git_repository_view_post_to_project_without_label(self):
         self.project1.label = None
@@ -100,9 +120,9 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
         form_data = urlencode(git_repository_form.data)
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('project_settings_new_git_repository', kwargs={'project_id': str(self.project1.id)}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_modal.html')
-        messages = list(get_messages(response.wsgi_request))
         # Make sure the whole form came through to the database
         git_repository = GitRepository.objects.first()
         self.assertEqual(git_repository.current.name, 'Git Repository 1 Modified')
@@ -115,9 +135,9 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
         form_data = 'foo=1&project_id=' + self.project1.label.current.label
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('project_settings_new_git_repository', kwargs={'project_id': str(self.project1.id)}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_modal.html')
-        messages = list(get_messages(response.wsgi_request))
         # Make sure the form did not update the database
         self.assertEqual(GitRepository.objects.count(), 0)
         self.assertIn('Error saving git repository.', str(messages))

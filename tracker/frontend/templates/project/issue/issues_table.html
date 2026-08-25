@@ -8,7 +8,6 @@
     };
 </script>
 <div class="row" id="issues-table">
-    {% include "messages.html" %}
     <div id="issues-modal"
         class="modal modal-blur fade"
         style="display: none"
@@ -79,5 +78,8 @@
                 loadTooltips();
             },
         });
+    {% if messages %}
+        showToast();
+    {% endif %}
     </script>
 </div>

@@ -45,19 +45,34 @@ class TestProjectSettingsNewComponentView(TestCase):
         self.project1.users.add(self.user1)
         self.project1.save()
 
+        # Create Project2
+        self.project2_label_data = ProjectLabelData.objects.create(
+            created_by=self.user2,
+            label='project02',
+            description='Project 02 Label'
+            )
+
+        self.project2_data = ProjectData.objects.create(
+            created_by=self.user2,
+            name="Initial Project 2",
+            description="Initial Project 2 Description",
+            start_date=timezone.now(),
+            is_active=True
+            )
+        self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data)
+        self.project2_label = ProjectLabel.objects.create(created_by=self.user2, current=self.project2_label_data, project=self.project2)
+        self.project2_label_data.project_label = self.project2_label
+        self.project2_label_data.save()
+        self.project2.label = self.project2_label
+        self.project2.save()
+
         # Create Client
         self.http_client = Client()
 
     def test_project_settings_new_component_redirects_if_not_logged_in(self):
-        response = self.http_client.get(reverse('project_settings_new_component'))
+        response = self.http_client.get(reverse('project_settings_new_component', kwargs={'project_id': str(self.project1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/project-settings/new-component/')
-
-    def test_project_settings_new_component_view_get_if_no_project_id(self):
-        self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('project_settings_new_component'))
-        self.assertEqual(response.status_code, 302)
-        # TODO Does this redirect somewhere?
+        self.assertRedirects(response, '/login?next=/project/' + str(self.project1.id) + '/project-settings/new-component/')
 
     def test_project_settings_new_component_view_get(self):
         self.http_client.force_login(user=self.user1.user)
@@ -65,28 +80,12 @@ class TestProjectSettingsNewComponentView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_new_component_modal.html')
 
-    def test_project_settings_new_component_view_post_project_id_is_label(self):
+    def test_project_settings_new_component_view_get_user_has_no_permission(self):
         self.http_client.force_login(user=self.user1.user)
-        url_encoding = 'application/x-www-form-urlencoded'
-        component_form_data = {
-            'name': 'Component 1',
-            'description': 'First Component Description',
-            'label': 'Primary',
-            'is_active': True
-            }
-        component_form = NewComponentDataForm(component_form_data)
-        component_form.is_valid()
-        form_data = urlencode(component_form.data)
-        self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('project_settings_new_component', kwargs={'project_id': self.project1_label_data.label}), form_data, url_encoding)
-        component = component_models.Component.objects.first()
+        response = self.http_client.get(reverse('project_settings_new_component', kwargs={'project_id': self.project2.id}))
         messages = list(get_messages(response.wsgi_request))
-        # Make sure the whole form came through to the database
-        self.assertEqual(component.current.name, 'Component 1')
-        self.assertEqual(component.current.description, 'First Component Description')
-        self.assertEqual(component.current.label, 'Primary')
-        self.assertEqual(component.current.is_active, True)
-        self.assertIn('Your component was successfully added!', str(messages))
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
 
     def test_project_settings_new_component_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -126,7 +125,7 @@ class TestProjectSettingsNewComponentView(TestCase):
         response = self.http_client.post(reverse('project_settings_new_component', kwargs={'project_id': uuid.UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')}), form_data, url_encoding)
         messages = list(get_messages(response.wsgi_request))
         # TODO - Improve handling
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
 
     def test_project_settings_new_component_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -157,4 +156,4 @@ class TestProjectSettingsNewComponentView(TestCase):
         self.assertRedirects(response, '/projects')
         # Make sure the form did not update the database
         self.assertEqual(component_models.Component.objects.count(), 0)
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))

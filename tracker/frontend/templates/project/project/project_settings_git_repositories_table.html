@@ -8,7 +8,6 @@
     };
 </script>
 <div id="project-settings-git-repositories-table">
-    {% include "project/project/git_repository_toast.html" %}
     <div class="row">
         <div class="col-2">
         <button
@@ -33,7 +32,7 @@
             <tbody>
             {% for repository in git_repositories %}
                 <tr
-                    hx-get="{% url 'project_settings_git_repository' repository.id %}"
+                    hx-get="{% url 'project_settings_git_repository' project_id repository.id %}"
                     hx-target="#project-settings-git-repository-modal"
                     hx-swap="innerHTML"
                     data-bs-toggle="modal"
