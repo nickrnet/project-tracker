@@ -104,7 +104,7 @@ class NewProjectView(LoginRequiredMixin, View):
 
             project.users.add(logged_in_user)
             project.save()
-            messages.success(request, ('Your project was successfully added!'))
+            messages.success(request, ('Your project was successfully added.'))
         else:
             messages.error(request, 'Error saving project.')
 

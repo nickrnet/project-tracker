@@ -61,7 +61,7 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
-        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))
 
     def test_project_settings_new_git_repository_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -85,7 +85,7 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
         self.assertEqual(git_repository.current.description, 'Initial Repo 1 Description')
         self.assertEqual(git_repository.current.url, 'https://github.com/nickrnet/project-tracker')
         self.assertEqual(git_repository.project_set.first(), self.project1)
-        self.assertIn('Your git repository was successfully added!', str(messages))
+        self.assertIn('Your git repository was successfully added.', str(messages))
 
     def test_project_settings_new_git_repository_view_post_user_does_not_have_permission_to_project(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -103,7 +103,7 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
-        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))
 
     def test_project_settings_git_repository_view_post_to_project_without_label(self):
         self.project1.label = None
@@ -128,7 +128,7 @@ class TestProjectSettingsNewGitRepositoryView(TestCase):
         self.assertEqual(git_repository.current.name, 'Git Repository 1 Modified')
         self.assertEqual(git_repository.current.description, 'Initial Repo 1 Description Modified')
         self.assertEqual(git_repository.current.url, 'https://github.com/nickrnet/project-tracker')
-        self.assertIn('Your git repository was successfully added!', str(messages))
+        self.assertIn('Your git repository was successfully added.', str(messages))
 
     def test_project_settings_new_git_repository_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

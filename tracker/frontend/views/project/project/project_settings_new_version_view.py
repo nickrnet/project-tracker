@@ -22,7 +22,7 @@ class NewVersionView(LoginRequiredMixin, View):
         # Check if user can access project
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         version_form = new_version_form.NewVersionDataForm()
@@ -48,7 +48,7 @@ class NewVersionView(LoginRequiredMixin, View):
         # Check if user can access project
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
         # TODO: Make sure the project detected is the project passed in
 
@@ -71,9 +71,9 @@ class NewVersionView(LoginRequiredMixin, View):
                 )
             version_data.version = version
             version_data.save()
-            messages.success(request, ('Your version was successfully added!'))
+            messages.success(request, ('Your version was successfully added.'))
         else:
-            messages.error(request, 'Invalid data received. Please try again.')
+            messages.error(request, 'Error saving version.')
 
         project_dict = model_to_dict(project.current)
         form = project_form.ProjectDataForm(project_dict)

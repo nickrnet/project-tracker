@@ -68,7 +68,7 @@ class UserView(LoginRequiredMixin, View):
             user_data.save()
             user.current = user_data
             user.save()
-            messages.success(request, ("Your user was successfully updated!"))
+            messages.success(request, ("Your user was successfully updated."))
         else:
             messages.error(request, "Error saving user.")
 

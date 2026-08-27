@@ -112,19 +112,26 @@ class TestProjectSettingsComponentView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_component_modal.html')
 
+    def test_project_settings_component_view_component_does_not_exist(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('project_settings_component', kwargs={'project_id': str(self.project1.id), 'component_id': '6bbd3340-4996-449a-9adf-f04321622b6a'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified component does not exist.', str(messages))
+
     def test_project_settings_component_view_get_project_mismatch(self):
         self.http_client.force_login(user=self.user2.user)
         response = self.http_client.get(reverse('project_settings_component', kwargs={'project_id': str(self.project2.id), 'component_id': str(self.component1.id)}))
         messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, '/projects')
-        self.assertIn('The specified Component does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified component does not exist.', str(messages))
 
     def test_project_settings_component_view_get_user_no_permission(self):
         self.http_client.force_login(user=self.user2.user)
         response = self.http_client.get(reverse('project_settings_component', kwargs={'project_id': str(self.project1.id), 'component_id': str(self.component1.id)}))
         messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, '/projects')
-        self.assertIn('The specified Component does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified component does not exist.', str(messages))
 
     def test_project_settings_component_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -146,7 +153,26 @@ class TestProjectSettingsComponentView(TestCase):
         self.assertEqual(component.current.description, 'Description of Component 1')
         self.assertEqual(component.current.label, 'Component 1 Label')
         self.assertEqual(component.current.is_active, True)
-        self.assertIn('Your component was successfully updated!', str(messages))
+        self.assertIn('Your component was successfully updated.', str(messages))
+
+    def test_project_settings_component_view_post_component_does_not_exist(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        component_form_data = {
+            'name': 'Component 1',
+            'description': 'Description of Component 1',
+            'label': 'Component 1 Label',
+            'is_active': True
+            }
+        component_form = ComponentDataForm(component_form_data)
+        component_form.is_valid()
+        form_data = urlencode(component_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('project_settings_component', kwargs={'project_id': str(self.project1.id), 'component_id': '0c40428c-5a3e-414f-aa53-a32b9446a1b5'}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/projects')
+        # Make sure the form did not update the database
+        self.assertEqual(component_models.Component.objects.count(), 2)
+        self.assertIn('The specified component does not exist.', str(messages))
 
     def test_project_settings_component_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -158,7 +184,7 @@ class TestProjectSettingsComponentView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         # Make sure the form did not update the database
         self.assertEqual(component_models.Component.objects.count(), 2)
-        self.assertIn('Invalid data received. Please try again.', str(messages))
+        self.assertIn('Error saving component.', str(messages))
 
     def test_project_settings_component_view_post_user_no_permission(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -177,4 +203,4 @@ class TestProjectSettingsComponentView(TestCase):
         self.assertRedirects(response, '/projects')
         # Make sure the form did not update the database
         self.assertEqual(component_models.Component.objects.count(), 2)
-        self.assertIn('The specified Component does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified component does not exist.', str(messages))

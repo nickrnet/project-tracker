@@ -41,6 +41,14 @@ class TestGitRepositoryView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/git_repository/git_repository_modal.html')
 
+    def test_git_repository_view_get_repository_does_not_exist(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('git_repository', kwargs={'git_repository_id': '6860faa5-b678-474e-9253-01c9a53c902d'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/git_repositories')
+        self.assertIn('The specified git repository does not exist.', str(messages))
+
     def test_git_repository_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
         git_repository_form_data = {
@@ -60,7 +68,28 @@ class TestGitRepositoryView(TestCase):
         self.assertEqual(self.git_repository1.current.name, 'Git Repository 1 Modified')
         self.assertEqual(self.git_repository1.current.description, 'Initial Repo 1 Description Modified')
         self.assertEqual(self.git_repository1.current.url, 'https://github.com/nickrnet/project-tracker')
-        self.assertIn('Your git repository was successfully updated!', str(messages))
+        self.assertIn('Your git repository was successfully updated.', str(messages))
+
+    def test_git_repository_view_post_repository_does_not_exist(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        git_repository_form_data = {
+            'name': 'Git Repository 1 Modified',
+            'description': 'Initial Repo 1 Description Modified',
+            'url': 'https://github.com/nickrnet/project-tracker'
+            }
+        git_repository_form = GitRepositoryDataForm(git_repository_form_data)
+        git_repository_form.is_valid()
+        form_data = urlencode(git_repository_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('git_repository', kwargs={'git_repository_id': '85c83ddc-fee2-48af-9369-21e8a3c7e834'}), form_data, url_encoding)
+        self.assertRedirects(response, '/git_repositories')
+        messages = list(get_messages(response.wsgi_request))
+        # Make sure the request did not update the database
+        self.git_repository1.refresh_from_db()
+        self.assertEqual(self.git_repository1.current.name, 'Initial Repo 1')
+        self.assertEqual(self.git_repository1.current.description, 'Initial Repo 1 Description')
+        self.assertEqual(self.git_repository1.current.url, 'https://github.com/example/repo1')
+        self.assertIn('The specified git repository does not exist.', str(messages))
 
     def test_git_repository_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

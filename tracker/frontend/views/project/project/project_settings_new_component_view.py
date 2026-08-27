@@ -17,7 +17,7 @@ class NewComponentView(LoginRequiredMixin, View):
         # Check if user can access project
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         component_form = new_component_form.NewComponentDataForm()
@@ -36,7 +36,7 @@ class NewComponentView(LoginRequiredMixin, View):
         # Check if user can access project
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
         # TODO: Make sure the project detected is the project passed in
 
@@ -58,9 +58,9 @@ class NewComponentView(LoginRequiredMixin, View):
                 )
             component_data.component = component
             component_data.save()
-            messages.success(request, ('Your component was successfully added!'))
+            messages.success(request, ('Your component was successfully added.'))
         else:
-            messages.error(request, 'Invalid data received. Please try again.')
+            messages.error(request, 'Error saving component.')
 
         # Get current project settings to display
         repositories = project.git_repositories.all()

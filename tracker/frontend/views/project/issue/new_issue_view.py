@@ -20,7 +20,7 @@ class NewIssueView(LoginRequiredMixin, View):
         if project_id is not None:
             project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
             if project is None:
-                messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+                messages.error(request, 'The specified project does not exist.')
                 return redirect("projects")
 
         issue_form = new_issue_form.NewIssueForm()
@@ -50,15 +50,21 @@ class NewIssueView(LoginRequiredMixin, View):
             )
 
     def post(self, request, project_id=None):
+        # We don't ever want to allow POSTs to a specific project, and always rely on the form data
+        if project_id:
+            messages.error(request, 'The specified project does not exist.')
+            return redirect("projects")
+
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
         received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
         selected_component_ids = request.POST.getlist('component')
         selected_version_ids = request.POST.getlist('version')
 
         if received_new_issue_form.is_valid():
+            # Check if user can access requested project
             project = project_utils.get_project_by_uuid_or_label(logged_in_user, received_new_issue_form.cleaned_data.get("project", ''))
             if project is None:
-                messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+                messages.error(request, 'The specified project does not exist.')
                 return redirect("projects")
 
             # Convert lists of id strings to UUIDs
@@ -103,7 +109,7 @@ class NewIssueView(LoginRequiredMixin, View):
             issue_data.version.set(selected_versions)
             issue_data.save()
 
-            messages.success(request, ('Issue added!'))
+            messages.success(request, ('Your issue was successfully added.'))
         else:
             messages.error(request, 'Error saving issue.')
 

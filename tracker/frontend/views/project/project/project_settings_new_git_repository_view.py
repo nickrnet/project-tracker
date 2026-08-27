@@ -19,7 +19,7 @@ class ProjectSettingsNewGitRepositoryView(LoginRequiredMixin, View):
         # Check if user can access project
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         git_repository_form = new_git_repository_form.NewGitRepositoryForm()
@@ -41,7 +41,7 @@ class ProjectSettingsNewGitRepositoryView(LoginRequiredMixin, View):
         # Check if user can access project
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         if received_new_git_repository_form.is_valid():
@@ -62,7 +62,7 @@ class ProjectSettingsNewGitRepositoryView(LoginRequiredMixin, View):
 
             project.git_repositories.add(git_repository)
 
-            messages.success(request, ('Your git repository was successfully added!'))
+            messages.success(request, ('Your git repository was successfully added.'))
         else:
             project = project_utils.get_project_by_uuid_or_label(logged_in_user, str(project.id))
             messages.error(request, 'Error saving git repository.')

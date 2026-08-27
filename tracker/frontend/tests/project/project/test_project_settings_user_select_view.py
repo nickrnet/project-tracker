@@ -84,7 +84,7 @@ class TestProjectSettingsUserSelectView(TestCase):
         self.assertEqual(self.project1.users.count(), 1)
         self.assertIn(self.user1, self.project1.users.all())
         self.assertNotIn(self.user2, self.project1.users.all())
-        self.assertIn('Project users updated successfully!', str(messages))
+        self.assertIn('Project users updated successfully.', str(messages))
 
     def test_project_settings_user_select_view_post_without_label(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -102,7 +102,7 @@ class TestProjectSettingsUserSelectView(TestCase):
         self.assertEqual(self.project1.current.description, 'Initial Project 1 Description')
         self.assertEqual(self.project1.current.is_active, True)
         self.assertEqual(self.project1.current.is_private, False)
-        self.assertIn('Project users updated successfully!', str(messages))
+        self.assertIn('Project users updated successfully.', str(messages))
 
     def test_project_settings_user_select_view_post_with_bad_project_label(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -116,7 +116,7 @@ class TestProjectSettingsUserSelectView(TestCase):
         self.assertEqual(self.project1.users.count(), 2)  # Users were not added/removed
         self.assertIn(self.user1, self.project1.users.all())
         self.assertIn(self.user2, self.project1.users.all())
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))
 
     def test_project_settings_user_select_view_post_with_invalid_users(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -148,4 +148,4 @@ class TestProjectSettingsUserSelectView(TestCase):
         self.assertEqual(self.project1.users.count(), 0)
         self.assertNotIn(self.user1, self.project1.users.all())
         self.assertNotIn(self.user2, self.project1.users.all())
-        self.assertIn('Project users updated successfully!', str(messages))
+        self.assertIn('Project users updated successfully.', str(messages))

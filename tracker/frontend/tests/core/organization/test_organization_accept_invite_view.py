@@ -145,7 +145,7 @@ class TestOrganizationAcceptInviteView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
         messages = list(get_messages(response.wsgi_request))
-        self.assertIn(f'You have successfully joined the organization {self.organization.current.name}!', str(messages))
+        self.assertIn(f'You have successfully joined the organization {self.organization.current.name}.', str(messages))
         self.invite.refresh_from_db()
         self.invite.current.refresh_from_db()
         self.assertEqual(self.invite.current.status, 'ACCEPTED')

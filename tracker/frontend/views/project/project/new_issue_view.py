@@ -3,6 +3,7 @@ import uuid
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
@@ -19,7 +20,7 @@ class NewIssueView(LoginRequiredMixin, View):
         # Check if user can access project
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         issue_form = new_issue_form.NewIssueForm()
@@ -53,17 +54,15 @@ class NewIssueView(LoginRequiredMixin, View):
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
         received_new_issue_form = new_issue_form.NewIssueForm(request.POST, request.FILES)
 
-        # Check if user can access project
-        project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
-        if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it.')
-            return redirect("projects")
-
         if received_new_issue_form.is_valid():
+            # Check if user can access project
+            project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
+            if project is None:
+                messages.error(request, 'The specified project does not exist.')
+                return redirect("projects")
 
             selected_component_ids = request.POST.getlist('component')
             selected_version_ids = request.POST.getlist('version')
-
             # Convert lists of id strings to UUIDs
             selected_components = []
             project_components = project.component_set.all().values_list('id', flat=True)
@@ -105,16 +104,16 @@ class NewIssueView(LoginRequiredMixin, View):
             issue_data.version.set(selected_versions)
             issue_data.save()
 
-            messages.success(request, ('Your issue was successfully added!'))
+            messages.success(request, ('Your issue was successfully added.'))
+            return render(
+                request=request,
+                template_name="project/project/issues_tab_pane.html",
+                context={
+                    'logged_in_user': logged_in_user,
+                    'project': project,
+                    'issues': project.list_issues() if project else [],
+                    },
+                )
         else:
             messages.error(request, 'Error saving issue.')
-
-        return render(
-            request=request,
-            template_name="project/project/issues_tab_pane.html",
-            context={
-                'logged_in_user': logged_in_user,
-                'project': project,
-                'issues': project.list_issues() if project else [],
-                },
-            )
+            return redirect(reverse('project', kwargs={'project_id': project_id}))

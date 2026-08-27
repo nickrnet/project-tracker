@@ -51,6 +51,14 @@ class TestOrganizationSettingsView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/organization/organization_settings.html')
 
+    def test_organization_settings_view_get_organization_does_not_exist(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('organization_settings', kwargs={'organization_id': 'ec766367-51ba-44f3-91cd-8973e0694eca'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/organizations')
+        self.assertIn('The specified organization does not exist.', str(messages))
+
     def test_organization_settings_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
         new_organization_form_data = {
@@ -86,7 +94,44 @@ class TestOrganizationSettingsView(TestCase):
         self.assertEqual(self.organization1.current.country, 'US')
         self.assertEqual(self.organization1.current.timezone, 'EST')
         self.assertIsNone(self.organization1.subscription)
-        self.assertIn('Your organization was successfully updated!', str(messages))
+        self.assertIn('Your organization was successfully updated.', str(messages))
+
+    def test_organization_settings_view_post_organization_does_not_exist(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        new_organization_form_data = {
+            'name': 'Organization 1 Modified',
+            'description': 'Organization 1 Modified Description',
+            'responsible_party_email': 'organization1modified@project-tracker.dev',
+            'responsible_party_phone': '555-555-9999',
+            'address_line_1': '12345678 Tomato Ln',
+            'city': 'Anytown Modified',
+            'state': 'NJ',
+            'postal_code': 12346,
+            'country': 'US',
+            'timezone': 'EST',
+            }
+        organization_form = OrganizationDataForm(new_organization_form_data)
+        organization_form.is_valid()
+        form_data = urlencode(organization_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('organization_settings', kwargs={'organization_id': '1d7d9037-771d-4887-b391-d6b58880c880'}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/organizations')
+        # Make sure the form did not update the database
+        self.organization1.refresh_from_db()
+        self.assertEqual(self.organization1.current.name, 'Test Organization 1')
+        self.assertEqual(self.organization1.current.description, '')
+        self.assertEqual(self.organization1.current.responsible_party_email, 'testuser1@project-tracker.dev')
+        self.assertEqual(self.organization1.current.responsible_party_phone, None)
+        self.assertEqual(self.organization1.current.address_line_1, '123 Main St')
+        self.assertEqual(self.organization1.current.city, 'Anytown')
+        self.assertEqual(self.organization1.current.state, 'NY')
+        self.assertEqual(self.organization1.current.postal_code, '12345')
+        self.assertEqual(self.organization1.current.country, 'USA')
+        self.assertEqual(self.organization1.current.timezone, 'America/Chicago')
+        self.assertIsNone(self.organization1.subscription)
+        self.assertIn('The specified organization does not exist.', str(messages))
 
     def test_organization_settings_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -94,6 +139,6 @@ class TestOrganizationSettingsView(TestCase):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('organization_settings', kwargs={'organization_id': str(self.organization1.id)}), form_data, url_encoding)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/organization/' + str(self.organization1.id) + '/')
+        self.assertRedirects(response, '/organizations')
         messages = list(get_messages(response.wsgi_request))
         self.assertIn('Error updating organization.', str(messages))

@@ -9,7 +9,7 @@ def get_project_by_uuid_or_label(logged_in_user, project_id):
 
     Args:
         logged_in_user (CoreUser): A CoreUser object.
-        project_id (str): Either the UUID of the project or its label.
+        project_id (UUID or str): Either the UUID of the project or its label.
 
     Returns:
         project: The project object if found, otherwise None.

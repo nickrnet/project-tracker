@@ -20,7 +20,7 @@ class ProjectSettingUserSelectView(LoginRequiredMixin, View):
         # Check if user can access project
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         # Get available users (organization members + project users) and exclude
@@ -47,7 +47,7 @@ class ProjectSettingUserSelectView(LoginRequiredMixin, View):
         # Check if user can access project
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         selected_user_ids = request.POST.getlist('current_users')
@@ -70,7 +70,7 @@ class ProjectSettingUserSelectView(LoginRequiredMixin, View):
                     break
         if not found_invalid_user:
             project.update_users(selected_user_ids)
-            messages.success(request, 'Project users updated successfully!')
+            messages.success(request, 'Project users updated successfully.')
         else:
             messages.error(request, 'Error updating project users.')
 

@@ -103,7 +103,7 @@ class TestNewProjectView(TestCase):
         self.assertEqual(project.label.current.label, 'test-project-1')
         self.assertIn(self.git_repository1, project.git_repositories.all())
         self.assertIn(self.user1, project.users.all())
-        self.assertIn('Your project was successfully added!', str(messages))
+        self.assertIn('Your project was successfully added.', str(messages))
 
     def test_new_project_post_without_git_repository(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -134,7 +134,7 @@ class TestNewProjectView(TestCase):
         self.assertEqual(project.label.current.label, 'test-project-1')
         self.assertNotIn(self.git_repository1, project.git_repositories.all())
         self.assertIn(self.user1, project.users.all())
-        self.assertIn('Your project was successfully added!', str(messages))
+        self.assertIn('Your project was successfully added.', str(messages))
 
     def test_new_project_post_without_project_label(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -164,7 +164,7 @@ class TestNewProjectView(TestCase):
         self.assertIsNone(project.label)
         self.assertNotIn(self.git_repository1, project.git_repositories.all())
         self.assertIn(self.user1, project.users.all())
-        self.assertIn('Your project was successfully added!', str(messages))
+        self.assertIn('Your project was successfully added.', str(messages))
 
     def test_new_project_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

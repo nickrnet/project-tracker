@@ -19,7 +19,7 @@ class ProjectSettingsView(LoginRequiredMixin, View):
 
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         project_dict = model_to_dict(project.current)
@@ -63,7 +63,7 @@ class ProjectSettingsView(LoginRequiredMixin, View):
 
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         if received_project_data_form.is_valid():
@@ -100,7 +100,7 @@ class ProjectSettingsView(LoginRequiredMixin, View):
             project.current = project_data
             project.save()  # THIS IS NUKING THE USER'S PROJECT_SET FOR SOME REASON IN TESTS, THIS DOES NOT APPEAR TO HAPPEN IN A WEB REQUEST WTAF
 
-            messages.success(request, ('Your project was successfully updated!'))
+            messages.success(request, ('Your project was successfully updated.'))
         else:
             messages.error(request, 'Error saving project.')
 

@@ -20,44 +20,43 @@ class OrganizationSettingsInviteUserView(LoginRequiredMixin, View):
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
         try:
             organization = core_organization_models.Organization.active_objects.get(pk=organization_id)
+            # TODO: Roles/permissions per user
+            # Make sure logged in user is a part of the Organization
+            if not organization.members.filter(pk=logged_in_user.id).exists():
+                messages.error(request, "The specified organization does not exist.")
+                return redirect("organizations")
+
+            # Get available users (organization members + project users) and exclude
+            # any users already assigned to this project.
+            available_users = logged_in_user.list_users().exclude(
+                pk__in=organization.members.all().values_list('pk', flat=True)
+                )
+
+            return render(
+                request=request,
+                template_name="core/organization/organization_settings_invite_user_modal.html",
+                context={
+                    'logged_in_user': logged_in_user,
+                    'organization': organization,
+                    'current_users': organization.members.all(),
+                    'available_users': available_users,
+                    }
+                )
         except core_organization_models.Organization.DoesNotExist:
-            messages.error(request, "The specified organization does not exist. Create it and try again.")
+            messages.error(request, "The specified organization does not exist.")
             return redirect("organizations")
-
-        # TODO: Roles/permissions per user
-        # Make sure logged in user is a part of the Organization
-        if not organization.members.filter(pk=logged_in_user.id).exists():
-            messages.error(request, "The specified organization does not exist. Create it and try again.")
-            return redirect("organizations")
-
-        # Get available users (organization members + project users) and exclude
-        # any users already assigned to this project.
-        available_users = logged_in_user.list_users().exclude(
-            pk__in=organization.members.all().values_list('pk', flat=True)
-            )
-
-        return render(
-            request=request,
-            template_name="core/organization/organization_settings_invite_user_modal.html",
-            context={
-                'logged_in_user': logged_in_user,
-                'organization': organization,
-                'current_users': organization.members.all(),
-                'available_users': available_users,
-                }
-            )
 
     def post(self, request, organization_id):
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
         try:
             organization = core_organization_models.Organization.active_objects.get(pk=organization_id)
         except core_organization_models.Organization.DoesNotExist:
-            messages.error(request, "The specified organization does not exist. Create it and try again.")
+            messages.error(request, "The specified organization does not exist.")
             return redirect("organizations")
 
         email = request.POST.get('email')
         if not email:
-            messages.error(request, "Email is required to send an invite.")
+            messages.error(request, "An email address is required to send an invite.")
             return render(
                 request=request,
                 template_name="core/organization/organization_invites_table.html",
@@ -105,9 +104,9 @@ class OrganizationSettingsInviteUserView(LoginRequiredMixin, View):
 
         accept_organization_invite_url = request.build_absolute_uri(f"organization/{organization.id}/accept_organization_invite/{invite.id}/")
         # This is useful if mail server bits aren't set up
-        # print("Accept URL:", accept_organization_invite_url)
+        # print("Accept Invite URL:", accept_organization_invite_url)
         invite.send_invite_email(accept_organization_invite_url)
-        messages.success(request, f"Invite sent to {email}!")
+        messages.success(request, f"Invite sent to {email}.")
 
         return render(
             request=request,

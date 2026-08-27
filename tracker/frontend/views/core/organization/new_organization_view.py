@@ -56,7 +56,7 @@ class NewOrganizationView(LoginRequiredMixin, View):
             organization_data.organization = organization
             organization_data.save()
 
-            messages.success(request, ('Your organization was successfully added!'))
+            messages.success(request, ('Your organization was successfully added.'))
             return redirect("organization", organization_id=organization.id)
         else:
             messages.error(request, 'Error saving organization.')

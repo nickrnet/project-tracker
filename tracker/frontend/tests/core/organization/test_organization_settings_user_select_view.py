@@ -75,7 +75,7 @@ class TestOrganizationSettingsUserSelectView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/organizations')
         messages = list(get_messages(response.wsgi_request))
-        self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
+        self.assertIn('The specified organization does not exist.', str(messages))
 
     def test_organization_settings_user_select_view_get_user_not_in_organization(self):
         self.http_client.force_login(user=self.user2.user)
@@ -83,7 +83,7 @@ class TestOrganizationSettingsUserSelectView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/organizations')
         messages = list(get_messages(response.wsgi_request))
-        self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
+        self.assertIn('The specified organization does not exist.', str(messages))
 
     def test_organization_settings_user_select_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -109,7 +109,7 @@ class TestOrganizationSettingsUserSelectView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/organizations')
         messages = list(get_messages(response.wsgi_request))
-        self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
+        self.assertIn('The specified organization does not exist.', str(messages))
 
     def test_organization_settings_user_select_view_removes_user(self):
         url_encoding = 'application/x-www-form-urlencoded'

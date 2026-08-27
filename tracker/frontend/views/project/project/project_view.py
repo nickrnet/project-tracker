@@ -13,7 +13,7 @@ class ProjectView(LoginRequiredMixin, View):
 
         project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
         if project is None:
-            messages.error(request, 'The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.')
+            messages.error(request, 'The specified project does not exist.')
             return redirect("projects")
 
         return render(

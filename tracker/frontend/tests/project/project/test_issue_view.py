@@ -52,6 +52,26 @@ class TestProjectIssueView(TestCase):
         self.project1.users.add(self.user1)
         self.project1.save()
 
+        self.project2_label_data = ProjectLabelData.objects.create(
+            created_by=self.user2,
+            label='project02',
+            description='Project 02 Label'
+            )
+        self.project2_data = ProjectData.objects.create(
+            created_by=self.user2,
+            name="Initial Project 2",
+            description="Initial Project 2 Description",
+            start_date=timezone.now(),
+            is_active=True
+            )
+        self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data)
+        self.project2_label = ProjectLabel.objects.create(created_by=self.user2, current=self.project2_label_data, project=self.project2)
+        self.project2_label_data.project_label = self.project2_label
+        self.project2_label_data.save()
+        self.project2.label = self.project2_label
+        self.project2.users.add(self.user2)
+        self.project2.save()
+
         self.issue1_data = IssueData.objects.create(
             created_by=self.user1,
             reporter=self.user1,
@@ -91,6 +111,14 @@ class TestProjectIssueView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/issue_modal.html')
 
+    def test_issue_view_get_no_permission(self):
+        self.http_client.force_login(user=self.user2.user)
+        response = self.http_client.get(reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified issue does not exist.', str(messages))
+
     def test_issue_view_get_invalid_project(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.get(reverse('project_issue', kwargs={'project_id': 'ebeb9a79-3dc4-492a-bf00-37bb3fdfb823', 'issue_id': str(self.issue1.id)}))
@@ -100,7 +128,7 @@ class TestProjectIssueView(TestCase):
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
-        self.assertIn('The specified Issue does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified issue does not exist.', str(messages))
 
     def test_issue_view_post(self):
         self.http_client.force_login(user=self.user1.user)
@@ -124,7 +152,31 @@ class TestProjectIssueView(TestCase):
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
         self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
-        self.assertIn('Issue updated!', str(messages))
+        self.assertIn('Issue updated.', str(messages))
+
+    def test_issue_view_post_no_permission(self):
+        self.http_client.force_login(user=self.user2.user)
+        response = self.http_client.post(
+            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Issue 1')
+        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+        self.assertIn('The specified issue does not exist.', str(messages))
 
     def test_issue_view_post_with_bad_form(self):
         self.http_client.force_login(user=self.user1.user)
@@ -171,12 +223,12 @@ class TestProjectIssueView(TestCase):
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
-        self.assertIn('The specified Issue does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified issue does not exist.', str(messages))
 
-    def test_issue_view_post_no_project_permission(self):
-        self.http_client.force_login(user=self.user2.user)
+    def test_issue_view_post_invalid_project(self):
+        self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
+            reverse('project_issue', kwargs={'project_id': str(self.project2.id), 'issue_id': str(self.issue1.id)}),
             data={
                 'project': str(self.project1.id),
                 'summary': 'Updated Issue 1 Summary',
@@ -195,4 +247,4 @@ class TestProjectIssueView(TestCase):
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
-        self.assertIn('The specified Issue does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified issue does not exist.', str(messages))

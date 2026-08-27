@@ -84,7 +84,7 @@ class TestProjectSettingsNewVersionView(TestCase):
         response = self.http_client.get(reverse('project_settings_new_version', kwargs={'project_id': self.project2.id}))
         messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, '/projects')
-        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))
 
     def test_project_settings_new_version_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -107,7 +107,7 @@ class TestProjectSettingsNewVersionView(TestCase):
         self.assertEqual(version.current.description, 'First Version Description')
         self.assertEqual(version.current.label, 'Primary')
         self.assertEqual(version.current.is_active, True)
-        self.assertIn('Your version was successfully added!', str(messages))
+        self.assertIn('Your version was successfully added.', str(messages))
 
     def test_project_settings_new_version_view_post_project_id_is_label(self):
         self.http_client.force_login(user=self.user1.user)
@@ -131,7 +131,7 @@ class TestProjectSettingsNewVersionView(TestCase):
         self.assertEqual(version.current.description, 'First Version Description')
         self.assertEqual(version.current.label, 'Primary')
         self.assertEqual(version.current.is_active, True)
-        self.assertIn('Your version was successfully added!', str(messages))
+        self.assertIn('Your version was successfully added.', str(messages))
 
     def test_project_settings_new_version_view_post_with_invalid_project_id(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -150,7 +150,7 @@ class TestProjectSettingsNewVersionView(TestCase):
         response = self.http_client.post(reverse('project_settings_new_version', kwargs={'project_id': uuid.UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')}), form_data, url_encoding)
         messages = list(get_messages(response.wsgi_request))
         # TODO - Improve handling
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))
 
     def test_project_settings_new_version_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -162,7 +162,7 @@ class TestProjectSettingsNewVersionView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         # Make sure the form did not update the database
         self.assertEqual(version_models.Version.objects.count(), 0)
-        self.assertIn('Invalid data received. Please try again.', str(messages))
+        self.assertIn('Error saving version', str(messages))
 
     def test_project_settings_new_version_view_post_user_no_permission(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -182,4 +182,4 @@ class TestProjectSettingsNewVersionView(TestCase):
         self.assertRedirects(response, '/projects')
         # Make sure the form did not update the database
         self.assertEqual(version_models.Version.objects.count(), 0)
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))

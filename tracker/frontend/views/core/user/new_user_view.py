@@ -13,8 +13,6 @@ class NewUserView(LoginRequiredMixin, View):
     def get(self, request):
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
         new_user_data_form = new_user_form.NewUserForm()
-        users = logged_in_user.list_users()
-        user_organizations = logged_in_user.list_organizations()
         timezone_choices = core_user_models.TIMEZONE_CHOICES
         with resources.files('tzdata.zoneinfo').joinpath('iso3166.tab').open('r') as f:
             country_names = dict(
@@ -30,8 +28,6 @@ class NewUserView(LoginRequiredMixin, View):
             context={
                 'logged_in_user': logged_in_user,
                 'new_user_form': new_user_data_form,
-                'users': users,
-                'user_organizations': user_organizations,
                 'timezone_choices': timezone_choices,
                 'country_names': country_names,
                 }
@@ -41,7 +37,7 @@ class NewUserView(LoginRequiredMixin, View):
         new_user_data_form = new_user_form.NewUserForm(request.POST, request.FILES)
         if new_user_data_form.is_valid():
             new_user = core_user_models.CoreUser.objects.create_core_user_from_web(new_user_data_form.cleaned_data.copy())
-            messages.success(request, ('Your user was successfully added!'))
+            messages.success(request, ('Your user was successfully added.'))
             return redirect("user", user_id=new_user.id)
         else:
             messages.error(request, 'Error saving user.')

@@ -94,12 +94,19 @@ class TestProjectSettingsVersionView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/project/project_settings_version_modal.html')
 
+    def test_project_settings_version_view_get_version_does_not_exist(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('project_settings_version', kwargs={'project_id': str(self.project1.id), 'version_id': '4368feb8-e0e8-4a8f-9762-297423bcf216'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/projects')
+        self.assertIn('The specified version does not exist.', str(messages))
+
     def test_project_settings_version_view_get_project_mismatch(self):
         self.http_client.force_login(user=self.user2.user)
         response = self.http_client.get(reverse('project_settings_version', kwargs={'project_id': str(self.project2.id), 'version_id': str(self.version1.id)}))
         messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, '/projects')
-        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified version does not exist.', str(messages))
 
     def test_project_settings_version_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -121,7 +128,30 @@ class TestProjectSettingsVersionView(TestCase):
         self.assertEqual(self.version1.current.description, 'Initial Version 1.0 Description Modified')
         self.assertEqual(self.version1.current.label, '1.0.0')
         self.assertFalse(self.version1.current.is_active)
-        self.assertIn('Your version was successfully updated!', str(messages))
+        self.assertIn('Your version was successfully updated.', str(messages))
+
+    def test_project_settings_version_view_post_version_does_not_exist(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        version_form_data = {
+            'name': 'Version 1.0 Modified',
+            'description': 'Initial Version 1.0 Description Modified',
+            'label': '1.0.0',
+            'is_active': False
+            }
+        version_form = VersionDataForm(version_form_data)
+        version_form.is_valid()
+        form_data = urlencode(version_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('project_settings_version', kwargs={'project_id': self.project1.id, 'version_id': '14de002e-90e0-43a3-8736-d27b3859f227'}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, '/projects')
+        # Make sure the form did not update the database
+        self.version1.refresh_from_db()
+        self.assertEqual(self.version1.current.name, 'Version 1.0')
+        self.assertEqual(self.version1.current.description, 'Initial Version 1.0 Description')
+        self.assertEqual(self.version1.current.label, '1.0')
+        self.assertTrue(self.version1.current.is_active)
+        self.assertIn('The specified version does not exist.', str(messages))
 
     def test_project_settings_version_view_post_to_project_without_label(self):
         self.project1.label = None
@@ -145,7 +175,7 @@ class TestProjectSettingsVersionView(TestCase):
         self.assertEqual(self.version1.current.description, 'Initial Version 1.0 Description Modified')
         self.assertEqual(self.version1.current.label, '1.0.0')
         self.assertFalse(self.version1.current.is_active)
-        self.assertIn('Your version was successfully updated!', str(messages))
+        self.assertIn('Your version was successfully updated.', str(messages))
 
     def test_project_settings_version_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -161,7 +191,7 @@ class TestProjectSettingsVersionView(TestCase):
         self.assertEqual(self.version1.current.description, 'Initial Version 1.0 Description')
         self.assertEqual(self.version1.current.label, '1.0')
         self.assertTrue(self.version1.current.is_active)
-        self.assertIn('Invalid data received. Please try again.', str(messages))
+        self.assertIn('Error saving version.', str(messages))
 
     def test_project_settings_version_view_post_user_no_permission(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -177,11 +207,11 @@ class TestProjectSettingsVersionView(TestCase):
         self.http_client.force_login(user=self.user2.user)
         response = self.http_client.post(reverse('project_settings_version', kwargs={'project_id': self.project1.id, 'version_id': self.version1.id}), form_data, url_encoding)
         messages = list(get_messages(response.wsgi_request))
-        self.assertRedirects(response, '/login?next=/projects/')
+        self.assertRedirects(response, '/projects')
         # Make sure the form did not update the database
         self.version1.refresh_from_db()
         self.assertEqual(self.version1.current.name, 'Version 1.0')
         self.assertEqual(self.version1.current.description, 'Initial Version 1.0 Description')
         self.assertEqual(self.version1.current.label, '1.0')
         self.assertTrue(self.version1.current.is_active)
-        self.assertIn('The specified Version does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified version does not exist.', str(messages))

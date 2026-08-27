@@ -123,7 +123,7 @@ class TestNewIssueView(TestCase):
         response = self.http_client.get(reverse('new_project_issue', kwargs={'project_id': 'this_project_does_not_exist'}))
         messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, reverse('projects'))
-        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))
 
     def test_new_issue_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -162,7 +162,7 @@ class TestNewIssueView(TestCase):
         self.assertEqual(issue.current.built_in_severity, self.issue_severity_minor)
         self.assertIn(self.version1, issue.current.version.all())
         self.assertIn(self.component1, issue.current.component.all())
-        self.assertIn('Your issue was successfully added!', str(messages))
+        self.assertIn('Your issue was successfully added.', str(messages))
 
     def test_new_issue_view_post_with_project_label_that_does_not_exist(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -188,7 +188,7 @@ class TestNewIssueView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/projects')
-        self.assertIn('The specified Project does not exist or you do not have permission to see it.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))
 
     def test_new_issue_post_with_bad_component(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -226,7 +226,7 @@ class TestNewIssueView(TestCase):
         self.assertEqual(issue.current.built_in_severity, self.issue_severity_minor)
         self.assertEqual(len(issue.current.version.all()), 0)
         self.assertNotIn(self.component1.id, issue.current.component.all())
-        self.assertIn('Your issue was successfully added!', str(messages))
+        self.assertIn('Your issue was successfully added.', str(messages))
 
     def test_new_issue_post_with_bad_version(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -264,7 +264,7 @@ class TestNewIssueView(TestCase):
         self.assertEqual(issue.current.built_in_severity, self.issue_severity_minor)
         self.assertEqual(len(issue.current.version.all()), 0)
         self.assertNotIn(self.version1.id, issue.current.version.all())
-        self.assertIn('Your issue was successfully added!', str(messages))
+        self.assertIn('Your issue was successfully added.', str(messages))
 
     def test_new_issue_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -272,8 +272,8 @@ class TestNewIssueView(TestCase):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(reverse('new_project_issue', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
         messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/project/issues_table.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/project/' + str(self.project1.label.current.label) + '/')
         self.assertIn('Error saving issue.', str(messages))
         # Make sure the form did not save to the database
         self.assertEqual(Issue.objects.count(), 0)

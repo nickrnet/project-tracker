@@ -1,3 +1,4 @@
+from django.contrib.messages import get_messages
 from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
@@ -20,6 +21,7 @@ class TestIssueView(TestCase):
 
         self.system_user = CoreUser.objects.get_or_create_system_user()
         self.user1 = CoreUser.objects.create_core_user_from_web({'email': 'testuser1@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
+        self.user2 = CoreUser.objects.create_core_user_from_web({'email': 'testuser2@project-tracker.dev', 'password': 'password', 'timezone': 'EST'})
         BuiltInIssueType.objects.initialize_built_in_issue_types()
         BuiltInIssuePriority.objects.initialize_built_in_issue_priorities()
         BuiltInIssueStatus.objects.initialize_built_in_issue_statuses()
@@ -88,6 +90,22 @@ class TestIssueView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/issue/issue_modal.html')
 
+    def test_issue_view_get_no_project_permission(self):
+        self.http_client.force_login(user=self.user2.user)
+        response = self.http_client.get(reverse('issue', kwargs={'issue_id': str(self.issue1.id)}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issues')
+        self.assertIn('The specified issue does not exist.', str(messages))
+
+    def test_issue_view_get_issue_does_not_exist(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('issue', kwargs={'issue_id': '845d1553-6709-4c26-bb65-051da7de8d5c'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issues')
+        self.assertIn('The specified issue does not exist.', str(messages))
+
     def test_issue_view_post(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
@@ -104,11 +122,39 @@ class TestIssueView(TestCase):
                 'built_in_severity': str(self.issue_type_severity.id),
                 }
             )
+        messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertIn('Your issue was successfully updated.', str(messages))
+        # Make sure issue was updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
         self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
+
+    def test_issue_view_post_issue_does_not_exist(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('issue', kwargs={'issue_id': 'f4c72cd7-c27f-4894-99db-eb6d249eb651'}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issues')
+        self.assertIn('The specified issue does not exist.', str(messages))
+        # Make sure issue was not updated
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Issue 1')
+        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
 
     def test_issue_view_post_with_bad_form(self):
         self.http_client.force_login(user=self.user1.user)
@@ -125,8 +171,11 @@ class TestIssueView(TestCase):
                 'built_in_severity': str(self.issue_type_severity.id),
                 }
             )
+        messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertIn('Error saving issue.', str(messages))
+        # Make sure issue was not updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
@@ -147,7 +196,10 @@ class TestIssueView(TestCase):
                 'built_in_severity': str(self.issue_type_severity.id),
                 }
             )
+        messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, reverse('projects'))
+        self.assertIn('The specified issue does not exist.', str(messages))
+        # Make sure issue was not updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')

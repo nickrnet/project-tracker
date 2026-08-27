@@ -76,7 +76,7 @@ class TestUserView(TestCase):
         self.assertEqual(user.current.state, 'NY')
         self.assertEqual(user.current.country, 'US')
         self.assertEqual(user.current.timezone, 'EST')
-        self.assertIn('Your user was successfully updated!', str(messages))
+        self.assertIn('Your user was successfully updated.', str(messages))
 
     def test_user_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

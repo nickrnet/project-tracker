@@ -53,7 +53,7 @@ class TestOrganizationSettingsInviteUserView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/organizations')
-        self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
+        self.assertIn('The specified organization does not exist.', str(messages))
 
     def test_organization_settings_invite_user_view_get_user_not_in_organization(self):
         self.client.force_login(user=self.member2.user)
@@ -61,7 +61,7 @@ class TestOrganizationSettingsInviteUserView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/organizations')
-        self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
+        self.assertIn('The specified organization does not exist.', str(messages))
 
     def test_organization_settings_invite_user_view_post(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -71,7 +71,7 @@ class TestOrganizationSettingsInviteUserView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/organization/organization_invites_table.html')
-        self.assertIn(f'Invite sent to {self.member2.current.email}!', str(messages))
+        self.assertIn(f'Invite sent to {self.member2.current.email}.', str(messages))
         self.organization.refresh_from_db()
         invite = OrganizationInvite.objects.get(current__email=self.member2.current.email)
         self.assertIn(invite, self.organization.member_invites.all())
@@ -85,7 +85,7 @@ class TestOrganizationSettingsInviteUserView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/organizations')
-        self.assertIn('The specified organization does not exist. Create it and try again.', str(messages))
+        self.assertIn('The specified organization does not exist.', str(messages))
 
     def test_organization_settings_invite_user_view_post_without_email_address(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -95,7 +95,7 @@ class TestOrganizationSettingsInviteUserView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/organization/organization_invites_table.html')
-        self.assertIn('Email is required to send an invite.', str(messages))
+        self.assertIn('An email address is required to send an invite.', str(messages))
         self.organization.refresh_from_db()
         with self.assertRaises(OrganizationInvite.DoesNotExist):
             OrganizationInvite.objects.get(current__email='')

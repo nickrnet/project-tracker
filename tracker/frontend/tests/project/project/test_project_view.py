@@ -57,7 +57,7 @@ class TestProjectView(TestCase):
         response = self.http_client.get(reverse('project', kwargs={'project_id': 'awesome-project'}))
         self.assertRedirects(response, reverse('projects'))
         messages = list(get_messages(response.wsgi_request))
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))
 
     def test_project_view_get_with_bad_project_id(self):
         self.http_client.force_login(user=self.user1.user)
@@ -66,4 +66,4 @@ class TestProjectView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         # Make sure the form did not update the database
         self.assertEqual(ProjectData.objects.count(), 1)
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))

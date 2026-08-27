@@ -8,7 +8,7 @@ from core.models import organization as core_organization_models
 
 
 class OrganizationUserSelectView(LoginRequiredMixin, View):
-    def handle_users(self, request, organization, selected_user_ids):
+    def handle_user_selection(self, request, organization, selected_user_ids):
         updated_users = False
         # TODO: Roles/permissions per user
         if len(selected_user_ids) > 0:
@@ -44,13 +44,13 @@ class OrganizationUserSelectView(LoginRequiredMixin, View):
         try:
             organization = core_organization_models.Organization.active_objects.get(pk=organization_id)
         except core_organization_models.Organization.DoesNotExist:
-            messages.error(request, "The specified organization does not exist. Create it and try again.")
+            messages.error(request, "The specified organization does not exist.")
             return redirect("organizations")
 
         # TODO: Roles/permissions per user to make sure user can actually see the organization users
         # Make sure logged in user is a part of the Organization
         if not organization.members.filter(pk=logged_in_user.id).exists():
-            messages.error(request, "The specified organization does not exist. Create it and try again.")
+            messages.error(request, "The specified organization does not exist.")
             return redirect("organizations")
 
         # Get available users (organization members + project users) and exclude
@@ -75,11 +75,10 @@ class OrganizationUserSelectView(LoginRequiredMixin, View):
         try:
             organization = core_organization_models.Organization.active_objects.get(pk=organization_id)
         except core_organization_models.Organization.DoesNotExist:
-            messages.error(request, "The specified organization does not exist. Create it and try again.")
+            messages.error(request, "The specified organization does not exist.")
             return redirect("organizations")
 
-        selected_user_ids = request.POST.getlist('current_users')
-        self.handle_users(request, organization, selected_user_ids)
+        self.handle_user_selection(request, organization, request.POST.getlist('current_users'))
 
         return render(
             request=request,

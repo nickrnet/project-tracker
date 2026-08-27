@@ -45,7 +45,7 @@ class NewGitRepositoryView(LoginRequiredMixin, View):
             git_repository_data.git_repository = git_repository
             git_repository_data.save()
 
-            messages.success(request, ('Your git repository was successfully added!'))
+            messages.success(request, ('Your git repository was successfully added.'))
             repositories = logged_in_user.list_git_repositories()
             return render(
                 request=request,
