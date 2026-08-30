@@ -56,8 +56,15 @@ class TestOrganizationView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/organization/organization_template.html')
 
+    def test_organization_view_get_organization_does_not_exist(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.get(reverse('organization', kwargs={'organization_id': '2f23329d-b7f6-4ebd-bdfe-460d67e81bb4'}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/organizations')
+        self.assertIn('The specified organization does not exist.', str(messages))
+
     def test_organization_view_get_with_bad_organization_id(self):
-        bad_uuid = '4af0c4fd-839a-4403-bf2d-e4204b9dab79'
         url_encoding = 'application/x-www-form-urlencoded'
         new_organization_form_data = {
             'name': 'Organization 1 Modified',
@@ -75,7 +82,7 @@ class TestOrganizationView(TestCase):
         organization_form.is_valid()
         form_data = urlencode(organization_form.data)
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(reverse('organization', kwargs={'organization_id': bad_uuid}), form_data, url_encoding)
+        response = self.http_client.post(reverse('organization', kwargs={'organization_id': '4af0c4fd-839a-4403-bf2d-e4204b9dab79'}), form_data, url_encoding)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('organizations'))
 
@@ -115,7 +122,7 @@ class TestOrganizationView(TestCase):
         self.assertEqual(self.organization1.current.country, 'US')
         self.assertEqual(self.organization1.current.timezone, 'EST')
         self.assertIsNone(self.organization1.subscription)
-        self.assertIn('Organization successfully updated!', str(messages))
+        self.assertIn('Organization successfully updated.', str(messages))
 
     def test_organization_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

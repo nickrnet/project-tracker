@@ -25,5 +25,10 @@
         </h2>
     </div>
     {% include "core/organization/organizations_table.html" %}
+    {% if messages %}
+    <script>
+        showToast();
+    </script>
+    {% endif %}
 </div>
 {% endblock %}

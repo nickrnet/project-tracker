@@ -8,7 +8,6 @@
     };
 </script>
 <div id="project-settings-components-table">
-    {% include "project/project/component_toast.html" %}
     <div class="row">
         <div class="col-2">
         <button
@@ -34,7 +33,7 @@
             <tbody>
             {% for component in components %}
                 <tr
-                    hx-get="{% url 'project_settings_component' component.id %}"
+                    hx-get="{% url 'project_settings_component' project_id component.id %}"
                     hx-target="#project-settings-component-modal"
                     hx-swap="innerHTML"
                     data-bs-toggle="modal"

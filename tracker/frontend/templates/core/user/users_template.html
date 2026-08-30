@@ -25,5 +25,10 @@
         </h2>
     </div>
     {% include "core/user/users_table.html" %}
+    {% if messages %}
+    <script>
+        showToast();
+    </script>
+    {% endif %}
 </div>
 {% endblock %}

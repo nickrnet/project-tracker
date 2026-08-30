@@ -23,7 +23,7 @@
             class="component-form"
             id="component-form"
             novalidate
-            hx-post="{% url 'project_settings_component' component_id %}"
+            hx-post="{% url 'project_settings_component' project_id component_id %}"
             hx-target="#project-settings-modal"
             data-bs-toggle="mdoal"
             data-bs-target="#project-settings-modal">

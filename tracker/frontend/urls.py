@@ -2,7 +2,9 @@ import uuid
 
 from django.http import HttpResponse
 from django.urls import path, register_converter
+# from django.urls.converters import get_converters
 
+from frontend.views.signup_view import SignupView
 from frontend.views import login_view
 from frontend.views import logout_view
 from frontend.views.project.git_repository import git_repository_view
@@ -35,7 +37,6 @@ from frontend.views.project.issue import new_issue_view
 from frontend.views.core.user import user_view
 from frontend.views.core.user import users_view
 from frontend.views.core.user import new_user_view
-from frontend.views import signup_view
 
 
 def squash_google_chrome_dev_tools(request):
@@ -55,61 +56,67 @@ class UUIDOrLabelConverter:
         return str(value)
 
 
+# if "uuid_or_label" not in get_converters():
+#     register_converter(UUIDOrLabelConverter, 'uuid_or_label')
 register_converter(UUIDOrLabelConverter, 'uuid_or_label')
 
 urlpatterns = [
+    # These are URL paths that don't mean anything to us
     # Stupid Chrome
     path('.well-known/appspecific/com.chrome.devtools.json', squash_google_chrome_dev_tools),
-    # TODO: Audit these to make sure they're all still hit
-    path('', login_view.login_to_app, name='index'),
 
-    path('signup', signup_view.signup, name='signup'),
-    path('login', login_view.login_to_app, name='login'),
-    path('logout', logout_view.logout_of_app, name='logout'),
 
-    path('new_project', new_project_view.new_project, name='new_project'),
-    path('check_project_label_availability/', check_project_label_availability_view.check_project_label_availability, name='check_project_label_availability'),
-    path('check_project_label_availability/<slug:label_text>/', check_project_label_availability_view.check_project_label_availability, name='check_project_label_availability'),
-    path('projects', projects_view.projects, name='projects'),
-    path('project/<uuid_or_label:project_id>/', project_view.project, name='project'),
-    path('project/issue/', project_issue_view.issue, name='project_issue'),
-    path('project/issue/<uuid_or_label:issue_id>/', project_issue_view.issue, name='project_issue'),
-    path('project/new_issue/', new_project_issue_view.new_issue, name='new_project_issue'),
-    path('project/new_issue/<uuid_or_label:project_id>/', new_project_issue_view.new_issue, name='new_project_issue'),
+    # TODO: Audit these to make sure they're all still hit/legit
 
-    path('project-settings/<uuid_or_label:project_id>/', project_settings_view.project_settings, name='project_settings'),
-    path('project-settings/git-repository/', project_settings_git_repository_view.git_repository, name='project_settings_git_repository'),
-    path('project-settings/git-repository/<uuid:git_repository_id>/', project_settings_git_repository_view.git_repository, name='project_settings_git_repository'),
-    path('project-settings/new-git-repository/', project_settings_new_git_repository_view.new_git_repository, name='project_settings_new_git_repository'),
-    path('project-settings/new-git-repository/<uuid_or_label:project_id>/', project_settings_new_git_repository_view.new_git_repository, name='project_settings_new_git_repository'),
-    path('project-settings/component/', project_settings_component_view.component, name='project_settings_component'),
-    path('project-settings/component/<uuid_or_label:component_id>/', project_settings_component_view.component, name='project_settings_component'),
-    path('project-settings/new-component/', project_settings_new_component_view.new_component, name='project_settings_new_component'),
-    path('project-settings/new-component/<uuid_or_label:project_id>/', project_settings_new_component_view.new_component, name='project_settings_new_component'),
-    path('project-settings/version/', project_settings_version_view.version, name='project_settings_version'),
-    path('project-settings/version/<uuid_or_label:version_id>/', project_settings_version_view.version, name='project_settings_version'),
-    path('project-settings/new-version/', project_settings_new_version_view.new_version, name='project_settings_new_version'),
-    path('project-settings/new-version/<uuid_or_label:project_id>/', project_settings_new_version_view.new_version, name='project_settings_new_version'),
-    path('<uuid_or_label:project_id>/project-settings/user-select/', project_settings_user_select_view.user_select, name='project_settings_user_select'),
+    # These are the "endpoints" in Project Tracker
+    path('', login_view.LoginView.as_view(), name='index'),
+    path('signup', SignupView.as_view(), name='signup'),
+    path('login', login_view.LoginView.as_view(), name='login'),
+    path('logout', logout_view.LogoutView.as_view(), name='logout'),
 
-    path('new_git_repository', new_git_repository_view.new_git_repository, name='new_git_repository'),
-    path('git_repositories', git_repositories_view.git_repositories, name='git_repositories'),
-    path('git_repository/<uuid:git_repository_id>/', git_repository_view.git_repository, name='git_repository'),
+    # Project
+    path('check_project_label_availability/', check_project_label_availability_view.CheckProjectLabelAvailabilityView.as_view(), name='check_project_label_availability'),
+    path('check_project_label_availability/<slug:label_text>/', check_project_label_availability_view.CheckProjectLabelAvailabilityView.as_view, name='check_project_label_availability'),
+    path('projects', projects_view.ProjectsView.as_view(), name='projects'),
+    path('projects/new_project', new_project_view.NewProjectView.as_view(), name='new_project'),
+    path('project/<uuid_or_label:project_id>/', project_view.ProjectView.as_view(), name='project'),
+    path('project/<uuid_or_label:project_id>/issue/', project_issue_view.IssueView.as_view(), name='project_issue'),
+    path('project/<uuid_or_label:project_id>/issue/<uuid_or_label:issue_id>/', project_issue_view.IssueView.as_view(), name='project_issue'),
+    path('project/<uuid_or_label:project_id>/new_issue/', new_project_issue_view.NewIssueView.as_view(), name='new_project_issue'),
+    # Project Settings modal(s)
+    path('project/<uuid_or_label:project_id>/project-settings/', project_settings_view.ProjectSettingsView.as_view(), name='project_settings'),
+    path('project/<uuid_or_label:project_id>/project-settings/git-repository/', project_settings_git_repository_view.GitRepositoryView.as_view(), name='project_settings_git_repository'),
+    path('project/<uuid_or_label:project_id>/project-settings/git-repository/<uuid_or_label:git_repository_id>/', project_settings_git_repository_view.GitRepositoryView.as_view(), name='project_settings_git_repository'),
+    path('project/<uuid_or_label:project_id>/project-settings/new-git-repository/', project_settings_new_git_repository_view.ProjectSettingsNewGitRepositoryView.as_view(), name='project_settings_new_git_repository'),
+    path('project/<uuid_or_label:project_id>/project-settings/component/<uuid_or_label:component_id>/', project_settings_component_view.ComponentView.as_view(), name='project_settings_component'),
+    path('project/<uuid_or_label:project_id>/project-settings/new-component/', project_settings_new_component_view.NewComponentView.as_view(), name='project_settings_new_component'),
+    path('project/<uuid_or_label:project_id>/project-settings/version/<uuid_or_label:version_id>/', project_settings_version_view.ProjectSettingsVersionView.as_view(), name='project_settings_version'),
+    path('project/<uuid_or_label:project_id>/project-settings/new-version/', project_settings_new_version_view.NewVersionView.as_view(), name='project_settings_new_version'),
+    path('project/<uuid_or_label:project_id>/project-settings/user-select/', project_settings_user_select_view.ProjectSettingUserSelectView.as_view(), name='project_settings_user_select'),
 
-    path('new_issue/', new_issue_view.new_issue, name='new_issue'),
-    path('new_issue/<uuid_or_label:project_id>/', new_issue_view.new_issue, name='new_issue'),
-    path('issues', issues_view.issues, name='issues'),
-    path('issue/<uuid:issue_id>/', issue_view.issue, name='issue'),
+    # Git Repository
+    path('new_git_repository', new_git_repository_view.NewGitRepositoryView.as_view(), name='new_git_repository'),
+    path('git_repositories', git_repositories_view.GitRepositoriesView.as_view(), name='git_repositories'),
+    path('git_repository/<uuid_or_label:git_repository_id>/', git_repository_view.GitRepositoryView.as_view(), name='git_repository'),
 
-    path('new_organization', new_organization_view.new_organization, name='new_organization'),
-    path('organizations', organizations_view.organizations, name='organizations'),
-    path('organization/<uuid:organization_id>/', organization_view.organization, name='organization'),
-    path('organization-settings/<uuid:organization_id>/', organization_settings_view.organization_settings, name='organization_settings'),
-    path('organization/<uuid_or_label:organization_id>/organization-settings/user-select/', organization_settings_user_select_view.user_select, name='organization_settings_user_select'),
-    path('organization/<uuid_or_label:organization_id>/organization-settings/invite-user/', organization_settings_invite_user_view.invite_user, name='organization_settings_invite_user'),
-    path('accept_organization_invite/<uuid:invite_id>/', organization_accept_invite_view.accept_organization_invite, name='accept_organization_invite'),
+    # Issue
+    path('new_issue/', new_issue_view.NewIssueView.as_view(), name='new_issue'),
+    path('new_issue/<uuid_or_label:project_id>/', new_issue_view.NewIssueView.as_view(), name='new_issue'),
+    path('issues', issues_view.IssuesView.as_view(), name='issues'),
+    path('issue/<uuid_or_label:issue_id>/', issue_view.IssueView.as_view(), name='issue'),
 
-    path('users', users_view.users, name='users'),
-    path('new_user', new_user_view.new_user, name='new_user'),
-    path('user/<uuid:user_id>/', user_view.user, name='user'),
+    # Organization
+    path('new_organization', new_organization_view.NewOrganizationView.as_view(), name='new_organization'),
+    path('organizations', organizations_view.OrganizationView.as_view(), name='organizations'),
+    path('organization/<uuid_or_label:organization_id>/', organization_view.OrganizationView.as_view(), name='organization'),
+    # Organization Settings modal
+    path('organization/<uuid_or_label:organization_id>/organization-settings/', organization_settings_view.OrganizationSettingsView.as_view(), name='organization_settings'),
+    path('organization/<uuid_or_label:organization_id>/organization-settings/user-select/', organization_settings_user_select_view.OrganizationUserSelectView.as_view(), name='organization_settings_user_select'),
+    path('organization/<uuid_or_label:organization_id>/organization-settings/invite-user/', organization_settings_invite_user_view.OrganizationSettingsInviteUserView.as_view(), name='organization_settings_invite_user'),
+    path('organization/<uuid_or_label:organization_id>/accept_organization_invite/<uuid_or_label:invite_id>/', organization_accept_invite_view.AcceptOrganizationInviteView.as_view(), name='accept_organization_invite'),
+
+    # User
+    path('users', users_view.UsersView.as_view(), name='users'),
+    path('new_user', new_user_view.NewUserView.as_view(), name='new_user'),
+    path('user/<uuid_or_label:user_id>/', user_view.UserView.as_view(), name='user'),
     ]

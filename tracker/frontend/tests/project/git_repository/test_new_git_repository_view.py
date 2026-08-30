@@ -52,7 +52,7 @@ class TestNewGitRepositoryView(TestCase):
         self.assertEqual(git_repository.current.name, 'Git Repository 1')
         self.assertEqual(git_repository.current.description, 'Initial Repo 1 Description')
         self.assertEqual(git_repository.current.url, 'https://github.com/nickrnet/project-tracker')
-        self.assertIn('Your git repository was successfully added!', str(messages))
+        self.assertIn('Your git repository was successfully added.', str(messages))
 
     def test_new_git_repository_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'

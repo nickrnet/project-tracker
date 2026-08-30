@@ -68,7 +68,7 @@ class TestProjectSettingsView(TestCase):
     def test_project_settings_view_redirects_when_not_logged_in(self):
         response = self.http_client.get(reverse('project_settings', kwargs={'project_id': str(self.project1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/project-settings/' + str(self.project1.id) + '/')
+        self.assertRedirects(response, '/login?next=/project/' + str(self.project1.id) + '/project-settings/')
 
     def test_project_settings_view_get(self):
         self.http_client.force_login(user=self.user1.user)
@@ -125,7 +125,7 @@ class TestProjectSettingsView(TestCase):
         self.assertEqual(self.project1.current.is_private, True)
         self.assertEqual(self.project1.current.start_date, datetime.strptime(start_date, '%m/%d/%Y').date())
         self.assertEqual(self.project1.current.end_date, datetime.strptime(end_date, '%m/%d/%Y').date())
-        self.assertIn('Your project was successfully updated!', str(messages))
+        self.assertIn('Your project was successfully updated.', str(messages))
 
     def test_project_settings_view_post_without_label(self):
         self.project1.label = None
@@ -163,7 +163,7 @@ class TestProjectSettingsView(TestCase):
         self.assertEqual(self.project1.current.is_private, True)
         self.assertEqual(self.project1.current.start_date, datetime.strptime(start_date, '%m/%d/%Y').date())
         self.assertEqual(self.project1.current.end_date, datetime.strptime(end_date, '%m/%d/%Y').date())
-        self.assertIn('Your project was successfully updated!', str(messages))
+        self.assertIn('Your project was successfully updated.', str(messages))
 
     def test_project_settings_view_post_with_bad_form(self):
         url_encoding = 'application/x-www-form-urlencoded'
@@ -199,4 +199,4 @@ class TestProjectSettingsView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         # Make sure the form did not update the database
         self.assertEqual(ProjectData.objects.count(), 1)  # There is one ProjectData object created in setUp
-        self.assertIn('The specified Project does not exist or you do not have permission to see it. Try to create it, or contact the organization administrator.', str(messages))
+        self.assertIn('The specified project does not exist.', str(messages))

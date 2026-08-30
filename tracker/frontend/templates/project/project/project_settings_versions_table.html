@@ -8,7 +8,6 @@
     };
 </script>
 <div id="project-settings-versions-table">
-    {% include "project/project/version_toast.html" %}
     <div class="row">
         <div class="col-2">
         <button
@@ -35,7 +34,7 @@
             <tbody>
             {% for version in versions %}
                 <tr
-                    hx-get="{% url 'project_settings_version' version.id %}"
+                    hx-get="{% url 'project_settings_version' version.project.id version.id %}"
                     hx-target="#project-settings-version-modal"
                     hx-swap="innerHTML"
                     data-bs-toggle="modal"
