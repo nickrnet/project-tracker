@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% block content %}
+    <p>{{ issue_label }} has been updated.</p>
+    <p>Please click the link below or paste into your browser to view the issue:</p>
+    <p><a href="{{ issue_url|safe }}">{{ issue_url|safe }}</a></p>
+{% endblock %}

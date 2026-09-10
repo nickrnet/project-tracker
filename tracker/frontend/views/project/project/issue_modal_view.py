@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
@@ -12,7 +11,7 @@ from project.models import issue as issue_models
 from frontend.forms.project.issue import issue_form
 
 
-class IssueView(LoginRequiredMixin, View):
+class IssueModalView(LoginRequiredMixin, View):
     def valid_issue(self, logged_in_user, project_id, issue):
         not_valid = False
         # Make sure issue is in project
@@ -58,7 +57,7 @@ class IssueView(LoginRequiredMixin, View):
 
             return render(
                 request=request,
-                template_name="project/project/issue.html",
+                template_name="project/project/issue_modal.html",
                 context={
                     'logged_in_user': logged_in_user,
                     'issue_form': form,
@@ -82,28 +81,27 @@ class IssueView(LoginRequiredMixin, View):
         selected_components = request.POST.getlist('component')
         selected_versions = request.POST.getlist('version')
 
-        if received_issue_form.is_valid():
-            issue_form_data = received_issue_form.cleaned_data.copy()
-            try:
-                issue = logged_in_user.list_issues().get(pk=issue_id)
+        try:
+            issue = logged_in_user.list_issues().get(pk=issue_id)
 
-                if not self.valid_issue(logged_in_user, project_id, issue):
-                    messages.error(request, 'The specified issue does not exist.')
-                    return redirect("projects")
+            if not self.valid_issue(logged_in_user, project_id, issue):
+                messages.error(request, 'The specified issue does not exist.')
+                return redirect("projects")
 
+            if received_issue_form.is_valid():
                 issue_data = issue_models.IssueData.objects.create(
                     created_by=logged_in_user,
                     created_on=timezone.now(),
                     issue=issue,
-                    project_id=issue_form_data.get("project", ''),
-                    summary=issue_form_data.get("summary"),
-                    description=issue_form_data.get("description", ''),
-                    reporter_id=issue_form_data.get("reporter", ''),
-                    assignee_id=issue_form_data.get("assignee", ''),
-                    built_in_type_id=issue_form_data.get("built_in_type", ''),
-                    built_in_priority_id=issue_form_data.get("built_in_priority", ''),
-                    built_in_status_id=issue_form_data.get("built_in_status", ''),
-                    built_in_severity_id=issue_form_data.get("built_in_severity", ''),
+                    project_id=received_issue_form.cleaned_data.get("project", ''),
+                    summary=received_issue_form.cleaned_data.get("summary"),
+                    description=received_issue_form.cleaned_data.get("description", ''),
+                    reporter_id=received_issue_form.cleaned_data.get("reporter", ''),
+                    assignee_id=received_issue_form.cleaned_data.get("assignee", ''),
+                    built_in_type_id=received_issue_form.cleaned_data.get("built_in_type", ''),
+                    built_in_priority_id=received_issue_form.cleaned_data.get("built_in_priority", ''),
+                    built_in_status_id=received_issue_form.cleaned_data.get("built_in_status", ''),
+                    built_in_severity_id=received_issue_form.cleaned_data.get("built_in_severity", ''),
                     )
                 issue_data.component.set(selected_components)
                 issue_data.version.set(selected_versions)
@@ -111,11 +109,17 @@ class IssueView(LoginRequiredMixin, View):
                 issue.project_id = project_id
                 issue.save()
                 messages.success(request, 'Issue updated.')
-                issue.send_issue_update_email(request.build_absolute_uri(f"project/{issue.current.project.label.current.label}/issue/{issue.id}/"))
-                return redirect(reverse('project_issue', kwargs={'project_id': project_id, 'issue_id': issue.id}))
-            except issue_models.Issue.DoesNotExist:
-                messages.error(request, 'The specified issue does not exist.')
-                return redirect('projects')
-        else:
-            messages.error(request, 'Error saving issue.')
-            return redirect(reverse('project_issue', kwargs={'project_id': project_id, 'issue_id': issue_id}))
+            else:
+                messages.error(request, 'Error saving issue.')
+
+            return render(
+                request=request,
+                template_name="project/project/issues_table.html",
+                context={
+                    'logged_in_user': logged_in_user,
+                    'issues': logged_in_user.list_issues(),
+                    },
+                )
+        except issue_models.Issue.DoesNotExist:
+            messages.error(request, 'The specified issue does not exist.')
+            return redirect('projects')

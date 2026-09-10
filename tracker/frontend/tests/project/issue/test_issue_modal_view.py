@@ -13,7 +13,7 @@ from project.models.severity import BuiltInIssueSeverity
 from project.models.project import Project, ProjectData, ProjectLabel, ProjectLabelData
 
 
-class TestProjectIssueView(TestCase):
+class TestIssueModalView(TestCase):
     def setUp(self):
         """
         Creates 1 user, 1 project, 1 issue, and the built-in Issue requirements.
@@ -37,6 +37,7 @@ class TestProjectIssueView(TestCase):
             label='project01',
             description='Project 01 Label'
             )
+
         self.project1_data = ProjectData.objects.create(
             created_by=self.user1,
             name="Initial Project 1",
@@ -51,27 +52,6 @@ class TestProjectIssueView(TestCase):
         self.project1.label = self.project1_label
         self.project1.users.add(self.user1)
         self.project1.save()
-
-        self.project2_label_data = ProjectLabelData.objects.create(
-            created_by=self.user2,
-            label='project02',
-            description='Project 02 Label'
-            )
-        self.project2_data = ProjectData.objects.create(
-            created_by=self.user2,
-            name="Initial Project 2",
-            description="Initial Project 2 Description",
-            start_date=timezone.now(),
-            is_active=True
-            )
-        self.project2 = Project.objects.create(created_by=self.user2, current=self.project2_data)
-        self.project2_label = ProjectLabel.objects.create(created_by=self.user2, current=self.project2_label_data, project=self.project2)
-        self.project2_label_data.project_label = self.project2_label
-        self.project2_label_data.save()
-        self.project2.label = self.project2_label
-        self.project2.users.add(self.user2)
-        self.project2.save()
-
         self.issue1_data = IssueData.objects.create(
             created_by=self.user1,
             reporter=self.user1,
@@ -96,44 +76,40 @@ class TestProjectIssueView(TestCase):
             project=self.project1
             )
         self.issue1_data.issue = self.issue1
-        self.issue1_data.save()
 
         self.http_client = Client()
 
-    def test_issue_view_redirects_when_not_logged_in(self):
-        response = self.http_client.get(reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}))
+    def test_issue_modal_view_redirects_when_not_logged_in(self):
+        response = self.http_client.get(reverse('issue_modal', kwargs={'issue_id': str(self.issue1.id)}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/project/' + str(self.project1.id) + '/issue/' + str(self.issue1.id) + '/')
+        self.assertRedirects(response, '/login?next=/issue/' + str(self.issue1.id) + '/modal/')
 
-    def test_issue_view_get(self):
+    def test_issue_modal_view_get(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}))
+        response = self.http_client.get(reverse('issue_modal', kwargs={'issue_id': str(self.issue1.id)}))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/project/issue.html')
+        self.assertTemplateUsed(response, 'project/issue/issue_modal.html')
 
-    def test_issue_view_get_no_permission(self):
+    def test_issue_modal_view_get_no_project_permission(self):
         self.http_client.force_login(user=self.user2.user)
-        response = self.http_client.get(reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}))
+        response = self.http_client.get(reverse('issue_modal', kwargs={'issue_id': str(self.issue1.id)}))
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/projects')
+        self.assertRedirects(response, '/issues')
         self.assertIn('The specified issue does not exist.', str(messages))
 
-    def test_issue_view_get_invalid_project(self):
+    def test_issue_modal_view_get_issue_does_not_exist(self):
         self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.get(reverse('project_issue', kwargs={'project_id': 'ebeb9a79-3dc4-492a-bf00-37bb3fdfb823', 'issue_id': str(self.issue1.id)}))
+        response = self.http_client.get(reverse('issue_modal', kwargs={'issue_id': '845d1553-6709-4c26-bb65-051da7de8d5c'}))
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/projects')
-        updated_issue = Issue.objects.get(id=self.issue1.id)
-        self.assertEqual(updated_issue.current.summary, 'Issue 1')
-        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+        self.assertRedirects(response, '/issues')
         self.assertIn('The specified issue does not exist.', str(messages))
 
-    def test_issue_view_post(self):
+    def test_issue_modal_view_post(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
+            reverse('issue_modal', kwargs={'issue_id': str(self.issue1.id)}),
             data={
                 'project': str(self.project1.id),
                 'summary': 'Updated Issue 1 Summary',
@@ -147,17 +123,18 @@ class TestProjectIssueView(TestCase):
                 }
             )
         messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('project_issue', kwargs={'project_id': self.project1.id, 'issue_id': self.issue1.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertIn('Your issue was successfully updated.', str(messages))
+        # Make sure issue was updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
         self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
-        self.assertIn('Issue updated.', str(messages))
 
-    def test_issue_view_post_no_permission(self):
-        self.http_client.force_login(user=self.user2.user)
+    def test_issue_modal_view_post_issue_does_not_exist(self):
+        self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
+            reverse('issue_modal', kwargs={'issue_id': 'f4c72cd7-c27f-4894-99db-eb6d249eb651'}),
             data={
                 'project': str(self.project1.id),
                 'summary': 'Updated Issue 1 Summary',
@@ -172,16 +149,17 @@ class TestProjectIssueView(TestCase):
             )
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/projects')
+        self.assertRedirects(response, '/issues')
+        self.assertIn('The specified issue does not exist.', str(messages))
+        # Make sure issue was not updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
-        self.assertIn('The specified issue does not exist.', str(messages))
 
-    def test_issue_view_post_with_bad_form(self):
+    def test_issue_modal_view_post_with_bad_form(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
+            reverse('issue_modal', kwargs={'issue_id': str(self.issue1.id)}),
             data={
                 'summary': 'Updated Issue 1 Summary',
                 'description': 'Updated description for issue 1',
@@ -194,19 +172,20 @@ class TestProjectIssueView(TestCase):
                 }
             )
         messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('project_issue', kwargs={'project_id': self.project1.id, 'issue_id': self.issue1.id}))
-        updated_issue = Issue.objects.get(id=self.issue1.id)
-        self.assertEqual(updated_issue.current.summary, 'Issue 1')
-        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
         self.assertIn('Error saving issue.', str(messages))
+        # Make sure issue was not updated
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Issue 1')
+        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
 
-    def test_issue_view_post_move_issue_to_invalid_project(self):
+    def test_issue_modal_view_post_no_project(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
-            reverse('project_issue', kwargs={'project_id': 'cb780030-1d9a-4b8a-a113-3235f79ae373', 'issue_id': str(self.issue1.id)}),
+            reverse('issue_modal', kwargs={'issue_id': str(self.issue1.id)}),
             data={
-                'project': 'cb780030-1d9a-4b8a-a113-3235f79ae373',
+                'project': str(self.user1.id),
                 'summary': 'Updated Issue 1 Summary',
                 'description': 'Updated description for issue 1',
                 'reporter': str(self.user1.id),
@@ -218,33 +197,9 @@ class TestProjectIssueView(TestCase):
                 }
             )
         messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/projects')
+        self.assertRedirects(response, reverse('projects'))
+        self.assertIn('The specified issue does not exist.', str(messages))
+        # Make sure issue was not updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
-        self.assertIn('The specified issue does not exist.', str(messages))
-
-    def test_issue_view_post_invalid_project(self):
-        self.http_client.force_login(user=self.user1.user)
-        response = self.http_client.post(
-            reverse('project_issue', kwargs={'project_id': str(self.project2.id), 'issue_id': str(self.issue1.id)}),
-            data={
-                'project': str(self.project1.id),
-                'summary': 'Updated Issue 1 Summary',
-                'description': 'Updated description for issue 1',
-                'reporter': str(self.user1.id),
-                'assignee': '',
-                'built_in_type': str(self.issue_type_bug.id),
-                'built_in_priority': str(self.issue_type_priority.id),
-                'built_in_status': str(self.issue_type_status.id),
-                'built_in_severity': str(self.issue_type_severity.id),
-                }
-            )
-        messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/projects')
-        updated_issue = Issue.objects.get(id=self.issue1.id)
-        self.assertEqual(updated_issue.current.summary, 'Issue 1')
-        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
-        self.assertIn('The specified issue does not exist.', str(messages))

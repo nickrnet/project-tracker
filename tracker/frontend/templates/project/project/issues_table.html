@@ -33,7 +33,7 @@
         <tbody>
         {% for issue in issues %}
             <tr
-                hx-get="{% url 'project_issue' issue.id %}"
+                hx-get="{% url 'project_issue_modal' issue.project.id issue.id %}"
                 hx-target="#issue-modal"
                 data-bs-toggle="modal"
                 data-bs-target="#issue-modal">

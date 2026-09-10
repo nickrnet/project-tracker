@@ -1,0 +1,4 @@
+{{ issue_label }} has been updated.
+
+Please click the link below or paste into your browser to view the issue:
+{{ issue_url|safe }}
