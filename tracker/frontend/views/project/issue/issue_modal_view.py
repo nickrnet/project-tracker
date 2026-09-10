@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
@@ -12,7 +11,7 @@ from project.models import issue as issue_models
 from frontend.forms.project.issue import issue_form as project_issue_form
 
 
-class IssueView(LoginRequiredMixin, View):
+class IssueModalView(LoginRequiredMixin, View):
     def get(self, request, issue_id):
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
@@ -37,7 +36,7 @@ class IssueView(LoginRequiredMixin, View):
 
             return render(
                 request=request,
-                template_name="project/issue/issue_template.html",
+                template_name="project/issue/issue_modal.html",
                 context={
                     'logged_in_user': logged_in_user,
                     'projects': projects,
@@ -94,11 +93,17 @@ class IssueView(LoginRequiredMixin, View):
 
                 messages.success(request, ('Your issue was successfully updated.'))
                 issue.send_issue_update_email(request.build_absolute_uri(f"project/{issue.current.project.label.current.label}/issue/{issue.id}/"))
-                return redirect(reverse('issue', kwargs={'issue_id': issue.id}))
             else:
                 messages.error(request, 'Error saving issue.')
-                return redirect(reverse('issue', kwargs={'issue_id': issue_id}))
 
+            return render(
+                request=request,
+                template_name="project/issue/issues_table.html",
+                context={
+                    'logged_in_user': logged_in_user,
+                    'issues': logged_in_user.list_issues(),
+                    },
+                )
         except issue_models.Issue.DoesNotExist:
             messages.error(request, 'The specified issue does not exist.')
             return redirect('issues')

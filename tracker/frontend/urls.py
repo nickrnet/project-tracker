@@ -29,9 +29,11 @@ from frontend.views.project.project import project_settings_new_git_repository_v
 from frontend.views.project.project import project_settings_user_select_view
 from frontend.views.project.project import projects_view
 from frontend.views.project.project import issue_view as project_issue_view
+from frontend.views.project.project import issue_modal_view as project_issue_modal_view
 from frontend.views.project.project import new_issue_view as new_project_issue_view
 from frontend.views.project.project import new_project_view
 from frontend.views.project.issue import issue_view
+from frontend.views.project.issue import issue_modal_view
 from frontend.views.project.issue import issues_view
 from frontend.views.project.issue import new_issue_view
 from frontend.views.core.user import user_view
@@ -82,6 +84,7 @@ urlpatterns = [
     path('project/<uuid_or_label:project_id>/', project_view.ProjectView.as_view(), name='project'),
     path('project/<uuid_or_label:project_id>/issue/', project_issue_view.IssueView.as_view(), name='project_issue'),
     path('project/<uuid_or_label:project_id>/issue/<uuid_or_label:issue_id>/', project_issue_view.IssueView.as_view(), name='project_issue'),
+    path('project/<uuid_or_label:project_id>/issue/<uuid_or_label:issue_id>/modal/', project_issue_modal_view.IssueModalView.as_view(), name='project_issue_modal'),
     path('project/<uuid_or_label:project_id>/new_issue/', new_project_issue_view.NewIssueView.as_view(), name='new_project_issue'),
     # Project Settings modal(s)
     path('project/<uuid_or_label:project_id>/project-settings/', project_settings_view.ProjectSettingsView.as_view(), name='project_settings'),
@@ -104,6 +107,7 @@ urlpatterns = [
     path('new_issue/<uuid_or_label:project_id>/', new_issue_view.NewIssueView.as_view(), name='new_issue'),
     path('issues', issues_view.IssuesView.as_view(), name='issues'),
     path('issue/<uuid_or_label:issue_id>/', issue_view.IssueView.as_view(), name='issue'),
+    path('issue/<uuid_or_label:issue_id>/modal/', issue_modal_view.IssueModalView.as_view(), name='issue_modal'),
 
     # Organization
     path('new_organization', new_organization_view.NewOrganizationView.as_view(), name='new_organization'),

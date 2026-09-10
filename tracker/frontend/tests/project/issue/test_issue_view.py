@@ -88,7 +88,7 @@ class TestIssueView(TestCase):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.get(reverse('issue', kwargs={'issue_id': str(self.issue1.id)}))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issue_modal.html')
+        self.assertTemplateUsed(response, 'project/issue/issue_template.html')
 
     def test_issue_view_get_no_project_permission(self):
         self.http_client.force_login(user=self.user2.user)
@@ -123,8 +123,8 @@ class TestIssueView(TestCase):
                 }
             )
         messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issue/' + str(self.issue1.id) + '/')
         self.assertIn('Your issue was successfully updated.', str(messages))
         # Make sure issue was updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
@@ -172,8 +172,8 @@ class TestIssueView(TestCase):
                 }
             )
         messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issue/' + str(self.issue1.id) + '/')
         self.assertIn('Error saving issue.', str(messages))
         # Make sure issue was not updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
