@@ -109,6 +109,9 @@ class NewIssueView(LoginRequiredMixin, View):
             issue_data.version.set(selected_versions)
             issue_data.save()
 
+            # Notify the assignee (or reporter) that the issue was created
+            issue.send_issue_update_email(request.build_absolute_uri(f"project/{issue.current.project.label.current.label}/issue/{issue.id}/"))
+
             messages.success(request, ('Your issue was successfully added.'))
         else:
             messages.error(request, 'Error saving issue.')

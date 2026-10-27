@@ -221,14 +221,17 @@ class Issue(core_models.Sequenced):
 
     def send_issue_update_email(self, issue_url):
         """
-        Sends an issue update email.
+        Sends an issue update email to the issue's assignee (or the reporter if no assignee is set).
 
         Args:
             issue_url (str): The URL for the issue.
         """
 
         # TODO: Add watchers, etc.
-        to_email = self.current.reporter.current.email
+        if self.current.assignee is not None:
+            to_email = self.current.assignee.current.email
+        else:
+            to_email = self.current.reporter.current.email
 
         send_issue_update_email.delay(
             to_email,
