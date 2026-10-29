@@ -5,12 +5,14 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.models.user import CoreUser
+from project.models.component import Component, ComponentData
 from project.models.issue import Issue, IssueData
 from project.models.issue_type import BuiltInIssueType
 from project.models.priority import BuiltInIssuePriority
 from project.models.status import BuiltInIssueStatus
 from project.models.severity import BuiltInIssueSeverity
 from project.models.project import Project, ProjectData, ProjectLabel, ProjectLabelData
+from project.models.version import Version, VersionData
 
 
 class TestProjectIssueView(TestCase):
@@ -51,6 +53,31 @@ class TestProjectIssueView(TestCase):
         self.project1.label = self.project1_label
         self.project1.users.add(self.user1)
         self.project1.save()
+
+        self.component1_data = ComponentData.objects.create(
+            created_by=self.user1,
+            name="Component 1",
+            description="Description for component 1",
+        )
+        self.component1 = Component.objects.create(
+            created_by=self.user1,
+            current=self.component1_data,
+            project=self.project1
+        )
+        self.component1_data.component = self.component1
+        self.component1_data.save()
+        self.version1_data = VersionData.objects.create(
+            created_by=self.user1,
+            name="Version 1",
+            description="Description for version 1",
+        )
+        self.version1 = Version.objects.create(
+            created_by=self.user1,
+            current=self.version1_data,
+            project=self.project1
+        )
+        self.version1_data.version = self.version1
+        self.version1_data.save()
 
         self.project2_label_data = ProjectLabelData.objects.create(
             created_by=self.user2,
@@ -144,6 +171,8 @@ class TestProjectIssueView(TestCase):
                 'built_in_priority': str(self.issue_type_priority.id),
                 'built_in_status': str(self.issue_type_status.id),
                 'built_in_severity': str(self.issue_type_severity.id),
+                'component': str(self.component1.id),
+                'version': str(self.version1.id)
                 }
             )
         messages = list(get_messages(response.wsgi_request))
@@ -201,6 +230,83 @@ class TestProjectIssueView(TestCase):
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
         self.assertIn('Error saving issue.', str(messages))
 
+    def test_issue_view_post_component_not_in_project(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'component': 'b5cf12b1-2469-4fb7-af69-daddd32d3c0b'
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('project_issue', kwargs={'project_id': self.project1.id, 'issue_id': self.issue1.id}))
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
+        self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
+        self.assertIn('Issue updated.', str(messages))
+
+    def test_issue_view_post_version_not_in_project(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'version': 'b5cf12b1-2469-4fb7-af69-daddd32d3c0b'
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('project_issue', kwargs={'project_id': self.project1.id, 'issue_id': self.issue1.id}))
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
+        self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
+        self.assertIn('Issue updated.', str(messages))
+
+    def test_issue_view_post_project_id_does_not_match_issue_project(self):
+        self.http_client.force_login(user=self.user1.user)
+        print(reverse('project_issue', kwargs={'project_id': str(self.project2.id), 'issue_id': str(self.issue1.id)}))
+        print('project_id:', str(self.project1.id))
+        print('issue_project_id:', str(self.issue1.project_id))
+        response = self.http_client.post(
+            reverse('project_issue', kwargs={'project_id': str(self.project2.id), 'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Issue 1')
+        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+        self.assertIn('The specified issue does not exist.', str(messages))
+
     def test_issue_view_post_move_issue_to_invalid_project(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
@@ -239,6 +345,31 @@ class TestProjectIssueView(TestCase):
                 'built_in_priority': str(self.issue_type_priority.id),
                 'built_in_status': str(self.issue_type_status.id),
                 'built_in_severity': str(self.issue_type_severity.id),
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/projects')
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Issue 1')
+        self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+        self.assertIn('The specified issue does not exist.', str(messages))
+
+    def test_issue_view_post_invalid_issue(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('project_issue', kwargs={'project_id': str(self.project1.id), 'issue_id': '6953441e-8d74-4099-852f-7cd679aebb22'}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'version': 'b5cf12b1-2469-4fb7-af69-daddd32d3c0b'
                 }
             )
         messages = list(get_messages(response.wsgi_request))

@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import model_to_dict
@@ -64,14 +66,30 @@ class IssueView(LoginRequiredMixin, View):
                 # Check if user can access issue
                 issue = logged_in_user.list_issues().get(pk=issue_id)
                 project_id = received_issue_form.cleaned_data.get("project", '')
-                selected_components = request.POST.getlist('component')
-                selected_versions = request.POST.getlist('version')
-
-                # Check if user can access destination project
                 project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
+
+                # Check if user can access project
                 if project is None:
                     messages.error(request, 'The specified issue does not exist.')
                     return redirect("projects")
+
+                selected_component_ids = request.POST.getlist('component')
+                selected_version_ids = request.POST.getlist('version')
+                # Convert lists of id strings to UUIDs
+                selected_components = []
+                project_components = project.component_set.all().values_list('id', flat=True)
+                for component_id in selected_component_ids:
+                    # Validate requested component is part of the project
+                    component_id = uuid.UUID(component_id)
+                    if component_id in project_components:
+                        selected_components.append(component_id)
+                selected_versions = []
+                project_versions = project.version_set.all().values_list('id', flat=True)
+                for version_id in selected_version_ids:
+                    version_id = uuid.UUID(version_id)
+                    # Validate requested version is part of the project
+                    if version_id in project_versions:
+                        selected_versions.append(version_id)
 
                 issue_data = issue_models.IssueData.objects.create(
                     created_by=logged_in_user,

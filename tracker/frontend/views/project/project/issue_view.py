@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import model_to_dict
@@ -6,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
-# from frontend.util import project as project_utils
+from frontend.util import project as project_utils
 from core.models import user as core_user_models
 from project.models import issue as issue_models
 from frontend.forms.project.issue import issue_form
@@ -79,14 +81,35 @@ class IssueView(LoginRequiredMixin, View):
     def post(self, request, project_id, issue_id):
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
         received_issue_form = issue_form.IssueForm(request.POST, request.FILES)
-        selected_components = request.POST.getlist('component')
-        selected_versions = request.POST.getlist('version')
+
+        # Check if user can access project
+        project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
+        if project is None:
+            messages.error(request, 'The specified issue does not exist.')
+            return redirect("projects")
+
+        selected_component_ids = request.POST.getlist('component')
+        selected_version_ids = request.POST.getlist('version')
+        # Convert lists of id strings to UUIDs
+        selected_components = []
+        project_components = project.component_set.all().values_list('id', flat=True)
+        for component_id in selected_component_ids:
+            # Validate requested component is part of the project
+            component_id = uuid.UUID(component_id)
+            if component_id in project_components:
+                selected_components.append(component_id)
+        selected_versions = []
+        project_versions = project.version_set.all().values_list('id', flat=True)
+        for version_id in selected_version_ids:
+            version_id = uuid.UUID(version_id)
+            # Validate requested version is part of the project
+            if version_id in project_versions:
+                selected_versions.append(version_id)
 
         if received_issue_form.is_valid():
             issue_form_data = received_issue_form.cleaned_data.copy()
             try:
                 issue = logged_in_user.list_issues().get(pk=issue_id)
-
                 if not self.valid_issue(logged_in_user, project_id, issue):
                     messages.error(request, 'The specified issue does not exist.')
                     return redirect("projects")

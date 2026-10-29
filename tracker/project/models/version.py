@@ -21,7 +21,7 @@ class VersionData(core_models.CoreModel):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True, default="")
     label = models.CharField(max_length=255)
-    release_date = models.DateField(blank=True, null=True, default="")
+    release_date = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
 
