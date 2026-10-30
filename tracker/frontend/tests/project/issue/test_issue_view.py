@@ -5,12 +5,14 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.models.user import CoreUser
+from project.models.component import Component, ComponentData
 from project.models.issue import Issue, IssueData
 from project.models.issue_type import BuiltInIssueType
 from project.models.priority import BuiltInIssuePriority
 from project.models.status import BuiltInIssueStatus
 from project.models.severity import BuiltInIssueSeverity
 from project.models.project import Project, ProjectData, ProjectLabel, ProjectLabelData
+from project.models.version import Version, VersionData
 
 
 class TestIssueView(TestCase):
@@ -52,6 +54,30 @@ class TestIssueView(TestCase):
         self.project1.label = self.project1_label
         self.project1.users.add(self.user1)
         self.project1.save()
+        self.component1_data = ComponentData.objects.create(
+            created_by=self.user1,
+            name="Component 1",
+            description="Description for component 1",
+        )
+        self.component1 = Component.objects.create(
+            created_by=self.user1,
+            current=self.component1_data,
+            project=self.project1
+        )
+        self.component1_data.component = self.component1
+        self.component1_data.save()
+        self.version1_data = VersionData.objects.create(
+            created_by=self.user1,
+            name="Version 1",
+            description="Description for version 1",
+        )
+        self.version1 = Version.objects.create(
+            created_by=self.user1,
+            current=self.version1_data,
+            project=self.project1
+        )
+        self.version1_data.version = self.version1
+        self.version1_data.save()
         self.issue1_data = IssueData.objects.create(
             created_by=self.user1,
             reporter=self.user1,
@@ -88,7 +114,7 @@ class TestIssueView(TestCase):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.get(reverse('issue', kwargs={'issue_id': str(self.issue1.id)}))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issue_modal.html')
+        self.assertTemplateUsed(response, 'project/issue/issue_template.html')
 
     def test_issue_view_get_no_project_permission(self):
         self.http_client.force_login(user=self.user2.user)
@@ -120,11 +146,13 @@ class TestIssueView(TestCase):
                 'built_in_priority': str(self.issue_type_priority.id),
                 'built_in_status': str(self.issue_type_status.id),
                 'built_in_severity': str(self.issue_type_severity.id),
+                'component': str(self.component1.id),
+                'version': str(self.version1.id)
                 }
             )
         messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issue/' + str(self.issue1.id) + '/')
         self.assertIn('Your issue was successfully updated.', str(messages))
         # Make sure issue was updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
@@ -172,8 +200,8 @@ class TestIssueView(TestCase):
                 }
             )
         messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issue/' + str(self.issue1.id) + '/')
         self.assertIn('Error saving issue.', str(messages))
         # Make sure issue was not updated
         updated_issue = Issue.objects.get(id=self.issue1.id)
@@ -203,3 +231,107 @@ class TestIssueView(TestCase):
         updated_issue = Issue.objects.get(id=self.issue1.id)
         self.assertEqual(updated_issue.current.summary, 'Issue 1')
         self.assertEqual(updated_issue.current.description, 'Description for issue 1')
+
+    def test_issue_view_post_component_not_in_project(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('issue', kwargs={'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'component': '0032952a-a21e-4781-9cea-4d6ae9223b20',
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issue/' + str(self.issue1.id) + '/')
+        self.assertIn('Your issue was successfully updated.', str(messages))
+        # Make sure issue was updated
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
+        self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
+
+    def test_issue_view_post_component_not_valid_uuid(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('issue', kwargs={'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'component': 'a-bad-uuid',
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issue/' + str(self.issue1.id) + '/')
+        self.assertIn('Your issue was successfully updated.', str(messages))
+        # Make sure issue was updated
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
+        self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
+
+    def test_issue_view_post_version_not_in_project(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('issue', kwargs={'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'version': '0032952a-a21e-4781-9cea-4d6ae9223b20',
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issue/' + str(self.issue1.id) + '/')
+        self.assertIn('Your issue was successfully updated.', str(messages))
+        # Make sure issue was updated
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
+        self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
+
+    def test_issue_view_post_version_not_valid_uuid(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('issue', kwargs={'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'version': 'a-bad-uuid',
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/issue/' + str(self.issue1.id) + '/')
+        self.assertIn('Your issue was successfully updated.', str(messages))
+        # Make sure issue was updated
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
+        self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')

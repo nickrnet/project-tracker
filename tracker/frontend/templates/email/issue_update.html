@@ -1,0 +1,17 @@
+{% load static %}
+{% load tz %}
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+    <head>
+        <title>Project Tracker</title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+
+    <body>
+        <p>{{ issue_label }} has been updated.</p>
+        <p>Please click the link below or paste into your browser to view the issue:</p>
+        <p><a href="{{ issue_update_url }}">{{ issue_update_url }}</a></p>
+    </body>
+</html>

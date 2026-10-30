@@ -2,87 +2,132 @@
 
 ## Project Overview
 
-The Project Tracker app is a set of Django apps that let users track issues, tests, and projects. It includes Users and Organizations for permissions, and Subscriptions for managing access.
+The Project Tracker app is a suite of Django applications that enable users to track issues and projects. It includes Users and Organizations for access control, Subscriptions for feature gating, and a public API for integrations.
 
 ## Persona
 
-You are an expert developer for this project. You specialize in **[Python, Django, and Bootstrap]** and translate that into **[a project tracker app called Project Tracker]**.
+You are an expert Python 3.12 and Django 6.0 developer. You produce secure, type-hinted, and performant code following standard Django patterns (CBVs, ORM query optimization, Django REST Framework, and modular app structures).
+
+## Permissions & Read/Write Modes
+
+- **Read-Only Inspection (Allowed):** You may freely read files, list directories, and search the codebase to understand the project and plan solutions.
+- **Write/Mutate Safeguard (Strict Approval Required):** You MUST NOT write, edit, or create any files unless the user explicitly approves with keywords like "go ahead", "apply", or "yes".
+- **Git Operations:** You MUST NOT run `git commit`, `git push`, or any destructive/mutative git commands.
+
+## Workflow
+
+Follow this exact sequence for every task:
+
+1. **Read & Inspect:** Gather relevant files and analyze the requirement. Ask clarifying questions if the task is ambiguous.
+2. **Propose:** Show proposed edits as a diff or code block. Explain *what* changes and *why*.
+3. **Wait:** Pause execution until explicit user confirmation is received.
+4. **Apply:** Execute only the approved changes.
+5. **Verify:** Run tests (`uv run pytest`) to confirm the fix.
+
+## Git & Workspace Isolation Rule
+
+- **Worktree Mandate:** Before making ANY file modifications or creating branches, you MUST create and switch to a new Git worktree for the task.
+- **Worktree Location:** Place all agent worktrees in `.worktrees/<feature-or-bug-name>` relative to the repository root.
+- **Setup Command:**
+  `git worktree add -b <branch-name> .worktrees/<branch-name> main`
+- **Execution:** Perform all file reads, edits, and test runs (`uv run pytest`) strictly inside the allocated worktree directory.
+- **Cleanup:** Never remove or prune worktrees without explicit approval.
+
+## Scope & Boundaries
+
+- Modify only the lines and files strictly necessary for the requested task.
+- Do NOT refactor, reformat, or "clean up" surrounding unrequested code.
+- Do NOT add unrequested TODOs, comments, or extra features.
+- If you spot an unrelated issue, mention it in a brief text note; do not modify it.
 
 ## Tech Stack
-- Python 3.12
-- Django 6.0 + Django REST Framework
-- PostgreSQL, Redis, Celery
+
+- **Language & Framework:** Python 3.12, Django 6.0, Django REST Framework
+- **Data & Tasks:** PostgreSQL, Redis, Celery
+- **Tooling:** `uv` (package/runner management)
 
 ## Project Structure
-  - `tracker/` – The Django code for the Project Tracker apps, a monorepo for frontend, backend, and api
-  - `tracker/core` - The Django backend code for Core Project Tracker features, including globally inherited base model classes, and Celery tasks
-  - `tracker/project` - The Django backend code for the Project Tracker project models
-  - `tracker/subscription` - The Django backend code for the Project Tracker subscriptions
-  - `tracker/api` – The Django code for the public Project Tracker API
-  - `tracker/frontend` - The Django frontend code for the public Project Tracker web site
-  - `doc/` - Documentation about the project
-  - `docker/` - Files included in Docker images
 
-## Commands
+- `tracker/` – Django monorepo containing frontend, backend, and API apps
+  - `tracker/core/` – Shared base models (`CoreModel`), global utilities, and baseline Celery tasks
+  - `tracker/project/` – Models and logic for project tracking
+  - `tracker/subscription/` – Subscription and feature management
+  - `tracker/api/` – Public-facing Django REST Framework API
+  - `tracker/frontend/` – Web UI templates and views
+- `doc/` – Project documentation
+- `docker/` – Container and deployment configurations
+
+## Key Commands
+
+Execute commands via `uv run`:
 
 - **Test:** `uv run pytest --cov --cov-report term`
+- **Lint:** `uv run flake8`
+- **Format:** `uv run black .`
+- **Runserver:** `uv run --directory ./tracker python manage.py runserver`
+- **Makemigrations:** `uv run --directory ./tracker python manage.py makemigrations`
+- **Migrate:** `uv run --directory ./tracker python manage.py migrate`
+- **Celery Worker:** `uv run --directory ./tracker celery -A tracker worker -l info`
+- **Celery Beat:** `uv run --directory ./tracker celery -A tracker beat -l info`
 
-## Code Style
+## Architecture & Data Conventions
 
-- All models should be a subclass of `core.models.core.CoreModel`
-- We never overwrite data in the database, to keep history of how data changes
+### Append-Only Data Models (`*Data` Pattern)
 
-  There is typically a class with a corresponding `*Data` class, like:
+We do not overwrite historical data directly. Core entities use a primary model coupled with an append-only `*Data` tracking class:
 
-  ```python
-  ...
-  class OrganizationData(core_models.CoreModel):
-    ...
+```python
+class OrganizationData(core_models.CoreModel):
     organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.TextField(max_length=255, blank=True, null=True, default="")
-    ...
-  class Organization(core_models.CoreModel):
-    ...
-    current = models.OneToOnefield(OrganizationData, on_delete=models.CASCADE)
-  ```
 
-  Then, when a record gets updated, in a `view` for example, we create a new `*Data` class and only change the `current` field on the main class.
+class Organization(core_models.CoreModel):
+    current = models.OneToOneField(OrganizationData, on_delete=models.CASCADE)
+```
 
-  Make sure every class that has a corresponding `*Data` class ForeignKey has an `*ActiveManager` to select the related `current` field and filter deleted items, like:
+- When updating an instance, instantiate a new *Data object and update the .current pointer on the main parent instance.
 
-  ```python
-  class OrganizationActiveManager(models.Manager):
-      def get_queryset(self):
-          return super().get_queryset().select_related('current', 'subscription').filter(deleted=None)
-  ```
+- **Active Managers:** Every class with a corresponding *Data model* MUST define an *ActiveManager* to automatically select current and filter out deleted records:
 
-  There are rare cases to not have a corresponding `*Data` class, you should ask the developer if you ever think it should *not* be used
+```python
+class OrganizationActiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(current__isnull=False, deleted_at__isnull=True)
 
-- We do not ever delete data from the database, deleting records from the database will be a Celery task at some point
+class Organization(core_models.CoreModel):
+    current = models.OneToOneField(OrganizationData, on_delete=models.CASCADE)
+    objects = OrganizationActiveManager()
+```
 
-  Follow the `CoreModel.delete(...)` pattern
+- All models must inherit from `core.models.core.CoreModel`.
 
-## Boundaries
+## Deletion Strategy
 
-- ✅ **Always:**
-  - Add Python docstrings to model classes and functions to document what it is for and any arguments or parameters
-  - Run tests before commits
-  - List only human authors in git commits
+Never physically delete DB records. Deletions must use soft-deletes following the CoreModel.delete(...) pattern.
 
-- ⚠️ **Ask first:**
-  - Database schema changes
-  - Adding new dependencies
+## Code & Testing Rules
 
-### 🚫 Never
+### Type Annotations & Docs
 
-- Commit secrets or `.env` files
-- Abbreviate variable or function or class names
-- Force push to main
+Include explicit Python type hints and concise docstrings on all models, views, public methods, and functions. Do not abbreviate variable, function, or class names.
 
-## Testing Guidelines
+### ORM Optimization
 
-- Write unit tests for all new functionality, get code coverage to 100%
-- *Never* mock internal dependencies in tests, always create new items for tests
-- Mock external dependencies when appropriate
-- Ensure tests are deterministic and isolated
+Always prevent N+1 queries by using select_related() and prefetch_related().
+
+### Testing
+
+Achieve 100% test coverage on new functionality. If 100% is impossible, halt and justify why.
+
+Never mock internal DB dependencies; instantiate concrete model fixtures.
+
+Mock third-party external APIs where appropriate.
+
+### Stop Conditions
+
+Unclear Scope: Ask for clarification rather than making assumptions.
+
+Large Changes: If a solution requires touching more than 3 files, STOP and present an architectural plan for approval before writing code.
+
+Test Failures: If tests fail after your modification, STOP and report the error trace. Do not attempt to fix pre-existing or unrelated test failures automatically.
