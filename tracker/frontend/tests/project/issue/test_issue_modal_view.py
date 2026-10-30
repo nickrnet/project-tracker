@@ -258,6 +258,32 @@ class TestIssueModalView(TestCase):
         self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
         self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
 
+    def test_issue_modal_view_post_component_not_valid_uuid(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('issue_modal', kwargs={'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'component': 'a-bad-uuid'
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertIn('Your issue was successfully updated.', str(messages))
+        # Make sure issue was updated
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
+        self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
+
     def test_issue_modal_view_post_version_not_in_project(self):
         self.http_client.force_login(user=self.user1.user)
         response = self.http_client.post(
@@ -273,6 +299,32 @@ class TestIssueModalView(TestCase):
                 'built_in_status': str(self.issue_type_status.id),
                 'built_in_severity': str(self.issue_type_severity.id),
                 'version': '26dc08b4-07ab-40cc-b609-2d9f12952c97'
+                }
+            )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        self.assertIn('Your issue was successfully updated.', str(messages))
+        # Make sure issue was updated
+        updated_issue = Issue.objects.get(id=self.issue1.id)
+        self.assertEqual(updated_issue.current.summary, 'Updated Issue 1 Summary')
+        self.assertEqual(updated_issue.current.description, 'Updated description for issue 1')
+
+    def test_issue_modal_view_post_version_not_valid_uuid(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('issue_modal', kwargs={'issue_id': str(self.issue1.id)}),
+            data={
+                'project': str(self.project1.id),
+                'summary': 'Updated Issue 1 Summary',
+                'description': 'Updated description for issue 1',
+                'reporter': str(self.user1.id),
+                'assignee': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_type_priority.id),
+                'built_in_status': str(self.issue_type_status.id),
+                'built_in_severity': str(self.issue_type_severity.id),
+                'version': 'a-bad-uuid'
                 }
             )
         messages = list(get_messages(response.wsgi_request))

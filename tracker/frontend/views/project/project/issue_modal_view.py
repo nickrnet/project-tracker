@@ -18,14 +18,6 @@ class IssueModalView(LoginRequiredMixin, View):
         if project_id != issue.project_id:
             not_valid = True
 
-        # Check if user can access project
-        # TODO: this check may not be needed... by the time this code is reached, we've already filtered the issue by project and user
-        # frontend.tests.project.issue.test_issue_view.TestIssueView.test_issue_view_get_no_project_permission tries to test this, can't get code coverage to hit
-        # commenting out for code coverage, but leaving for tinkering later
-        # project = project_utils.get_project_by_uuid_or_label(logged_in_user, issue.project_id)
-        # if project is None:
-        #     not_valid = True
-
         if not_valid:
             return False
 

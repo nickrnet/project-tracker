@@ -14,6 +14,17 @@ from project.models import issue as issue_models
 
 
 class NewIssueView(LoginRequiredMixin, View):
+    def handle_uuid_list(self, list_to_validate_with, uuid_list):
+        valid_uuids = []
+        for item_id in uuid_list:
+            try:
+                item_id = uuid.UUID(item_id)
+                if item_id in list_to_validate_with:
+                    valid_uuids.append(item_id)
+            except ValueError:
+                continue
+        return valid_uuids
+
     def get(self, request, project_id=None):
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
@@ -64,20 +75,11 @@ class NewIssueView(LoginRequiredMixin, View):
             selected_component_ids = request.POST.getlist('component')
             selected_version_ids = request.POST.getlist('version')
             # Convert lists of id strings to UUIDs
-            selected_components = []
             project_components = project.component_set.all().values_list('id', flat=True)
-            for component_id in selected_component_ids:
-                # Validate requested component is part of the project
-                component_id = uuid.UUID(component_id)
-                if component_id in project_components:
-                    selected_components.append(component_id)
+            selected_components = self.handle_uuid_list(project_components, selected_component_ids)
             selected_versions = []
             project_versions = project.version_set.all().values_list('id', flat=True)
-            for version_id in selected_version_ids:
-                version_id = uuid.UUID(version_id)
-                # Validate requested version is part of the project
-                if version_id in project_versions:
-                    selected_versions.append(version_id)
+            selected_versions = self.handle_uuid_list(project_versions, selected_version_ids)
 
             issue_data = issue_models.IssueData.objects.create(
                 created_by=logged_in_user,

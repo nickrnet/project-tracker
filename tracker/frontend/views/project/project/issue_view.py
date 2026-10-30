@@ -15,19 +15,22 @@ from frontend.forms.project.issue import issue_form
 
 
 class IssueView(LoginRequiredMixin, View):
-    def valid_issue(self, logged_in_user, project_id, issue):
+    def handle_uuid_list(self, list_to_validate_with, uuid_list):
+        valid_uuids = []
+        for item_id in uuid_list:
+            try:
+                item_id = uuid.UUID(item_id)
+                if item_id in list_to_validate_with:
+                    valid_uuids.append(item_id)
+            except ValueError:
+                continue
+        return valid_uuids
+
+    def valid_issue(self, project_id, issue):
         not_valid = False
-        # Make sure issue is in project
+        # Make sure issue is in specified project
         if project_id != issue.project_id:
             not_valid = True
-
-        # Check if user can access project
-        # TODO: this check may not be needed... by the time this code is reached, we've already filtered the issue by project and user
-        # frontend.tests.project.issue.test_issue_view.TestIssueView.test_issue_view_get_no_project_permission tries to test this, can't get code coverage to hit
-        # commenting out for code coverage, but leaving for tinkering later
-        # project = project_utils.get_project_by_uuid_or_label(logged_in_user, issue.project_id)
-        # if project is None:
-        #     not_valid = True
 
         if not_valid:
             return False
@@ -40,7 +43,7 @@ class IssueView(LoginRequiredMixin, View):
         try:
             issue = logged_in_user.list_issues().get(pk=issue_id)
 
-            if not self.valid_issue(logged_in_user, project_id, issue):
+            if not self.valid_issue(project_id, issue):
                 messages.error(request, 'The specified issue does not exist.')
                 return redirect("projects")
 
@@ -88,31 +91,20 @@ class IssueView(LoginRequiredMixin, View):
             messages.error(request, 'The specified issue does not exist.')
             return redirect("projects")
 
-        selected_component_ids = request.POST.getlist('component')
-        selected_version_ids = request.POST.getlist('version')
-        # Convert lists of id strings to UUIDs
-        selected_components = []
-        project_components = project.component_set.all().values_list('id', flat=True)
-        for component_id in selected_component_ids:
-            # Validate requested component is part of the project
-            component_id = uuid.UUID(component_id)
-            if component_id in project_components:
-                selected_components.append(component_id)
-        selected_versions = []
-        project_versions = project.version_set.all().values_list('id', flat=True)
-        for version_id in selected_version_ids:
-            version_id = uuid.UUID(version_id)
-            # Validate requested version is part of the project
-            if version_id in project_versions:
-                selected_versions.append(version_id)
-
         if received_issue_form.is_valid():
+            selected_component_ids = request.POST.getlist('component')
+            selected_version_ids = request.POST.getlist('version')
+
+            # Convert lists of id strings to UUIDs
+            project_components = project.component_set.all().values_list('id', flat=True)
+            selected_components = self.handle_uuid_list(project_components, selected_component_ids)
+            selected_versions = []
+            project_versions = project.version_set.all().values_list('id', flat=True)
+            selected_versions = self.handle_uuid_list(project_versions, selected_version_ids)
+
             issue_form_data = received_issue_form.cleaned_data.copy()
             try:
                 issue = logged_in_user.list_issues().get(pk=issue_id)
-                if not self.valid_issue(logged_in_user, project_id, issue):
-                    messages.error(request, 'The specified issue does not exist.')
-                    return redirect("projects")
 
                 issue_data = issue_models.IssueData.objects.create(
                     created_by=logged_in_user,
@@ -134,7 +126,7 @@ class IssueView(LoginRequiredMixin, View):
                 issue.project_id = project_id
                 issue.save()
                 messages.success(request, 'Issue updated.')
-                issue.send_issue_update_email(request.build_absolute_uri(f"project/{issue.current.project.label.current.label}/issue/{issue.id}/"))
+                issue.send_issue_update_email(reverse('issue', kwargs={'issue_id': str(issue.id)}))
                 return redirect(reverse('project_issue', kwargs={'project_id': project_id, 'issue_id': issue.id}))
             except issue_models.Issue.DoesNotExist:
                 messages.error(request, 'The specified issue does not exist.')
