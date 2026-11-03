@@ -228,6 +228,34 @@ class TestNewIssueView(TestCase):
         self.assertNotIn(self.component1.id, issue.current.component.all())
         self.assertIn('Your issue was successfully added.', str(messages))
 
+    def test_issue_view_post_component_not_valid_uuid(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        new_issue_form_data = {
+            'summary': 'Issue Summary 1',
+            'description': 'Issue Description 1',
+            'project': str(self.project1.id),
+            'reporter': str(self.user1.id),
+            'assignee': str(self.user1.id),
+            'watchers': '',
+            'built_in_type': str(self.issue_type_bug.id),
+            'built_in_priority': str(self.issue_priority_low.id),
+            'built_in_status': str(self.issue_status_triage.id),
+            'built_in_severity': str(self.issue_severity_minor.id),
+            'version': self.version1.id,
+            'component': 'a-bad-uuid'
+            }
+        new_issue_form = NewIssueForm(new_issue_form_data)
+        form_data = urlencode(new_issue_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('new_project_issue', kwargs={'project_id': self.project1.label.current.label}), form_data, url_encoding)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/project/issues_table.html')
+        updated_issue = Issue.objects.first()
+        self.assertEqual(updated_issue.current.summary, 'Issue Summary 1')
+        self.assertEqual(updated_issue.current.description, 'Issue Description 1')
+        self.assertIn('Your issue was successfully added.', str(messages))
+
     def test_new_issue_post_with_bad_version(self):
         url_encoding = 'application/x-www-form-urlencoded'
         new_issue_form_data = {
@@ -264,6 +292,32 @@ class TestNewIssueView(TestCase):
         self.assertEqual(issue.current.built_in_severity, self.issue_severity_minor)
         self.assertEqual(len(issue.current.version.all()), 0)
         self.assertNotIn(self.version1.id, issue.current.version.all())
+        self.assertIn('Your issue was successfully added.', str(messages))
+
+    def test_issue_view_post_version_not_valid_uuid(self):
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(
+            reverse('new_project_issue', kwargs={'project_id': self.project1.label.current.label}),
+            data={
+                'summary': 'Issue Summary 1',
+                'description': 'Issue Description 1',
+                'project': str(self.project1.id),
+                'reporter': str(self.user1.id),
+                'assignee': str(self.user1.id),
+                'watchers': '',
+                'built_in_type': str(self.issue_type_bug.id),
+                'built_in_priority': str(self.issue_priority_low.id),
+                'built_in_status': str(self.issue_status_triage.id),
+                'built_in_severity': str(self.issue_severity_minor.id),
+                'version': 'a-bad-uuid'
+                }
+        )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/project/issues_table.html')
+        updated_issue = Issue.objects.first()
+        self.assertEqual(updated_issue.current.summary, 'Issue Summary 1')
+        self.assertEqual(updated_issue.current.description, 'Issue Description 1')
         self.assertIn('Your issue was successfully added.', str(messages))
 
     def test_new_issue_post_with_bad_form(self):

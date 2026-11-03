@@ -9,7 +9,7 @@ from project.models.status import BuiltInIssueStatus
 from project.models.severity import BuiltInIssueSeverity
 from project.models.git_repository import GitRepository, GitRepositoryData
 from project.models.project import Project, ProjectData, ProjectLabel, ProjectLabelData
-from project.models.issue import Issue
+from project.models.issue import Issue, IssueData
 
 
 class IssueActiveManagerTests(TestCase):
@@ -202,14 +202,32 @@ class IssueActiveManagerTests(TestCase):
         built_in_severities = Issue.active_objects.list_built_in_severities()
         self.assertGreater(len(built_in_severities), 1)
 
+    def test_list_components(self):
+        components = Issue.objects.list_components(self.project1.id)
+        self.assertEqual(len(components), 0)
+        components = Issue.active_objects.list_components(self.project1.id)
+        self.assertEqual(len(components), 0)
+
     def test_list_versions(self):
         versions = Issue.objects.list_versions(self.project1.id)
         self.assertEqual(len(versions), 0)
         versions = Issue.active_objects.list_versions(self.project1.id)
         self.assertEqual(len(versions), 0)
 
-    def test_list_components(self):
-        components = Issue.objects.list_components(self.project1.id)
-        self.assertEqual(len(components), 0)
-        components = Issue.active_objects.list_components(self.project1.id)
-        self.assertEqual(len(components), 0)
+    def test_send_update_email(self):
+        self.issue1_data = IssueData.objects.create(
+            created_by=self.user1,
+            reporter=self.user1,
+            summary="Issue 1",
+            description="Description for issue 1",
+            project=self.project1
+            )
+        self.issue1 = Issue.objects.create(
+            created_by=self.user1,
+            sequence=1,
+            current=self.issue1_data,
+            project=self.project1
+            )
+        self.issue1_data.issue = self.issue1
+        self.issue1_data.save()
+        self.issue1.send_issue_update_email('/foo')

@@ -270,7 +270,7 @@ class TestNewIssueView(TestCase):
         self.assertNotIn(self.component1, issue.current.component.all())
         self.assertIn('Your issue was successfully added.', str(messages))
 
-    def test_new_issue_post_with_invalid_version(self):
+    def test_new_issue_post_component_not_valid_uuid(self):
         url_encoding = 'application/x-www-form-urlencoded'
         new_issue_form_data = {
             'summary': 'Issue Summary 1',
@@ -283,8 +283,8 @@ class TestNewIssueView(TestCase):
             'built_in_priority': str(self.issue_priority_low.id),
             'built_in_status': str(self.issue_status_triage.id),
             'built_in_severity': str(self.issue_severity_minor.id),
-            'version': str(self.version1.current.id),
-            'component': str(self.component1.id)
+            'version': str(self.version1.id),
+            'component': 'a-bad-uuid'
             }
         new_issue_form = NewIssueForm(new_issue_form_data)
         # TODO: Figure out why is_valid works in the view but not here in the test
@@ -306,6 +306,84 @@ class TestNewIssueView(TestCase):
         self.assertEqual(issue.current.built_in_priority, self.issue_priority_low)
         self.assertEqual(issue.current.built_in_status, self.issue_status_triage)
         self.assertEqual(issue.current.built_in_severity, self.issue_severity_minor)
-        self.assertIn(self.component1, issue.current.component.all())
+        self.assertIn(self.version1, issue.current.version.all())
+        self.assertNotIn(self.component1, issue.current.component.all())
+        self.assertIn('Your issue was successfully added.', str(messages))
+
+    def test_new_issue_post_with_invalid_version(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        new_issue_form_data = {
+            'summary': 'Issue Summary 1',
+            'description': 'Issue Description 1',
+            'project': str(self.project1.id),
+            'reporter': str(self.user1.id),
+            'assignee': str(self.user1.id),
+            'watchers': '',
+            'built_in_type': str(self.issue_type_bug.id),
+            'built_in_priority': str(self.issue_priority_low.id),
+            'built_in_status': str(self.issue_status_triage.id),
+            'built_in_severity': str(self.issue_severity_minor.id),
+            'version': str(self.version1.current.id)
+            }
+        new_issue_form = NewIssueForm(new_issue_form_data)
+        # TODO: Figure out why is_valid works in the view but not here in the test
+        # self.assertTrue(new_issue_form.is_valid())
+        form_data = urlencode(new_issue_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('new_issue'), form_data, url_encoding)
+        issue = Issue.objects.first()
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        # Make sure the whole form came through to the database
+        self.assertEqual(issue.current.summary, 'Issue Summary 1')
+        self.assertEqual(issue.current.description, 'Issue Description 1')
+        self.assertEqual(issue.current.project, self.project1)
+        self.assertEqual(issue.current.reporter, self.user1)
+        self.assertEqual(issue.current.assignee, self.user1)
+        self.assertEqual(issue.current.built_in_type, self.issue_type_bug)
+        self.assertEqual(issue.current.built_in_priority, self.issue_priority_low)
+        self.assertEqual(issue.current.built_in_status, self.issue_status_triage)
+        self.assertEqual(issue.current.built_in_severity, self.issue_severity_minor)
+        self.assertNotIn(self.component1, issue.current.component.all())
+        self.assertNotIn(self.version1, issue.current.version.all())
+        self.assertIn('Your issue was successfully added.', str(messages))
+
+    def test_new_issue_post_version_not_valid_uuid(self):
+        url_encoding = 'application/x-www-form-urlencoded'
+        new_issue_form_data = {
+            'summary': 'Issue Summary 1',
+            'description': 'Issue Description 1',
+            'project': str(self.project1.id),
+            'reporter': str(self.user1.id),
+            'assignee': str(self.user1.id),
+            'watchers': '',
+            'built_in_type': str(self.issue_type_bug.id),
+            'built_in_priority': str(self.issue_priority_low.id),
+            'built_in_status': str(self.issue_status_triage.id),
+            'built_in_severity': str(self.issue_severity_minor.id),
+            'version': 'a-bad-uuid'
+            }
+        new_issue_form = NewIssueForm(new_issue_form_data)
+        # TODO: Figure out why is_valid works in the view but not here in the test
+        # self.assertTrue(new_issue_form.is_valid())
+        form_data = urlencode(new_issue_form.data)
+        self.http_client.force_login(user=self.user1.user)
+        response = self.http_client.post(reverse('new_issue'), form_data, url_encoding)
+        issue = Issue.objects.first()
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'project/issue/issues_table.html')
+        # Make sure the whole form came through to the database
+        self.assertEqual(issue.current.summary, 'Issue Summary 1')
+        self.assertEqual(issue.current.description, 'Issue Description 1')
+        self.assertEqual(issue.current.project, self.project1)
+        self.assertEqual(issue.current.reporter, self.user1)
+        self.assertEqual(issue.current.assignee, self.user1)
+        self.assertEqual(issue.current.built_in_type, self.issue_type_bug)
+        self.assertEqual(issue.current.built_in_priority, self.issue_priority_low)
+        self.assertEqual(issue.current.built_in_status, self.issue_status_triage)
+        self.assertEqual(issue.current.built_in_severity, self.issue_severity_minor)
+        self.assertNotIn(self.component1, issue.current.component.all())
         self.assertNotIn(self.version1, issue.current.version.all())
         self.assertIn('Your issue was successfully added.', str(messages))

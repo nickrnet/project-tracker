@@ -2,9 +2,11 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
+from frontend.util import common as common_utils
 from frontend.util import project as project_utils
 from core.models import user as core_user_models
 from project.models import issue as issue_models
@@ -36,7 +38,7 @@ class IssueView(LoginRequiredMixin, View):
 
             return render(
                 request=request,
-                template_name="project/issue/issue_modal.html",
+                template_name="project/issue/issue_template.html",
                 context={
                     'logged_in_user': logged_in_user,
                     'projects': projects,
@@ -63,14 +65,21 @@ class IssueView(LoginRequiredMixin, View):
                 # Check if user can access issue
                 issue = logged_in_user.list_issues().get(pk=issue_id)
                 project_id = received_issue_form.cleaned_data.get("project", '')
-                selected_components = request.POST.getlist('component')
-                selected_versions = request.POST.getlist('version')
-
-                # Check if user can access destination project
                 project = project_utils.get_project_by_uuid_or_label(logged_in_user, project_id)
+
+                # Check if user can access project
                 if project is None:
                     messages.error(request, 'The specified issue does not exist.')
                     return redirect("projects")
+
+                selected_component_ids = request.POST.getlist('component')
+                selected_version_ids = request.POST.getlist('version')
+
+                # Convert lists of id strings to UUIDs
+                project_components = set(project.component_set.all().values_list('id', flat=True))
+                selected_components = common_utils.handle_uuid_list(project_components, selected_component_ids)
+                project_versions = set(project.version_set.all().values_list('id', flat=True))
+                selected_versions = common_utils.handle_uuid_list(project_versions, selected_version_ids)
 
                 issue_data = issue_models.IssueData.objects.create(
                     created_by=logged_in_user,
@@ -92,17 +101,12 @@ class IssueView(LoginRequiredMixin, View):
                 issue.save()
 
                 messages.success(request, ('Your issue was successfully updated.'))
+                issue.send_issue_update_email(request.build_absolute_uri(reverse('issue', kwargs={'issue_id': str(issue.id)})))
+                return redirect(reverse('issue', kwargs={'issue_id': issue.id}))
             else:
                 messages.error(request, 'Error saving issue.')
+                return redirect(reverse('issue', kwargs={'issue_id': issue_id}))
 
-            return render(
-                request=request,
-                template_name="project/issue/issues_table.html",
-                context={
-                    'logged_in_user': logged_in_user,
-                    'issues': logged_in_user.list_issues(),
-                    },
-                )
         except issue_models.Issue.DoesNotExist:
             messages.error(request, 'The specified issue does not exist.')
             return redirect('issues')

@@ -1,11 +1,11 @@
-import uuid
-
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views import View
+from django.urls import reverse
 
+from frontend.util import common as common_utils
 from frontend.util import project as project_utils
 from frontend.forms.project.issue import new_issue_form
 from core.models import user as core_user_models
@@ -68,20 +68,10 @@ class NewIssueView(LoginRequiredMixin, View):
                 return redirect("projects")
 
             # Convert lists of id strings to UUIDs
-            selected_components = []
-            project_components = project.component_set.all().values_list('id', flat=True)
-            for component_id in selected_component_ids:
-                # Validate requested component is part of the project
-                component_id = uuid.UUID(component_id)
-                if component_id in project_components:
-                    selected_components.append(component_id)
-            selected_versions = []
-            project_versions = project.version_set.all().values_list('id', flat=True)
-            for version_id in selected_version_ids:
-                version_id = uuid.UUID(version_id)
-                # Validate requested version is part of the project
-                if version_id in project_versions:
-                    selected_versions.append(version_id)
+            project_components = set(project.component_set.all().values_list('id', flat=True))
+            selected_components = common_utils.handle_uuid_list(project_components, selected_component_ids)
+            project_versions = set(project.version_set.all().values_list('id', flat=True))
+            selected_versions = common_utils.handle_uuid_list(project_versions, selected_version_ids)
 
             issue_data = issue_models.IssueData.objects.create(
                 created_by=logged_in_user,
@@ -108,6 +98,9 @@ class NewIssueView(LoginRequiredMixin, View):
             issue_data.component.set(selected_components)
             issue_data.version.set(selected_versions)
             issue_data.save()
+
+            # Notify the assignee (or reporter) that the issue was created
+            issue.send_issue_update_email(request.build_absolute_uri(reverse('issue', kwargs={'issue_id': str(issue.id)})))
 
             messages.success(request, ('Your issue was successfully added.'))
         else:

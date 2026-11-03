@@ -173,3 +173,6 @@ cython_debug/
 
 # Continue Extension
 .continue
+
+# AI Tooling
+.worktrees/
