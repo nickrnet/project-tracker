@@ -219,12 +219,12 @@ class Issue(core_models.Sequenced):
     # TODO: Links to other issues
     # TODO: Make a create override function to validate the reporter and created_by are project members, currently handled by views
 
-    def send_issue_update_email(self, issue_url):
+    def send_issue_update_email(self, issue_update_url):
         """
         Sends an issue update email to the issue's assignee (or the reporter if no assignee is set).
 
         Args:
-            issue_url (str): The URL for the issue.
+            issue_update_url (str): The URL for the issue update.
         """
 
         # TODO: Add watchers, etc.
@@ -236,5 +236,5 @@ class Issue(core_models.Sequenced):
         send_issue_update_email.delay(
             to_email,
             self.current.project.label.current.label + "-" + str(self.sequence),
-            issue_url,
+            issue_update_url,
             )

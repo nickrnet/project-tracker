@@ -1,5 +1,3 @@
-import uuid
-
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import model_to_dict
@@ -8,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
+from frontend.util import common as common_utils
 from frontend.util import project as project_utils
 from core.models import user as core_user_models
 from project.models import issue as issue_models
@@ -15,17 +14,6 @@ from frontend.forms.project.issue import issue_form
 
 
 class IssueView(LoginRequiredMixin, View):
-    def handle_uuid_list(self, list_to_validate_with, uuid_list):
-        valid_uuids = []
-        for item_id in uuid_list:
-            try:
-                item_id = uuid.UUID(item_id)
-                if item_id in list_to_validate_with:
-                    valid_uuids.append(item_id)
-            except ValueError:
-                continue
-        return valid_uuids
-
     def valid_issue(self, project_id, issue):
         not_valid = False
         # Make sure issue is in specified project
@@ -96,11 +84,10 @@ class IssueView(LoginRequiredMixin, View):
             selected_version_ids = request.POST.getlist('version')
 
             # Convert lists of id strings to UUIDs
-            project_components = project.component_set.all().values_list('id', flat=True)
-            selected_components = self.handle_uuid_list(project_components, selected_component_ids)
-            selected_versions = []
-            project_versions = project.version_set.all().values_list('id', flat=True)
-            selected_versions = self.handle_uuid_list(project_versions, selected_version_ids)
+            project_components = set(project.component_set.all().values_list('id', flat=True))
+            selected_components = common_utils.handle_uuid_list(project_components, selected_component_ids)
+            project_versions = set(project.version_set.all().values_list('id', flat=True))
+            selected_versions = common_utils.handle_uuid_list(project_versions, selected_version_ids)
 
             issue_form_data = received_issue_form.cleaned_data.copy()
             try:
@@ -126,7 +113,7 @@ class IssueView(LoginRequiredMixin, View):
                 issue.project_id = project_id
                 issue.save()
                 messages.success(request, 'Issue updated.')
-                issue.send_issue_update_email(reverse('issue', kwargs={'issue_id': str(issue.id)}))
+                issue.send_issue_update_email(request.build_absolute_uri(reverse('issue', kwargs={'issue_id': str(issue.id)})))
                 return redirect(reverse('project_issue', kwargs={'project_id': project_id, 'issue_id': issue.id}))
             except issue_models.Issue.DoesNotExist:
                 messages.error(request, 'The specified issue does not exist.')

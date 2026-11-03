@@ -1,5 +1,3 @@
-import uuid
-
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
@@ -7,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
+from frontend.util import common as common_utils
 from frontend.util import project as project_utils
 from frontend.forms.project.issue import new_issue_form
 from core.models import user as core_user_models
@@ -14,17 +13,6 @@ from project.models import issue as issue_models
 
 
 class NewIssueView(LoginRequiredMixin, View):
-    def handle_uuid_list(self, list_to_validate_with, uuid_list):
-        valid_uuids = []
-        for item_id in uuid_list:
-            try:
-                item_id = uuid.UUID(item_id)
-                if item_id in list_to_validate_with:
-                    valid_uuids.append(item_id)
-            except ValueError:
-                continue
-        return valid_uuids
-
     def get(self, request, project_id=None):
         logged_in_user = core_user_models.CoreUser.active_objects.get(user__username=request.user)
 
@@ -75,11 +63,10 @@ class NewIssueView(LoginRequiredMixin, View):
             selected_component_ids = request.POST.getlist('component')
             selected_version_ids = request.POST.getlist('version')
             # Convert lists of id strings to UUIDs
-            project_components = project.component_set.all().values_list('id', flat=True)
-            selected_components = self.handle_uuid_list(project_components, selected_component_ids)
-            selected_versions = []
-            project_versions = project.version_set.all().values_list('id', flat=True)
-            selected_versions = self.handle_uuid_list(project_versions, selected_version_ids)
+            project_components = set(project.component_set.all().values_list('id', flat=True))
+            selected_components = common_utils.handle_uuid_list(project_components, selected_component_ids)
+            project_versions = set(project.version_set.all().values_list('id', flat=True))
+            selected_versions = common_utils.handle_uuid_list(project_versions, selected_version_ids)
 
             issue_data = issue_models.IssueData.objects.create(
                 created_by=logged_in_user,

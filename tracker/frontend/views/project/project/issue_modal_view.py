@@ -5,7 +5,6 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views import View
 
-# from frontend.util import project as project_utils
 from core.models import user as core_user_models
 from project.models import issue as issue_models
 from frontend.forms.project.issue import issue_form
